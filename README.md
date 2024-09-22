@@ -1,4 +1,4 @@
 # How it works
-just play the game.
-# GIANT UPDATE
-Added lots of code
+Get the upgrades!!1 (Press Max For faster upgrade)
+# 0.2.0a
+Improvement!!! You can Save now! (and load (if you know base64))
