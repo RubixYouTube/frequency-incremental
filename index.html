@@ -11,20 +11,23 @@
         }
         .popup {
             position: fixed;
-            top: 20px;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
-            background-color: yellow;
-            color: black;
+            transform: translate(-50%, -50%);
             width: 512px;
-            height: 52px;
+            height: 300px;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: opacity 1.25s ease;
+            backdrop-filter: blur(10px);
+        }
+        .popup.visible {
+            opacity: 1;
         }
         .version {
             position: fixed;
@@ -59,6 +62,17 @@
             const popup = document.getElementById('popup');
             const achievement = document.getElementById('achievement');
             const achievementContent = document.getElementById('achievement-content');
+            const saveData = localStorage.getItem('saveData');
+
+            if (saveData) {
+                const data = JSON.parse(saveData);
+                hz = data.hz;
+                gain = data.gain;
+                cost = data.cost;
+                hzDisplay.textContent = `${Math.floor(hz)} Hz`;
+                gainDisplay.textContent = `Gain: ${gain}Hz/s`;
+                costDisplay.textContent = `${cost}Hz`;
+            }
 
             function updateHz() {
                 hz += gain / 30; // Update every 1/30 second
@@ -68,6 +82,7 @@
                     achievement.textContent = 'First Hertz Complete';
                     showPopup('Achievement Complete: First Hertz');
                 }
+                saveGame();
             }
 
             function showPopup(message) {
@@ -76,6 +91,15 @@
                 setTimeout(() => {
                     popup.style.opacity = 0;
                 }, 3000);
+            }
+
+            function saveGame() {
+                const data = {
+                    hz: hz,
+                    gain: gain,
+                    cost: cost
+                };
+                localStorage.setItem('saveData', JSON.stringify(data));
             }
 
             setInterval(updateHz, 1000 / 30); // Update every 1/30 second
@@ -91,6 +115,42 @@
                 }
             });
 
+            document.getElementById('max-button').addEventListener('click', function() {
+                while (hz >= cost) {
+                    hz -= cost;
+                    gain *= 2;
+                    cost *= 2;
+                }
+                hzDisplay.textContent = `${Math.floor(hz)} Hz`;
+                gainDisplay.textContent = `Gain: ${gain}Hz/s`;
+                costDisplay.textContent = `${cost}Hz`;
+            });
+
+            document.getElementById('save-button').addEventListener('click', saveGame);
+
+            document.getElementById('load-button').addEventListener('click', function() {
+                popup.classList.add('visible');
+            });
+
+            document.getElementById('cancel-button').addEventListener('click', function() {
+                popup.classList.remove('visible');
+            });
+
+            document.getElementById('submit-button').addEventListener('click', function() {
+                const saveInput = document.getElementById('save-input').value;
+                if (saveInput) {
+                    const data = JSON.parse(saveInput);
+                    hz = data.hz;
+                    gain = data.gain;
+                    cost = data.cost;
+                    hzDisplay.textContent = `${Math.floor(hz)} Hz`;
+                    gainDisplay.textContent = `Gain: ${gain}Hz/s`;
+                    costDisplay.textContent = `${cost}Hz`;
+                    saveGame();
+                    popup.classList.remove('visible');
+                }
+            });
+
             const tabs = document.querySelectorAll('.tab');
             tabs.forEach(tab => {
                 tab.addEventListener('click', function() {
@@ -103,14 +163,17 @@
                         this.classList.add('bg-white', 'text-black');
                         document.getElementById('hz-content').classList.remove('hidden');
                         document.getElementById('achievement-content').classList.add('hidden');
+                        document.getElementById('settings-content').classList.add('hidden');
                     } else if (this.id === 'tab-achievements') {
                         this.classList.add('bg-green-500', 'text-black');
                         document.getElementById('hz-content').classList.add('hidden');
                         document.getElementById('achievement-content').classList.remove('hidden');
+                        document.getElementById('settings-content').classList.add('hidden');
                     } else if (this.id === 'tab-settings') {
                         this.classList.add('bg-orange-500', 'text-black');
                         document.getElementById('hz-content').classList.add('hidden');
                         document.getElementById('achievement-content').classList.add('hidden');
+                        document.getElementById('settings-content').classList.remove('hidden');
                     }
                 });
             });
@@ -141,16 +204,38 @@
                 <div class="mt-8 border-t border-gray-500 pt-4">
                     <div class="text-3xl font-bold">Double Gain Speed</div>
                     <div class="text-lg mt-2">Double Click Gain</div>
-                    <button id="upgrade-button" class="mt-4 px-4 py-2 border border-gray-300 text-white">BUY</button>
+                    <div class="flex space-x-4">
+                        <button id="upgrade-button" class="mt-4 px-4 py-2 border border-gray-300 text-white">BUY</button>
+                        <button id="max-button" class="mt-4 px-4 py-2 border border-gray-300 text-white">MAX</button>
+                    </div>
                     <div id="cost-display" class="text-lg mt-2">10Hz</div>
                 </div>
             </div>
             <div id="achievement-content" class="hidden">
-                <div class="achievement" id="achievement">First Hertz</div>
+                <div class="border border-gray-500 p-4">
+                    <div class="text-2xl font-bold">Achievements</div>
+                    <hr class="border-gray-500 my-4">
+                    <div class="achievement" id="achievement">First Hertz</div>
+                </div>
+            </div>
+            <div id="settings-content" class="hidden">
+                <div class="flex flex-col space-y-4">
+                    <button id="save-button" class="px-4 py-2 border border-gray-300 text-white">Save</button>
+                    <button id="load-button" class="px-4 py-2 border border-gray-300 text-white">Load</button>
+                    <button id="copy-button" class="px-4 py-2 border border-gray-300 text-white">Copy</button>
+                    <button id="download-button" class="px-4 py-2 border border-gray-300 text-white">Download</button>
+                </div>
             </div>
         </div>
     </div>
-    <div id="popup" class="popup"></div>
-    <div class="version">v0.1.0</div>
+    <div id="popup" class="popup hidden">
+        <div class="text-white text-xl absolute top-4 left-4">Load Save</div>
+        <input id="save-input" type="text" class="mt-8 p-2 rounded-lg bg-gray-500 bg-opacity-50 text-white w-3/4">
+        <div class="flex space-x-4 absolute bottom-4 right-4">
+            <button id="submit-button" class="px-4 py-2 border border-gray-300 text-white">Submit</button>
+            <button id="cancel-button" class="px-4 py-2 border border-gray-300 text-white">Cancel</button>
+        </div>
+    </div>
+    <div class="version">v0.2.0a</div>
 </body>
 </html>
