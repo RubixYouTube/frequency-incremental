@@ -93,6 +93,8 @@
             const popup2 = document.getElementById('popup2');
             const popup3 = document.getElementById('popup3');
             const achievement = document.getElementById('achievement');
+            const achievement2 = document.getElementById('achievement2');
+            const achievement3 = document.getElementById('achievement3');
             const saveData = localStorage.getItem('saveData');
 
             if (saveData) {
@@ -113,6 +115,18 @@
                     achievement.classList.add('completed');
                     achievement.textContent = 'First Hertz Complete';
                     showPopup('Achievement Complete: First Hertz');
+                }
+
+                if (hz >= 60 && !achievement2.classList.contains('completed')) {
+                    achievement2.classList.add('completed');
+                    achievement2.textContent = 'I can hear now';
+                    showPopup('Achievement Complete: I can hear now');
+                }
+
+                if (hz >= 2000 && !achievement3.classList.contains('completed')) {
+                    achievement3.classList.add('completed');
+                    achievement3.textContent = 'beep thing XD';
+                    showPopup('Achievement Complete: beep thing XD');
                 }
 
                 saveGame();
@@ -315,6 +329,8 @@
                     <div class="text-2xl font-bold">Achievements</div>
                     <hr class="border-gray-500 my-4">
                     <div class="achievement" id="achievement">First Hertz</div>
+                    <div class="achievement" id="achievement2">I can hear now</div>
+                    <div class="achievement" id="achievement3">beep thing XD</div>
                 </div>
             </div>
             <div id="settings-content" class="hidden">
@@ -330,7 +346,7 @@
                 <div class="border border-gray-500 p-4">
                     <div class="text-2xl font-bold">Changelog</div>
                     <hr class="border-gray-500 my-4">
-                    <div class="text-lg">v0.2.3a - User requested changes and improvements.</div>
+                    <div class="text-lg">v0.2.4a - More Achievements, More..... what was it again?</div>
                 </div>
             </div>
         </div>
@@ -353,6 +369,6 @@
             <button id="cancel-button3" class="px-4 py-2 border border-gray-300 text-white">Cancel</button>
         </div>
     </div>
-    <div class="version">v0.2.3a</div>
+    <div class="version">v0.2.4a</div>
 </body>
 </html>
