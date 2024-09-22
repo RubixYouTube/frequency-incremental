@@ -9,7 +9,7 @@
         .tab-bar {
             height: 10px;
         }
-        .popup {
+        .popup, .popup2 {
             position: fixed;
             top: 50%;
             left: 50%;
@@ -23,10 +23,10 @@
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
             opacity: 0;
-            transition: opacity 1.25s ease;
+            transition: opacity 0.3s ease;
             backdrop-filter: blur(10px);
         }
-        .popup.visible {
+        .popup.visible, .popup2.visible {
             opacity: 1;
         }
         .version {
@@ -50,16 +50,20 @@
         .hidden {
             display: none;
         }
+        .tab-border {
+            border: 2px solid;
+        }
     </style>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             let hz = 0;
             let gain = 1; // Gain in Hz/s
-            let cost = 10; // Initial cost for upgrade
+            let cost = 7; // Initial cost for upgrade
             const hzDisplay = document.getElementById('hz-display');
             const gainDisplay = document.getElementById('gain-display');
             const costDisplay = document.getElementById('cost-display');
             const popup = document.getElementById('popup');
+            const popup2 = document.getElementById('popup2');
             const achievement = document.getElementById('achievement');
             const achievementContent = document.getElementById('achievement-content');
             const saveData = localStorage.getItem('saveData');
@@ -129,11 +133,11 @@
             document.getElementById('save-button').addEventListener('click', saveGame);
 
             document.getElementById('load-button').addEventListener('click', function() {
-                popup.classList.add('visible');
+                popup2.classList.add('visible');
             });
 
             document.getElementById('cancel-button').addEventListener('click', function() {
-                popup.classList.remove('visible');
+                popup2.classList.remove('visible');
             });
 
             document.getElementById('submit-button').addEventListener('click', function() {
@@ -147,7 +151,7 @@
                     gainDisplay.textContent = `Gain: ${gain}Hz/s`;
                     costDisplay.textContent = `${cost}Hz`;
                     saveGame();
-                    popup.classList.remove('visible');
+                    popup2.classList.remove('visible');
                 }
             });
 
@@ -155,7 +159,7 @@
             tabs.forEach(tab => {
                 tab.addEventListener('click', function() {
                     tabs.forEach(t => {
-                        t.classList.remove('bg-white', 'bg-green-500', 'bg-orange-500', 'text-black');
+                        t.classList.remove('bg-white', 'bg-green-500', 'bg-orange-500', 'bg-blue-500', 'text-black');
                         t.classList.add('bg-gray-800', 'text-gray-300');
                     });
                     this.classList.remove('bg-gray-800', 'text-gray-300');
@@ -164,16 +168,25 @@
                         document.getElementById('hz-content').classList.remove('hidden');
                         document.getElementById('achievement-content').classList.add('hidden');
                         document.getElementById('settings-content').classList.add('hidden');
+                        document.getElementById('changelog-content').classList.add('hidden');
                     } else if (this.id === 'tab-achievements') {
                         this.classList.add('bg-green-500', 'text-black');
                         document.getElementById('hz-content').classList.add('hidden');
                         document.getElementById('achievement-content').classList.remove('hidden');
                         document.getElementById('settings-content').classList.add('hidden');
+                        document.getElementById('changelog-content').classList.add('hidden');
                     } else if (this.id === 'tab-settings') {
                         this.classList.add('bg-orange-500', 'text-black');
                         document.getElementById('hz-content').classList.add('hidden');
                         document.getElementById('achievement-content').classList.add('hidden');
                         document.getElementById('settings-content').classList.remove('hidden');
+                        document.getElementById('changelog-content').classList.add('hidden');
+                    } else if (this.id === 'tab-changelog') {
+                        this.classList.add('bg-blue-500', 'text-black');
+                        document.getElementById('hz-content').classList.add('hidden');
+                        document.getElementById('achievement-content').classList.add('hidden');
+                        document.getElementById('settings-content').classList.add('hidden');
+                        document.getElementById('changelog-content').classList.remove('hidden');
                     }
                 });
             });
@@ -183,17 +196,24 @@
 <body class="bg-gray-900 text-gray-300 font-sans h-screen">
     <div class="flex h-full">
         <div class="w-1/4 bg-gray-800 p-8 flex flex-col justify-center">
-            <div id="tab-hz" class="tab text-6xl font-bold text-black bg-white p-4 cursor-pointer">
+            <div id="tab-hz" class="tab text-6xl font-bold text-black bg-white p-4 cursor-pointer tab-border border-white">
                 Hz
-                <div class="tab-bar bg-white"></div>
+                <div class="tab-bar"></div>
             </div>
-            <div id="tab-achievements" class="tab text-lg text-gray-300 bg-gray-800 p-4 mt-8 cursor-pointer">
+            <div class="h-2"></div>
+            <div id="tab-achievements" class="tab text-lg text-gray-300 bg-gray-800 p-4 cursor-pointer tab-border border-green-500">
                 Achievements
-                <div class="tab-bar bg-green-500"></div>
+                <div class="tab-bar"></div>
             </div>
-            <div id="tab-settings" class="tab text-lg text-gray-300 bg-gray-800 p-4 mt-4 cursor-pointer">
+            <div class="h-2"></div>
+            <div id="tab-settings" class="tab text-lg text-gray-300 bg-gray-800 p-4 cursor-pointer tab-border border-orange-500">
                 Settings
-                <div class="tab-bar bg-orange-500"></div>
+                <div class="tab-bar"></div>
+            </div>
+            <div class="h-2"></div>
+            <div id="tab-changelog" class="tab text-lg text-gray-300 bg-gray-800 p-4 cursor-pointer tab-border border-blue-500">
+                Changelog
+                <div class="tab-bar"></div>
             </div>
         </div>
         <div class="flex-1 p-8 flex flex-col justify-center">
@@ -208,7 +228,7 @@
                         <button id="upgrade-button" class="mt-4 px-4 py-2 border border-gray-300 text-white">BUY</button>
                         <button id="max-button" class="mt-4 px-4 py-2 border border-gray-300 text-white">MAX</button>
                     </div>
-                    <div id="cost-display" class="text-lg mt-2">10Hz</div>
+                    <div id="cost-display" class="text-lg mt-2">7Hz</div>
                 </div>
             </div>
             <div id="achievement-content" class="hidden">
@@ -226,6 +246,13 @@
                     <button id="download-button" class="px-4 py-2 border border-gray-300 text-white">Download</button>
                 </div>
             </div>
+            <div id="changelog-content" class="hidden">
+                <div class="border border-gray-500 p-4">
+                    <div class="text-2xl font-bold">Changelog</div>
+                    <hr class="border-gray-500 my-4">
+                    <div class="text-lg">v0.2.1a - Added new features and improvements.</div>
+                </div>
+            </div>
         </div>
     </div>
     <div id="popup" class="popup hidden">
@@ -236,6 +263,14 @@
             <button id="cancel-button" class="px-4 py-2 border border-gray-300 text-white">Cancel</button>
         </div>
     </div>
-    <div class="version">v0.2.0a</div>
+    <div id="popup2" class="popup2 hidden">
+        <div class="text-white text-xl absolute top-4 left-4">Load Save</div>
+        <input id="save-input2" type="text" class="mt-8 p-2 rounded-lg bg-gray-500 bg-opacity-50 text-white w-3/4">
+        <div class="flex space-x-4 absolute bottom-4 right-4">
+            <button id="submit-button2" class="px-4 py-2 border border-gray-300 text-white">Submit</button>
+            <button id="cancel-button2" class="px-4 py-2 border border-gray-300 text-white">Cancel</button>
+        </div>
+    </div>
+    <div class="version">v0.2.1a</div>
 </body>
 </html>
