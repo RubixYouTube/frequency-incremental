@@ -1,5 +1,8 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
@@ -16,7 +19,7 @@
             transform: translate(-50%, -50%);
             width: 512px;
             height: 300px;
-            display: flex;
+            display: none; /* Initially hidden */
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -27,6 +30,7 @@
             backdrop-filter: blur(10px);
         }
         .popup.visible, .popup2.visible, .popup3.visible {
+            display: flex; /* Change to flex */
             opacity: 1;
         }
         .popup3 {
@@ -65,8 +69,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             let hz = 0;
-            let gain = 1; // Gain in Hz/s
-            let cost = 7; // Initial cost for upgrade
+            let gain = 1;
+            let cost = 7;
             const hzDisplay = document.getElementById('hz-display');
             const gainDisplay = document.getElementById('gain-display');
             const costDisplay = document.getElementById('cost-display');
@@ -74,7 +78,6 @@
             const popup2 = document.getElementById('popup2');
             const popup3 = document.getElementById('popup3');
             const achievement = document.getElementById('achievement');
-            const achievementContent = document.getElementById('achievement-content');
             const saveData = localStorage.getItem('saveData');
 
             if (saveData) {
@@ -88,13 +91,15 @@
             }
 
             function updateHz() {
-                hz += gain / 30; // Update every 1/30 second
+                hz += gain / 30;
                 hzDisplay.textContent = `${Math.floor(hz)} Hz`;
+
                 if (hz >= 1 && !achievement.classList.contains('completed')) {
                     achievement.classList.add('completed');
                     achievement.textContent = 'First Hertz Complete';
                     showPopup('Achievement Complete: First Hertz');
                 }
+
                 saveGame();
             }
 
@@ -107,15 +112,11 @@
             }
 
             function saveGame() {
-                const data = {
-                    hz: hz,
-                    gain: gain,
-                    cost: cost
-                };
+                const data = { hz, gain, cost };
                 localStorage.setItem('saveData', JSON.stringify(data));
             }
 
-            setInterval(updateHz, 1000 / 30); // Update every 1/30 second
+            setInterval(updateHz, 1000 / 30);
 
             document.getElementById('upgrade-button').addEventListener('click', function() {
                 if (hz >= cost) {
@@ -151,7 +152,7 @@
 
             document.getElementById('submit-button2').addEventListener('click', function() {
                 const saveInput = document.getElementById('save-input2').value;
-                if (saveInput) {
+                try {
                     const data = JSON.parse(saveInput);
                     hz = data.hz;
                     gain = data.gain;
@@ -161,6 +162,8 @@
                     costDisplay.textContent = `${cost}Hz`;
                     saveGame();
                     popup2.classList.remove('visible');
+                } catch (error) {
+                    console.log('Invalid save data');
                 }
             });
 
@@ -175,6 +178,25 @@
             document.getElementById('yes-button').addEventListener('click', function() {
                 localStorage.removeItem('saveData');
                 location.reload();
+            });
+
+            // Added functionality for copy button
+            document.getElementById('copy-button').addEventListener('click', function() {
+                const data = localStorage.getItem('saveData');
+                navigator.clipboard.writeText(data).then(() => {
+                    console.log('Save data copied to clipboard');
+                });
+            });
+
+            // Added functionality for download button
+            document.getElementById('download-button').addEventListener('click', function() {
+                const data = localStorage.getItem('saveData');
+                const blob = new Blob([data], { type: 'application/json' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'saveData.json';
+                link.click();
+                console.log('Save data downloaded');
             });
 
             const tabs = document.querySelectorAll('.tab');
@@ -215,87 +237,46 @@
         });
     </script>
 </head>
-<body class="bg-gray-900 text-gray-300 font-sans h-screen">
-    <div class="flex h-full">
-        <div class="w-1/4 bg-gray-800 p-8 flex flex-col justify-center">
-            <div id="tab-hz" class="tab text-6xl font-bold text-black bg-white p-4 cursor-pointer tab-border border-white">
-                Hz
-                <div class="tab-bar"></div>
-            </div>
-            <div class="h-2"></div>
-            <div id="tab-achievements" class="tab text-lg text-gray-300 bg-gray-800 p-4 cursor-pointer tab-border border-green-500">
-                Achievements
-                <div class="tab-bar"></div>
-            </div>
-            <div class="h-2"></div>
-            <div id="tab-settings" class="tab text-lg text-gray-300 bg-gray-800 p-4 cursor-pointer tab-border border-orange-500">
-                Settings
-                <div class="tab-bar"></div>
-            </div>
-            <div class="h-2"></div>
-            <div id="tab-changelog" class="tab text-lg text-gray-300 bg-gray-800 p-4 cursor-pointer tab-border border-blue-500">
-                Changelog
-                <div class="tab-bar"></div>
-            </div>
+<body class="bg-gray-900 text-white font-sans">
+    <div class="container mx-auto py-8">
+        <div id="tab-hz" class="tab bg-white text-black text-center p-4 rounded-lg cursor-pointer">Hz</div>
+        <div id="hz-content">
+            <div class="text-4xl" id="hz-display">0 Hz</div>
+            <div id="gain-display" class="text-lg">Gain: 1Hz/s</div>
+            <div id="cost-display" class="text-lg">7Hz</div>
+            <button id="upgrade-button" class="mt-4 bg-blue-500 text-white py-2 px-4 rounded">Upgrade</button>
+            <button id="max-button" class="mt-4 bg-red-500 text-white py-2 px-4 rounded">Max Upgrade</button>
+            <button id="save-button" class="mt-4 bg-green-500 text-white py-2 px-4 rounded">Save</button>
+            <button id="load-button" class="mt-4 bg-orange-500 text-white py-2 px-4 rounded">Load</button>
+            <button id="reset-button" class="mt-4 bg-purple-500 text-white py-2 px-4 rounded">Reset</button>
+            <button id="copy-button" class="mt-4 bg-yellow-500 text-white py-2 px-4 rounded">Copy Save</button>
+            <button id="download-button" class="mt-4 bg-teal-500 text-white py-2 px-4 rounded">Download Save</button>
         </div>
-        <div class="flex-1 p-8 flex flex-col justify-center">
-            <div id="hz-content">
-                <div class="text-2xl">You Have</div>
-                <div id="hz-display" class="text-6xl font-bold">0 Hz</div>
-                <div id="gain-display" class="text-xl">Gain: 1Hz/s</div>
-                <div class="mt-8 border-t border-gray-500 pt-4">
-                    <div class="text-3xl font-bold">Double Gain Speed</div>
-                    <div class="text-lg mt-2">Double Click Gain</div>
-                    <div class="flex space-x-4">
-                        <button id="upgrade-button" class="mt-4 px-4 py-2 border border-gray-300 text-white">BUY</button>
-                        <button id="max-button" class="mt-4 px-4 py-2 border border-gray-300 text-white">MAX</button>
-                    </div>
-                    <div id="cost-display" class="text-lg mt-2">7Hz</div>
-                </div>
-            </div>
-            <div id="achievement-content" class="hidden">
-                <div class="border border-gray-500 p-4">
-                    <div class="text-2xl font-bold">Achievements</div>
-                    <hr class="border-gray-500 my-4">
-                    <div class="achievement" id="achievement">First Hertz</div>
-                </div>
-            </div>
-            <div id="settings-content" class="hidden">
-                <div class="flex flex-col space-y-4">
-                    <button id="save-button" class="px-4 py-2 border border-gray-300 text-white">Save</button>
-                    <button id="load-button" class="px-4 py-2 border border-gray-300 text-white">Load</button>
-                    <button id="copy-button" class="px-4 py-2 border border-gray-300 text-white">Copy</button>
-                    <button id="download-button" class="px-4 py-2 border border-gray-300 text-white">Download</button>
-                    <button id="reset-button" class="px-4 py-2 border border-gray-300 text-white">Reset</button>
-                </div>
-            </div>
-            <div id="changelog-content" class="hidden">
-                <div class="border border-gray-500 p-4">
-                    <div class="text-2xl font-bold">Changelog</div>
-                    <hr class="border-gray-500 my-4">
-                    <div class="text-lg">v0.2.2a - Added new features and improvements.</div>
-                </div>
-            </div>
+
+        <div id="achievement-content" class="hidden">
+            <div class="text-2xl" id="achievement">No achievements yet</div>
+        </div>
+
+        <div id="settings-content" class="hidden">
+            <div>Settings content goes here.</div>
+        </div>
+
+        <div id="changelog-content" class="hidden">
+            <div>Changelog content goes here.</div>
+        </div>
+
+        <div id="popup" class="popup hidden"></div>
+        <div id="popup2" class="popup2 hidden">
+            <textarea id="save-input2" class="w-full h-24 p-2 rounded-lg bg-gray-800 text-white"></textarea>
+            <button id="submit-button2" class="mt-4 bg-green-500 text-white py-2 px-4 rounded">Submit</button>
+            <button id="cancel-button2" class="mt-4 bg-red-500 text-white py-2 px-4 rounded">Cancel</button>
+        </div>
+        <div id="popup3" class="popup3 hidden">
+            <div>Are you sure you want to reset the game?</div>
+            <button id="yes-button" class="mt-4 bg-green-500 text-white py-2 px-4 rounded">Yes</button>
+            <button id="cancel-button3" class="mt-4 bg-red-500 text-white py-2 px-4 rounded">Cancel</button>
         </div>
     </div>
-    <div id="popup" class="popup hidden">
-        <div class="text-white text-xl absolute top-4 left-4">Achievement Complete</div>
-    </div>
-    <div id="popup2" class="popup2 hidden">
-        <div class="text-white text-xl absolute top-4 left-4">Load Save</div>
-        <input id="save-input2" type="text" class="mt-8 p-2 rounded-lg bg-gray-500 bg-opacity-50 text-white w-3/4">
-        <div class="flex space-x-4 absolute bottom-4 right-4">
-            <button id="submit-button2" class="px-4 py-2 border border-gray-300 text-white">Submit</button>
-            <button id="cancel-button2" class="px-4 py-2 border border-gray-300 text-white">Cancel</button>
-        </div>
-    </div>
-    <div id="popup3" class="popup3 hidden">
-        <div class="text-pink-500 text-xl absolute top-4 left-4">Are you sure you wanna reset?</div>
-        <div class="flex space-x-4 absolute bottom-4 right-4">
-            <button id="yes-button" class="px-4 py-2 border border-gray-300 text-white">Yes</button>
-            <button id="cancel-button3" class="px-4 py-2 border border-gray-300 text-white">Cancel</button>
-        </div>
-    </div>
-    <div class="version">v0.2.2a</div>
+    <div class="version">v0.1.0</div>
 </body>
 </html>
