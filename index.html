@@ -9,7 +9,7 @@
         .tab-bar {
             height: 10px;
         }
-        .popup, .popup2 {
+        .popup, .popup2, .popup3 {
             position: fixed;
             top: 50%;
             left: 50%;
@@ -26,8 +26,16 @@
             transition: opacity 0.3s ease;
             backdrop-filter: blur(10px);
         }
-        .popup.visible, .popup2.visible {
+        .popup.visible, .popup2.visible, .popup3.visible {
             opacity: 1;
+        }
+        .popup3 {
+            animation: flash 1s ease-in-out infinite;
+        }
+        @keyframes flash {
+            0% { background-color: red; }
+            50% { background-color: orange; }
+            100% { background-color: red; }
         }
         .version {
             position: fixed;
@@ -64,6 +72,7 @@
             const costDisplay = document.getElementById('cost-display');
             const popup = document.getElementById('popup');
             const popup2 = document.getElementById('popup2');
+            const popup3 = document.getElementById('popup3');
             const achievement = document.getElementById('achievement');
             const achievementContent = document.getElementById('achievement-content');
             const saveData = localStorage.getItem('saveData');
@@ -91,9 +100,9 @@
 
             function showPopup(message) {
                 popup.textContent = message;
-                popup.style.opacity = 1;
+                popup.classList.add('visible');
                 setTimeout(() => {
-                    popup.style.opacity = 0;
+                    popup.classList.remove('visible');
                 }, 3000);
             }
 
@@ -136,12 +145,12 @@
                 popup2.classList.add('visible');
             });
 
-            document.getElementById('cancel-button').addEventListener('click', function() {
+            document.getElementById('cancel-button2').addEventListener('click', function() {
                 popup2.classList.remove('visible');
             });
 
-            document.getElementById('submit-button').addEventListener('click', function() {
-                const saveInput = document.getElementById('save-input').value;
+            document.getElementById('submit-button2').addEventListener('click', function() {
+                const saveInput = document.getElementById('save-input2').value;
                 if (saveInput) {
                     const data = JSON.parse(saveInput);
                     hz = data.hz;
@@ -153,6 +162,19 @@
                     saveGame();
                     popup2.classList.remove('visible');
                 }
+            });
+
+            document.getElementById('reset-button').addEventListener('click', function() {
+                popup3.classList.add('visible');
+            });
+
+            document.getElementById('cancel-button3').addEventListener('click', function() {
+                popup3.classList.remove('visible');
+            });
+
+            document.getElementById('yes-button').addEventListener('click', function() {
+                localStorage.removeItem('saveData');
+                location.reload();
             });
 
             const tabs = document.querySelectorAll('.tab');
@@ -244,24 +266,20 @@
                     <button id="load-button" class="px-4 py-2 border border-gray-300 text-white">Load</button>
                     <button id="copy-button" class="px-4 py-2 border border-gray-300 text-white">Copy</button>
                     <button id="download-button" class="px-4 py-2 border border-gray-300 text-white">Download</button>
+                    <button id="reset-button" class="px-4 py-2 border border-gray-300 text-white">Reset</button>
                 </div>
             </div>
             <div id="changelog-content" class="hidden">
                 <div class="border border-gray-500 p-4">
                     <div class="text-2xl font-bold">Changelog</div>
                     <hr class="border-gray-500 my-4">
-                    <div class="text-lg">v0.2.1a - Added new features and improvements.</div>
+                    <div class="text-lg">v0.2.2a - Added new features and improvements.</div>
                 </div>
             </div>
         </div>
     </div>
     <div id="popup" class="popup hidden">
-        <div class="text-white text-xl absolute top-4 left-4">Load Save</div>
-        <input id="save-input" type="text" class="mt-8 p-2 rounded-lg bg-gray-500 bg-opacity-50 text-white w-3/4">
-        <div class="flex space-x-4 absolute bottom-4 right-4">
-            <button id="submit-button" class="px-4 py-2 border border-gray-300 text-white">Submit</button>
-            <button id="cancel-button" class="px-4 py-2 border border-gray-300 text-white">Cancel</button>
-        </div>
+        <div class="text-white text-xl absolute top-4 left-4">Achievement Complete</div>
     </div>
     <div id="popup2" class="popup2 hidden">
         <div class="text-white text-xl absolute top-4 left-4">Load Save</div>
@@ -271,6 +289,13 @@
             <button id="cancel-button2" class="px-4 py-2 border border-gray-300 text-white">Cancel</button>
         </div>
     </div>
-    <div class="version">v0.2.1a</div>
+    <div id="popup3" class="popup3 hidden">
+        <div class="text-pink-500 text-xl absolute top-4 left-4">Are you sure you wanna reset?</div>
+        <div class="flex space-x-4 absolute bottom-4 right-4">
+            <button id="yes-button" class="px-4 py-2 border border-gray-300 text-white">Yes</button>
+            <button id="cancel-button3" class="px-4 py-2 border border-gray-300 text-white">Cancel</button>
+        </div>
+    </div>
+    <div class="version">v0.2.2a</div>
 </body>
 </html>
