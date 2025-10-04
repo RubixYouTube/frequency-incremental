@@ -1,4 +1,21 @@
 # How it works
-Get the upgrades!!1 (Press Max For faster upgrade)
-# 0.2.2.1a
-Improvement!!! You can Save now for reals.! (and load (if you know java(script)))
+Start your HZ Gain
+reach 1M Hz to get volume.
+get more volume for speaker
+and thats it for all.
+# 0.4a
+## MAIN IMPROVEMENTS
+modern ui/ux
+MORE UPGRADES!
+actual functioning prestige system
+new prestige system: Speakers
+## Bug fixes?:
+none.
+## Planned updates
+0.4.1a: better popups, text aligning to theme
+0.4.2a: Better formula to prevent very large numbers happening, Infinity prestige layer
+0.4.3a: Eternity layer (get 1.79e308 infinity)
+0.4.4a: PROGRAMMING LANGUAGE OF ITS OWN????!?!
+0.4.5a: Sound crystals (boosts All prestige layers* (*not hz))
+0.4.6a: Layer breaking..?
+0.5b: [REDACTED]
