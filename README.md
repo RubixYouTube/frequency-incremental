@@ -1,5 +1,5 @@
 # How it works
-Start your HZ Gain
+Start your HZ Gain.
 reach 1M Hz to get volume.
 get more volume for speaker
 and thats it for all.
