@@ -1,44 +1,77 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hertz Incremental - v0.4a</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/bignumber.js@9.1.2/bignumber.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/Patashu/break_eternity.js@master/break_eternity.min.js"></script>
 
   <style>
-    .tab {
-      transition: background-color 0.3s ease;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    .tab-bar {
-      height: 10px;
+    body {
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .tab {
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tab::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .tab:hover::before {
+      left: 100%;
+    }
+
+    .tab:hover {
+      transform: translateX(5px);
+      box-shadow: 0 0 20px rgba(255,255,255,0.3);
     }
 
     .popup,
     .popup2,
-    .popup3 {
+    .popup3,
+    .popup-theme {
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 512px;
-      height: 300px;
+      min-width: 400px;
+      min-height: 250px;
       display: none;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      border-radius: 5px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
       opacity: 0;
       transition: opacity 0.3s ease;
-      backdrop-filter: blur(10px);
+      backdrop-filter: blur(15px);
+      z-index: 1000;
+      border: 2px solid rgba(255,255,255,0.3);
     }
 
     .popup.visible,
     .popup2.visible,
-    .popup3.visible {
+    .popup3.visible,
+    .popup-theme.visible {
       display: flex;
       opacity: 1;
     }
@@ -48,17 +81,135 @@
     }
 
     @keyframes flash {
-      0% {
-        background-color: red;
-      }
+      0%, 100% { border-color: #ef4444; box-shadow: 0 0 30px rgba(239, 68, 68, 0.5); }
+      50% { border-color: #f97316; box-shadow: 0 0 30px rgba(249, 115, 22, 0.5); }
+    }
 
-      50% {
-        background-color: orange;
-      }
+    .achievement {
+      background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+      border: 2px solid #10b981;
+      width: 100%;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      margin-top: 15px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
 
-      100% {
-        background-color: red;
-      }
+    .achievement.completed {
+      background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+      color: #000;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
+
+    .upgrade-card {
+      background: rgba(255,255,255,0.05);
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 15px;
+      padding: 20px;
+      margin: 10px 0;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .upgrade-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      border-color: rgba(255,255,255,0.5);
+    }
+
+    .upgrade-btn {
+      padding: 12px 24px;
+      border: 2px solid;
+      border-radius: 10px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      background: rgba(255,255,255,0.1);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .upgrade-btn:hover:not(:disabled) {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px currentColor;
+    }
+
+    .upgrade-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .theme-btn {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 3px solid #fff;
+      margin: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .theme-btn:hover {
+      transform: scale(1.2);
+      box-shadow: 0 0 20px currentColor;
+    }
+
+    .theme-btn.active::after {
+      content: '✓';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 30px;
+      color: #fff;
+      text-shadow: 0 0 10px #000;
+    }
+
+    .stat-display {
+      background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+      border-radius: 15px;
+      padding: 30px;
+      margin: 20px 0;
+      border: 2px solid rgba(255,255,255,0.2);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+    }
+
+    .prestige-btn {
+      background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+      border: 3px solid #a78bfa;
+      padding: 20px 40px;
+      border-radius: 15px;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+    }
+
+    .prestige-btn:hover:not(:disabled) {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(139, 92, 246, 0.6);
+    }
+
+    .prestige-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
     }
 
     .version {
@@ -67,470 +218,1102 @@
       left: 10px;
       color: rgba(255, 255, 255, 0.5);
       text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
-    }
-
-    .achievement {
-      background-color: #064e3b;
-      border: 2px solid #10b981;
-      width: 512px;
-      height: 70px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 5px;
-      margin-top: 10px;
+      font-size: 0.9rem;
     }
 
     .hidden {
-      display: none;
+      display: none !important;
     }
 
-    .tab-border {
-      border: 2px solid;
+    .grid-upgrades {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    /* Theme backgrounds */
+    .theme-red { background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%); }
+    .theme-orange { background: linear-gradient(135deg, #7c2d12 0%, #9a3412 100%); }
+    .theme-yellow { background: linear-gradient(135deg, #713f12 0%, #854d0e 100%); }
+    .theme-green { background: linear-gradient(135deg, #14532d 0%, #166534 100%); }
+    .theme-blue { background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); }
+    .theme-purple { background: linear-gradient(135deg, #581c87 0%, #6b21a8 100%); }
+    .theme-pink { background: linear-gradient(135deg, #831843 0%, #9f1239 100%); }
+    .theme-brown { background: linear-gradient(135deg, #3e2723 0%, #4e342e 100%); }
+    .theme-black { background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%); }
+    .theme-white { background: linear-gradient(135deg, #e5e5e5 0%, #f5f5f5 100%); color: #1a1a1a; }
+
+    .scrollable-content {
+      max-height: calc(100vh - 100px);
+      overflow-y: auto;
+      padding-right: 10px;
+    }
+
+    .scrollable-content::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    .scrollable-content::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+    }
+
+    .scrollable-content::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.3);
+      border-radius: 10px;
+    }
+
+    .scrollable-content::-webkit-scrollbar-thumb:hover {
+      background: rgba(255,255,255,0.5);
     }
   </style>
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
-      let hz = new BigNumber(0),
-          gain = new BigNumber(1),
-          cost = new BigNumber(7),
-          powBoost = new BigNumber(1.25),
-          powGainDecrease = new BigNumber(0.26),
-          powGain = new BigNumber(1.25),
-          volumeUnlocked = false,
-          volume = new BigNumber(0),
-          hzBonus = new BigNumber(1);
+      // Game State
+      let gameState = {
+        hz: new Decimal(0),
+        hzPerSec: new Decimal(1),
+        
+        // Hz Upgrades
+        upgrade1Level: new Decimal(0),
+        upgrade1Cost: new Decimal(7),
+        upgrade2Level: new Decimal(0),
+        upgrade2Cost: new Decimal(100),
+        upgrade3Level: new Decimal(0),
+        upgrade3Cost: new Decimal(500),
+        upgrade4Level: new Decimal(0),
+        upgrade4Cost: new Decimal(2500),
+        upgrade5Level: new Decimal(0),
+        upgrade5Cost: new Decimal(10000),
+        upgrade6Level: new Decimal(0),
+        upgrade6Cost: new Decimal(50000),
+        
+        // Volume (Prestige 1)
+        volume: new Decimal(0),
+        volumeUnlocked: false,
+        volumeUpgrade1: new Decimal(0),
+        volumeUpgrade2: new Decimal(0),
+        volumeUpgrade3: new Decimal(0),
+        volumeUpgrade4: new Decimal(0),
+        volumeUpgrade5: new Decimal(0),
+        volumeUpgrade6: new Decimal(0),
+        
+        // Speakers (Prestige 2)
+        speakers: new Decimal(0),
+        speakersUnlocked: false,
+        speakerUpgrade1: new Decimal(0),
+        speakerUpgrade2: new Decimal(0),
+        speakerUpgrade3: new Decimal(0),
+        speakerUpgrade4: new Decimal(0),
+        speakerUpgrade5: new Decimal(0),
+        speakerUpgrade6: new Decimal(0),
+        speakerUpgrade7: new Decimal(0),
+        
+        // Achievements
+        achievements: {
+          ach1: false,
+          ach2: false,
+          ach3: false,
+          ach4: false,
+          ach5: false,
+          ach6: false,
+        },
+        
+        // Settings
+        theme: 'black',
+      };
 
-      const hzDisplay = document.getElementById('hz-display'),
-            gainDisplay = document.getElementById('gain-display'),
-            costDisplay = document.getElementById('cost-display'),
-            popup = document.getElementById('popup'),
-            popup2 = document.getElementById('popup2'),
-            popup3 = document.getElementById('popup3'),
-            achievement = document.getElementById('achievement'),
-            achievement2 = document.getElementById('achievement2'),
-            achievement3 = document.getElementById('achievement3'),
-            achievement4 = document.getElementById('achievement4'),
-            unlockVolumeButton = document.getElementById('unlock-volume-button'),
-            nerfDecreaseButton = document.getElementById('nerf-decrease-button'),
-            tabVolume = document.getElementById('tab-volume'),
-            volumeContent = document.getElementById('volume-content'),
-            saveData = localStorage.getItem('saveData');
-
-      if (saveData) {
-        const data = JSON.parse(saveData);
-        ({ hz, gain, cost, powBoost, powGainDecrease, powGain, volumeUnlocked, volume, hzBonus } = data);
-
-        hz = new BigNumber(hz);
-        gain = new BigNumber(gain);
-        cost = new BigNumber(cost);
-        powBoost = new BigNumber(powBoost);
-        powGainDecrease = new BigNumber(powGainDecrease);
-        powGain = new BigNumber(powGain);
-        volume = new BigNumber(volume);
-        hzBonus = new BigNumber(hzBonus);
-
-        updateDisplay();
-      }
-
-      function updateHz() {
-        hz = hz.plus(gain.div(30));
-        updateDisplay();
-        checkAchievements();
-        saveGame();
-      }
-
-      function updateDisplay() {
-        hzDisplay.textContent = abbreviateNumber(hz);
-        gainDisplay.textContent = abbreviateNumber(gain, 'Gain: ');
-        costDisplay.textContent = `${cost}Hz`;
-
-        if (volumeUnlocked) {
-          volumeContent.innerHTML =
-            `<div class="text-4xl text-blue-500">The volume is ${volume.times(100)}% (Boosts hz gain by x${hzBonus}!)</div>
-             <div class="text-teal-500 text-lg">Upgrades soon. ;></div>`;
+      // Load saved game
+      const savedData = localStorage.getItem('hzGameSave');
+      if (savedData) {
+        try {
+          const parsed = JSON.parse(savedData);
+          Object.keys(parsed).forEach(key => {
+            if (key === 'achievements') {
+              gameState.achievements = parsed.achievements;
+            } else if (key === 'theme') {
+              gameState.theme = parsed.theme;
+            } else if (typeof gameState[key] !== 'undefined') {
+              gameState[key] = new Decimal(parsed[key]);
+            }
+          });
+        } catch (e) {
+          console.error('Failed to load save:', e);
         }
       }
 
-      function abbreviateNumber(num, prefix = '') {
-        if (num.isLessThan(1000000)) return `${prefix}${num.toFixed(0)} Hz`;
-        const exponent = num.e,
-              mantissa = num.dividedBy(new BigNumber(10).pow(exponent)).toFixed(5);
-        return `${prefix}${mantissa} × 10^${exponent} Hz`;
+      // Apply theme
+      applyTheme(gameState.theme);
+
+      // Calculate Hz per second
+      function calculateHzPerSec() {
+        let base = new Decimal(1);
+        
+        // Upgrade 1: Double per level
+        base = base.times(Decimal.pow(2, gameState.upgrade1Level));
+        
+        // Upgrade 2: 1.25x per level
+        base = base.times(Decimal.pow(1.25, gameState.upgrade2Level));
+        
+        // Upgrade 3: 1.5x per level
+        base = base.times(Decimal.pow(1.5, gameState.upgrade3Level));
+        
+        // Upgrade 4: 2x per level
+        base = base.times(Decimal.pow(2, gameState.upgrade4Level));
+        
+        // Upgrade 5: 3x per level
+        base = base.times(Decimal.pow(3, gameState.upgrade5Level));
+        
+        // Upgrade 6: 5x per level
+        base = base.times(Decimal.pow(5, gameState.upgrade6Level));
+        
+        // Volume boost
+        if (gameState.volumeUnlocked) {
+          let volumeBoost = gameState.volume.plus(1);
+          
+          // Volume upgrades
+          if (gameState.volumeUpgrade1.gt(0)) {
+            volumeBoost = volumeBoost.times(Decimal.pow(1.5, gameState.volumeUpgrade1));
+          }
+          if (gameState.volumeUpgrade3.gt(0)) {
+            base = base.times(Decimal.pow(2, gameState.volumeUpgrade3));
+          }
+          if (gameState.volumeUpgrade5.gt(0)) {
+            base = base.times(gameState.hz.plus(1).log10().plus(1).pow(gameState.volumeUpgrade5.times(0.1)));
+          }
+          
+          base = base.times(volumeBoost);
+        }
+        
+        // Speaker boost
+        if (gameState.speakersUnlocked) {
+          let speakerBoost = gameState.speakers.plus(1).pow(2);
+          
+          // Speaker upgrades
+          if (gameState.speakerUpgrade1.gt(0)) {
+            speakerBoost = speakerBoost.times(Decimal.pow(2, gameState.speakerUpgrade1));
+          }
+          if (gameState.speakerUpgrade3.gt(0)) {
+            base = base.times(Decimal.pow(3, gameState.speakerUpgrade3));
+          }
+          if (gameState.speakerUpgrade5.gt(0)) {
+            base = base.times(gameState.volume.plus(1).pow(gameState.speakerUpgrade5.times(0.5)));
+          }
+          if (gameState.speakerUpgrade7.gt(0)) {
+            base = base.times(Decimal.pow(10, gameState.speakerUpgrade7));
+          }
+          
+          base = base.times(speakerBoost);
+        }
+        
+        return base;
       }
 
+      // Calculate volume gain
+      function calculateVolumeGain() {
+        let base = gameState.hz.div(1000000).sqrt().floor();
+        
+        // Volume upgrade 2: increase volume gain
+        if (gameState.volumeUpgrade2.gt(0)) {
+          base = base.times(Decimal.pow(2, gameState.volumeUpgrade2));
+        }
+        
+        // Speaker upgrade 2: boost volume gain
+        if (gameState.speakerUpgrade2.gt(0)) {
+          base = base.times(Decimal.pow(1.5, gameState.speakerUpgrade2));
+        }
+        
+        // Speaker upgrade 4: massive volume boost
+        if (gameState.speakerUpgrade4.gt(0)) {
+          base = base.times(gameState.speakers.plus(1).pow(gameState.speakerUpgrade4));
+        }
+        
+        return base.floor();
+      }
+
+      // Calculate speaker gain
+      function calculateSpeakerGain() {
+        let base = gameState.volume.div(100).sqrt().floor();
+        
+        // Speaker upgrade 6: boost speaker gain
+        if (gameState.speakerUpgrade6.gt(0)) {
+          base = base.times(Decimal.pow(2, gameState.speakerUpgrade6));
+        }
+        
+        return base.floor();
+      }
+
+      // Format number
+      function formatNumber(num, decimals = 2) {
+        num = new Decimal(num);
+        if (num.lt(1000)) return num.toFixed(0);
+        if (num.lt(1000000)) return num.toFixed(decimals);
+        
+        const abbrev = ['', 'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc'];
+        const exp = Math.floor(num.e / 3);
+        
+        if (exp < abbrev.length) {
+          const mantissa = num.div(Decimal.pow(10, exp * 3));
+          return mantissa.toFixed(decimals) + abbrev[exp];
+        }
+        
+        return num.mantissa.toFixed(decimals) + 'e' + num.e;
+      }
+
+      // Update display
+      function updateDisplay() {
+        gameState.hzPerSec = calculateHzPerSec();
+        
+        // Hz display
+        document.getElementById('hz-display').textContent = formatNumber(gameState.hz) + ' Hz';
+        document.getElementById('gain-display').textContent = formatNumber(gameState.hzPerSec) + ' Hz/s';
+        
+        // Upgrade costs
+        updateUpgradeButton('upgrade1', gameState.upgrade1Cost, gameState.upgrade1Level);
+        updateUpgradeButton('upgrade2', gameState.upgrade2Cost, gameState.upgrade2Level);
+        updateUpgradeButton('upgrade3', gameState.upgrade3Cost, gameState.upgrade3Level);
+        updateUpgradeButton('upgrade4', gameState.upgrade4Cost, gameState.upgrade4Level);
+        updateUpgradeButton('upgrade5', gameState.upgrade5Cost, gameState.upgrade5Level);
+        updateUpgradeButton('upgrade6', gameState.upgrade6Cost, gameState.upgrade6Level);
+        
+        // Volume
+        if (gameState.volumeUnlocked) {
+          document.getElementById('tab-volume').classList.remove('hidden');
+          document.getElementById('volume-display').textContent = formatNumber(gameState.volume);
+          const volumeBoost = gameState.volume.plus(1);
+          document.getElementById('volume-boost').textContent = formatNumber(volumeBoost, 2) + 'x';
+          
+          updateVolumeUpgrade('vol-up1', new Decimal(10).times(Decimal.pow(5, gameState.volumeUpgrade1)), gameState.volumeUpgrade1);
+          updateVolumeUpgrade('vol-up2', new Decimal(25).times(Decimal.pow(10, gameState.volumeUpgrade2)), gameState.volumeUpgrade2);
+          updateVolumeUpgrade('vol-up3', new Decimal(50).times(Decimal.pow(20, gameState.volumeUpgrade3)), gameState.volumeUpgrade3);
+          updateVolumeUpgrade('vol-up4', new Decimal(100).times(Decimal.pow(50, gameState.volumeUpgrade4)), gameState.volumeUpgrade4);
+          updateVolumeUpgrade('vol-up5', new Decimal(250).times(Decimal.pow(100, gameState.volumeUpgrade5)), gameState.volumeUpgrade5);
+          updateVolumeUpgrade('vol-up6', new Decimal(500).times(Decimal.pow(250, gameState.volumeUpgrade6)), gameState.volumeUpgrade6);
+        }
+        
+        // Speakers
+        if (gameState.speakersUnlocked) {
+          document.getElementById('tab-speakers').classList.remove('hidden');
+          document.getElementById('speakers-display').textContent = formatNumber(gameState.speakers);
+          const speakerBoost = gameState.speakers.plus(1).pow(2);
+          document.getElementById('speakers-boost').textContent = formatNumber(speakerBoost, 2) + 'x';
+          
+          updateSpeakerUpgrade('spk-up1', new Decimal(5).times(Decimal.pow(10, gameState.speakerUpgrade1)), gameState.speakerUpgrade1);
+          updateSpeakerUpgrade('spk-up2', new Decimal(10).times(Decimal.pow(25, gameState.speakerUpgrade2)), gameState.speakerUpgrade2);
+          updateSpeakerUpgrade('spk-up3', new Decimal(20).times(Decimal.pow(50, gameState.speakerUpgrade3)), gameState.speakerUpgrade3);
+          updateSpeakerUpgrade('spk-up4', new Decimal(50).times(Decimal.pow(100, gameState.speakerUpgrade4)), gameState.speakerUpgrade4);
+          updateSpeakerUpgrade('spk-up5', new Decimal(100).times(Decimal.pow(200, gameState.speakerUpgrade5)), gameState.speakerUpgrade5);
+          updateSpeakerUpgrade('spk-up6', new Decimal(250).times(Decimal.pow(500, gameState.speakerUpgrade6)), gameState.speakerUpgrade6);
+          updateSpeakerUpgrade('spk-up7', new Decimal(1000).times(Decimal.pow(1000, gameState.speakerUpgrade7)), gameState.speakerUpgrade7);
+        }
+        
+        // Prestige buttons
+        const volumeGain = calculateVolumeGain();
+        const speakerGain = calculateSpeakerGain();
+        
+        document.getElementById('volume-gain-display').textContent = formatNumber(volumeGain);
+        document.getElementById('speaker-gain-display').textContent = formatNumber(speakerGain);
+        
+        const volumeBtn = document.getElementById('prestige-volume-btn');
+        const speakerBtn = document.getElementById('prestige-speaker-btn');
+        
+        volumeBtn.disabled = volumeGain.lt(1);
+        if (!gameState.volumeUnlocked) {
+          volumeBtn.disabled = gameState.hz.lt(1000000);
+        }
+        
+        if (gameState.volumeUnlocked) {
+          document.getElementById('speaker-prestige-section').classList.remove('hidden');
+          speakerBtn.disabled = speakerGain.lt(1);
+          if (!gameState.speakersUnlocked) {
+            speakerBtn.disabled = gameState.volume.lt(100);
+          }
+        }
+        
+        checkAchievements();
+      }
+
+      function updateUpgradeButton(id, cost, level) {
+        const btn = document.getElementById(id + '-btn');
+        const costEl = document.getElementById(id + '-cost');
+        const levelEl = document.getElementById(id + '-level');
+        
+        costEl.textContent = formatNumber(cost);
+        levelEl.textContent = formatNumber(level);
+        btn.disabled = gameState.hz.lt(cost);
+      }
+
+      function updateVolumeUpgrade(id, cost, level) {
+        const btn = document.getElementById(id + '-btn');
+        const costEl = document.getElementById(id + '-cost');
+        const levelEl = document.getElementById(id + '-level');
+        
+        costEl.textContent = formatNumber(cost);
+        levelEl.textContent = formatNumber(level);
+        btn.disabled = gameState.volume.lt(cost);
+      }
+
+      function updateSpeakerUpgrade(id, cost, level) {
+        const btn = document.getElementById(id + '-btn');
+        const costEl = document.getElementById(id + '-cost');
+        const levelEl = document.getElementById(id + '-level');
+        
+        costEl.textContent = formatNumber(cost);
+        levelEl.textContent = formatNumber(level);
+        btn.disabled = gameState.speakers.lt(cost);
+      }
+
+      // Check achievements
       function checkAchievements() {
-        if (hz.isGreaterThanOrEqualTo(1) && !achievement.classList.contains('completed'))
-          completeAchievement(achievement, 'First Hertz Complete');
-
-        if (hz.isGreaterThanOrEqualTo(60) && !achievement2.classList.contains('completed'))
-          completeAchievement(achievement2, 'I can hear now');
-
-        if (hz.isGreaterThanOrEqualTo(2000) && !achievement3.classList.contains('completed'))
-          completeAchievement(achievement3, 'beep thing XD');
-
-        if (hz.isGreaterThanOrEqualTo(10000) && !volumeUnlocked)
-          unlockVolumeButton.classList.remove('hidden');
+        if (gameState.hz.gte(1) && !gameState.achievements.ach1) {
+          unlockAchievement('ach1', 'First Hertz');
+        }
+        if (gameState.hz.gte(100) && !gameState.achievements.ach2) {
+          unlockAchievement('ach2', 'Frequency Rising');
+        }
+        if (gameState.hz.gte(10000) && !gameState.achievements.ach3) {
+          unlockAchievement('ach3', 'Sonic Boom');
+        }
+        if (gameState.volumeUnlocked && !gameState.achievements.ach4) {
+          unlockAchievement('ach4', 'Turn It Up!');
+        }
+        if (gameState.speakersUnlocked && !gameState.achievements.ach5) {
+          unlockAchievement('ach5', 'Sound System');
+        }
+        if (gameState.speakers.gte(10) && !gameState.achievements.ach6) {
+          unlockAchievement('ach6', 'Concert Hall');
+        }
+        
+        // Update achievement display
+        Object.keys(gameState.achievements).forEach(key => {
+          const el = document.getElementById(key);
+          if (gameState.achievements[key]) {
+            el.classList.add('completed');
+          }
+        });
       }
 
-      function completeAchievement(element, text) {
-        element.classList.add('completed');
-        element.textContent = text;
-        showPopup(`Achievement Complete: ${text}`);
+      function unlockAchievement(id, name) {
+        gameState.achievements[id] = true;
+        showPopup(`Achievement Unlocked: ${name}!`, 'achievement');
       }
 
-      function showPopup(message) {
+      function showPopup(message, type = 'info') {
+        const popup = document.getElementById('popup');
         popup.textContent = message;
         popup.classList.add('visible');
+        popup.style.background = type === 'achievement' 
+          ? 'linear-gradient(135deg, #10b981 0%, #34d399 100%)' 
+          : 'rgba(0,0,0,0.8)';
         setTimeout(() => popup.classList.remove('visible'), 3000);
       }
 
-      function saveGame() {
-        const data = {
-          hz: hz.toString(),
-          gain: gain.toString(),
-          cost: cost.toString(),
-          powBoost: powBoost.toString(),
-          powGainDecrease: powGainDecrease.toString(),
-          powGain: powGain.toString(),
-          volumeUnlocked,
-          volume: volume.toString(),
-          hzBonus: hzBonus.toString()
-        };
-        localStorage.setItem('saveData', JSON.stringify(data));
+      // Game loop
+      function gameLoop() {
+        gameState.hz = gameState.hz.plus(gameState.hzPerSec.div(30));
+        updateDisplay();
       }
 
-      setInterval(updateHz, 1000 / 30);
-
-      document.getElementById('upgrade-button').addEventListener('click', () => {
-        if (hz.isGreaterThanOrEqualTo(cost)) {
-          hz = hz.minus(cost);
-          gain = gain.times(2);
-          cost = cost.times(2);
+      // Buy upgrades
+      function buyUpgrade(upgradeNum) {
+        const costKey = `upgrade${upgradeNum}Cost`;
+        const levelKey = `upgrade${upgradeNum}Level`;
+        
+        if (gameState.hz.gte(gameState[costKey])) {
+          gameState.hz = gameState.hz.minus(gameState[costKey]);
+          gameState[levelKey] = gameState[levelKey].plus(1);
+          gameState[costKey] = gameState[costKey].times(upgradeNum === 1 ? 2 : upgradeNum === 2 ? 2.5 : upgradeNum === 3 ? 3 : upgradeNum === 4 ? 4 : upgradeNum === 5 ? 5 : 6);
           updateDisplay();
         }
-      });
+      }
 
-      document.getElementById('max-button').addEventListener('click', () => {
-        while (hz.isGreaterThanOrEqualTo(cost)) {
-          hz = hz.minus(cost);
-          gain = gain.times(2);
-          cost = cost.times(2);
-        }
-        updateDisplay();
-      });
-
-      document.getElementById('power-frequency-button').addEventListener('click', () => {
-        if (hz.isGreaterThanOrEqualTo(100)) {
-          hz = hz.minus(100);
-          gain = gain.times(1.25);
+      function buyVolumeUpgrade(upgradeNum) {
+        const id = `vol-up${upgradeNum}`;
+        const levelKey = `volumeUpgrade${upgradeNum}`;
+        const cost = new Decimal(upgradeNum === 1 ? 10 : upgradeNum === 2 ? 25 : upgradeNum === 3 ? 50 : upgradeNum === 4 ? 100 : upgradeNum === 5 ? 250 : 500)
+          .times(Decimal.pow(upgradeNum === 1 ? 5 : upgradeNum === 2 ? 10 : upgradeNum === 3 ? 20 : upgradeNum === 4 ? 50 : upgradeNum === 5 ? 100 : 250, gameState[levelKey]));
+        
+        if (gameState.volume.gte(cost)) {
+          gameState.volume = gameState.volume.minus(cost);
+          gameState[levelKey] = gameState[levelKey].plus(1);
           updateDisplay();
         }
-      });
+      }
 
-      nerfDecreaseButton.addEventListener('click', () => {
-        if (hz.isGreaterThanOrEqualTo(250)) {
-          hz = hz.minus(250);
-          powGainDecrease = powGainDecrease.minus(0.05);
-          if (powGainDecrease.isLessThanOrEqualTo(0)) {
-            nerfDecreaseButton.classList.add('text-red-500', 'border-red-500');
-            nerfDecreaseButton.textContent = 'MAXXED OUT';
-            nerfDecreaseButton.disabled = true;
+      function buySpeakerUpgrade(upgradeNum) {
+        const id = `spk-up${upgradeNum}`;
+        const levelKey = `speakerUpgrade${upgradeNum}`;
+        const cost = new Decimal(upgradeNum === 1 ? 5 : upgradeNum === 2 ? 10 : upgradeNum === 3 ? 20 : upgradeNum === 4 ? 50 : upgradeNum === 5 ? 100 : upgradeNum === 6 ? 250 : 1000)
+          .times(Decimal.pow(upgradeNum === 1 ? 10 : upgradeNum === 2 ? 25 : upgradeNum === 3 ? 50 : upgradeNum === 4 ? 100 : upgradeNum === 5 ? 200 : upgradeNum === 6 ? 500 : 1000, gameState[levelKey]));
+        
+        if (gameState.speakers.gte(cost)) {
+          gameState.speakers = gameState.speakers.minus(cost);
+          gameState[levelKey] = gameState[levelKey].plus(1);
+          updateDisplay();
+        }
+      }
+
+      // Prestige functions
+      function prestigeVolume() {
+        const gain = calculateVolumeGain();
+        if (gain.gte(1) || (!gameState.volumeUnlocked && gameState.hz.gte(1000000))) {
+          gameState.volume = gameState.volume.plus(gain);
+          gameState.volumeUnlocked = true;
+          
+          // Reset Hz stuff
+          gameState.hz = new Decimal(0);
+          gameState.upgrade1Level = new Decimal(0);
+          gameState.upgrade1Cost = new Decimal(7);
+          gameState.upgrade2Level = new Decimal(0);
+          gameState.upgrade2Cost = new Decimal(100);
+          gameState.upgrade3Level = new Decimal(0);
+          gameState.upgrade3Cost = new Decimal(500);
+          gameState.upgrade4Level = new Decimal(0);
+          gameState.upgrade4Cost = new Decimal(2500);
+          gameState.upgrade5Level = new Decimal(0);
+          gameState.upgrade5Cost = new Decimal(10000);
+          gameState.upgrade6Level = new Decimal(0);
+          gameState.upgrade6Cost = new Decimal(50000);
+          
+          showPopup(`Prestiged! +${formatNumber(gain)} Volume`, 'achievement');
+          updateDisplay();
+        }
+      }
+
+      function prestigeSpeaker() {
+        const gain = calculateSpeakerGain();
+        if (gain.gte(1) || (!gameState.speakersUnlocked && gameState.volume.gte(100))) {
+          gameState.speakers = gameState.speakers.plus(gain);
+          gameState.speakersUnlocked = true;
+          
+          // Reset everything below
+          gameState.volume = new Decimal(0);
+          gameState.volumeUpgrade1 = new Decimal(0);
+          gameState.volumeUpgrade2 = new Decimal(0);
+          gameState.volumeUpgrade3 = new Decimal(0);
+          gameState.volumeUpgrade4 = new Decimal(0);
+          gameState.volumeUpgrade5 = new Decimal(0);
+          gameState.volumeUpgrade6 = new Decimal(0);
+          
+          gameState.hz = new Decimal(0);
+          gameState.upgrade1Level = new Decimal(0);
+          gameState.upgrade1Cost = new Decimal(7);
+          gameState.upgrade2Level = new Decimal(0);
+          gameState.upgrade2Cost = new Decimal(100);
+          gameState.upgrade3Level = new Decimal(0);
+          gameState.upgrade3Cost = new Decimal(500);
+          gameState.upgrade4Level = new Decimal(0);
+          gameState.upgrade4Cost = new Decimal(2500);
+          gameState.upgrade5Level = new Decimal(0);
+          gameState.upgrade5Cost = new Decimal(10000);
+          gameState.upgrade6Level = new Decimal(0);
+          gameState.upgrade6Cost = new Decimal(50000);
+          
+          showPopup(`Mega Prestige! +${formatNumber(gain)} Speakers`, 'achievement');
+          updateDisplay();
+        }
+      }
+
+      // Save/Load
+      function saveGame() {
+        const saveObj = {};
+        Object.keys(gameState).forEach(key => {
+          if (gameState[key] instanceof Decimal) {
+            saveObj[key] = gameState[key].toString();
+          } else {
+            saveObj[key] = gameState[key];
           }
-          updateDisplay();
-        }
-      });
+        });
+        localStorage.setItem('hzGameSave', JSON.stringify(saveObj));
+        showPopup('Game Saved!');
+      }
 
-      document.getElementById('save-button').addEventListener('click', saveGame);
-
-      document.getElementById('load-button').addEventListener('click', () =>
-        popup2.classList.add('visible')
-      );
-
-      document.getElementById('cancel-button2').addEventListener('click', () =>
-        popup2.classList.remove('visible')
-      );
-
-      document.getElementById('submit-button2').addEventListener('click', () => {
-        const saveInput = document.getElementById('save-input2').value;
+      function loadGame() {
+        const input = document.getElementById('save-input').value;
         try {
-          const data = JSON.parse(saveInput);
-          ({ hz, gain, cost, powBoost, powGainDecrease, powGain, volumeUnlocked, volume, hzBonus } = data);
-
-          hz = new BigNumber(hz);
-          gain = new BigNumber(gain);
-          cost = new BigNumber(cost);
-          powBoost = new BigNumber(powBoost);
-          powGainDecrease = new BigNumber(powGainDecrease);
-          powGain = new BigNumber(powGain);
-          volume = new BigNumber(volume);
-          hzBonus = new BigNumber(hzBonus);
-
+          const parsed = JSON.parse(input);
+          Object.keys(parsed).forEach(key => {
+            if (key === 'achievements') {
+              gameState.achievements = parsed.achievements;
+            } else if (key === 'theme') {
+              gameState.theme = parsed.theme;
+              applyTheme(gameState.theme);
+            } else if (typeof gameState[key] !== 'undefined') {
+              gameState[key] = new Decimal(parsed[key]);
+            }
+          });
           updateDisplay();
           saveGame();
-          popup2.classList.remove('visible');
-        } catch (error) {
-          console.log('Invalid save data');
+          document.getElementById('popup2').classList.remove('visible');
+          showPopup('Game Loaded!');
+        } catch (e) {
+          showPopup('Invalid save data!');
         }
-      });
+      }
 
-      document.getElementById('reset-button').addEventListener('click', () =>
-        popup3.classList.add('visible')
-      );
+      function exportSave() {
+        const data = localStorage.getItem('hzGameSave');
+        navigator.clipboard.writeText(data);
+        showPopup('Save copied to clipboard!');
+      }
 
-      document.getElementById('cancel-button3').addEventListener('click', () =>
-        popup3.classList.remove('visible')
-      );
-
-      document.getElementById('yes-button').addEventListener('click', () => {
-        resetGame();
-        popup3.classList.remove('visible');
-      });
-
-      unlockVolumeButton.addEventListener('click', () => {
-        if (hz.isGreaterThanOrEqualTo(1000000)) {
-          resetGame();
-          volumeUnlocked = true;
-          unlockVolumeButton.classList.add('hidden');
-          tabVolume.classList.remove('hidden');
-          completeAchievement(achievement4, 'Volumeness');
-          saveGame();
-        }
-      });
+      function downloadSave() {
+        const data = localStorage.getItem('hzGameSave');
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'hertz_save.json';
+        a.click();
+        showPopup('Save downloaded!');
+      }
 
       function resetGame() {
-        hz = new BigNumber(0);
-        gain = new BigNumber(1);
-        cost = new BigNumber(7);
-        powBoost = new BigNumber(1.25);
-        powGainDecrease = new BigNumber(0.26);
-        powGain = new BigNumber(1.25);
-        volumeUnlocked = false;
-        volume = new BigNumber(0);
-        hzBonus = new BigNumber(1);
-
-        unlockVolumeButton.classList.add('hidden');
-        nerfDecreaseButton.classList.remove('text-red-500', 'border-red-500');
-        nerfDecreaseButton.textContent = 'Nerf the Decrease';
-        nerfDecreaseButton.disabled = false;
-
-        updateDisplay();
-
-        achievement.classList.remove('completed');
-        achievement.textContent = 'First Hertz';
-
-        achievement2.classList.remove('completed');
-        achievement2.textContent = 'I can hear now';
-
-        achievement3.classList.remove('completed');
-        achievement3.textContent = 'beep thing XD';
-
-        achievement4.classList.remove('completed');
-        achievement4.textContent = 'Volumeness';
-
-        saveGame();
+        if (confirm('Are you sure? This will delete ALL progress!')) {
+          localStorage.removeItem('hzGameSave');
+          location.reload();
+        }
       }
 
-      document.getElementById('copy-button').addEventListener('click', () => {
-        const data = localStorage.getItem('saveData');
-        navigator.clipboard.writeText(data).then(() =>
-          console.log('Save data copied to clipboard')
-        );
+      // Theme system
+      function applyTheme(theme) {
+        const body = document.body;
+        const themes = ['red', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'brown', 'black', 'white'];
+        themes.forEach(t => body.classList.remove(`theme-${t}`));
+        body.classList.add(`theme-${theme}`);
+        
+        // Update active theme button
+        document.querySelectorAll('.theme-btn').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        document.getElementById(`theme-${theme}`).classList.add('active');
+      }
+
+      function changeTheme(theme) {
+        gameState.theme = theme;
+        applyTheme(theme);
+        saveGame();
+        document.getElementById('popup-theme').classList.remove('visible');
+      }
+
+      // Tab system
+      function switchTab(tabName) {
+        document.querySelectorAll('.tab').forEach(tab => {
+          tab.classList.remove('bg-white', 'bg-green-500', 'bg-orange-500', 'bg-blue-500', 'bg-purple-500', 'bg-teal-500', 'text-black');
+          tab.classList.add('text-gray-300', 'bg-gray-800');
+        });
+        
+        document.querySelectorAll('.content').forEach(content => {
+          content.classList.add('hidden');
+        });
+        
+        const activeTab = document.getElementById(`tab-${tabName}`);
+        const color = activeTab.dataset.color;
+        activeTab.classList.remove('text-gray-300', 'bg-gray-800');
+        activeTab.classList.add(color, 'text-black');
+        
+        document.getElementById(`${tabName}-content`).classList.remove('hidden');
+      }
+
+      // Event listeners
+      for (let i = 1; i <= 6; i++) {
+        document.getElementById(`upgrade${i}-btn`).addEventListener('click', () => buyUpgrade(i));
+      }
+      
+      for (let i = 1; i <= 6; i++) {
+        document.getElementById(`vol-up${i}-btn`).addEventListener('click', () => buyVolumeUpgrade(i));
+      }
+      
+      for (let i = 1; i <= 7; i++) {
+        document.getElementById(`spk-up${i}-btn`).addEventListener('click', () => buySpeakerUpgrade(i));
+      }
+
+      document.getElementById('prestige-volume-btn').addEventListener('click', prestigeVolume);
+      document.getElementById('prestige-speaker-btn').addEventListener('click', prestigeSpeaker);
+      
+      document.getElementById('save-button').addEventListener('click', saveGame);
+      document.getElementById('load-button').addEventListener('click', () => {
+        document.getElementById('popup2').classList.add('visible');
+      });
+      document.getElementById('submit-load').addEventListener('click', loadGame);
+      document.getElementById('cancel-load').addEventListener('click', () => {
+        document.getElementById('popup2').classList.remove('visible');
+      });
+      document.getElementById('export-button').addEventListener('click', exportSave);
+      document.getElementById('download-button').addEventListener('click', downloadSave);
+      document.getElementById('reset-button').addEventListener('click', resetGame);
+      
+      document.getElementById('theme-button').addEventListener('click', () => {
+        document.getElementById('popup-theme').classList.add('visible');
+      });
+      document.getElementById('close-theme').addEventListener('click', () => {
+        document.getElementById('popup-theme').classList.remove('visible');
       });
 
-      document.getElementById('download-button').addEventListener('click', () => {
-        const data = localStorage.getItem('saveData');
-        const blob = new Blob([data], { type: 'application/json' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = 'saveData.json';
-        link.click();
-        console.log('Save data downloaded');
+      // Theme buttons
+      const themes = ['red', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'brown', 'black', 'white'];
+      themes.forEach(theme => {
+        document.getElementById(`theme-${theme}`).addEventListener('click', () => changeTheme(theme));
       });
 
-      const tabs = document.querySelectorAll('.tab');
-      tabs.forEach(tab => {
-        tab.addEventListener('click', function () {
-          tabs.forEach(t => t.classList.remove(
-            'bg-white',
-            'bg-green-500',
-            'bg-orange-500',
-            'bg-blue-500',
-            'bg-teal-500',
-            'text-black',
-            'bg-gray-800',
-            'text-gray-300'
-          ));
-
-          this.classList.add(
-            this.id === 'tab-hz' ? 'bg-white' :
-            this.id === 'tab-achievements' ? 'bg-green-500' :
-            this.id === 'tab-settings' ? 'bg-orange-500' :
-            this.id === 'tab-changelog' ? 'bg-blue-500' :
-            'bg-teal-500',
-            'text-black'
-          );
-
-          document.querySelectorAll('.content').forEach(content =>
-            content.classList.add('hidden')
-          );
-
-          document.getElementById(this.dataset.content).classList.remove('hidden');
+      // Tab buttons
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+          const contentName = this.id.replace('tab-', '');
+          switchTab(contentName);
         });
       });
+
+      // Start game loop
+      setInterval(gameLoop, 1000 / 30);
+      setInterval(saveGame, 30000); // Auto-save every 30 seconds
+      
+      updateDisplay();
     });
   </script>
 </head>
 
-<body class="bg-gray-900 text-gray-300 font-sans h-screen">
+<body class="theme-black font-sans h-screen overflow-hidden">
   <div class="flex h-full">
-    <!-- Sidebar Tabs -->
-    <div class="w-1/4 bg-gray-800 p-8 flex flex-col justify-center">
-      <div id="tab-hz"
-           class="tab text-6xl font-bold text-black bg-white p-4 cursor-pointer tab-border border-white"
-           data-content="hz-content">
-        Hz
-        <div class="tab-bar"></div>
+    <!-- Sidebar -->
+    <div class="w-1/5 bg-black bg-opacity-50 p-6 flex flex-col justify-center space-y-3 border-r-2 border-white border-opacity-20">
+      <div id="tab-hz" class="tab text-4xl font-bold text-black bg-white p-4 cursor-pointer rounded-lg border-2 border-white" data-color="bg-white">
+        <i class="fas fa-bolt"></i> Hz
       </div>
 
-      <div class="h-2"></div>
-
-      <div id="tab-achievements"
-           class="tab text-lg text-gray-300 bg-gray-800 p-4 cursor-pointer tab-border border-green-500"
-           data-content="achievement-content">
-        Achievements
-        <div class="tab-bar"></div>
+      <div id="tab-volume" class="tab text-lg text-gray-300 bg-gray-800 p-4 cursor-pointer rounded-lg border-2 border-purple-500 hidden" data-color="bg-purple-500">
+        <i class="fas fa-volume-up"></i> Volume
       </div>
 
-      <div class="h-2"></div>
-
-      <div id="tab-settings"
-           class="tab text-lg text-gray-300 bg-gray-800 p-4 cursor-pointer tab-border border-orange-500"
-           data-content="settings-content">
-        Settings
-        <div class="tab-bar"></div>
+      <div id="tab-speakers" class="tab text-lg text-gray-300 bg-gray-800 p-4 cursor-pointer rounded-lg border-2 border-teal-500 hidden" data-color="bg-teal-500">
+        <i class="fas fa-broadcast-tower"></i> Speakers
       </div>
 
-      <div class="h-2"></div>
-
-      <div id="tab-changelog"
-           class="tab text-lg text-gray-300 bg-gray-800 p-4 cursor-pointer tab-border border-blue-500"
-           data-content="changelog-content">
-        Changelog
-        <div class="tab-bar"></div>
+      <div id="tab-achievements" class="tab text-lg text-gray-300 bg-gray-800 p-4 cursor-pointer rounded-lg border-2 border-green-500" data-color="bg-green-500">
+        <i class="fas fa-trophy"></i> Achievements
       </div>
 
-      <div class="h-2"></div>
+      <div id="tab-settings" class="tab text-lg text-gray-300 bg-gray-800 p-4 cursor-pointer rounded-lg border-2 border-orange-500" data-color="bg-orange-500">
+        <i class="fas fa-cog"></i> Settings
+      </div>
 
-      <div id="tab-volume"
-           class="tab text-lg text-gray-300 bg-gray-800 p-4 cursor-pointer tab-border border-teal-500 hidden"
-           data-content="volume-content">
-        Volume
-        <div class="tab-bar"></div>
+      <div id="tab-changelog" class="tab text-lg text-gray-300 bg-gray-800 p-4 cursor-pointer rounded-lg border-2 border-blue-500" data-color="bg-blue-500">
+        <i class="fas fa-list"></i> Changelog
       </div>
     </div>
 
     <!-- Main Content -->
-    <div class="flex-1 p-8 flex flex-col justify-center">
-      <!-- Hz Content -->
+    <div class="flex-1 p-8 scrollable-content">
+      <!-- Hz Tab -->
       <div id="hz-content" class="content">
-        <div class="text-2xl">You Have</div>
-        <div id="hz-display" class="text-6xl font-bold">0 Hz</div>
-        <div id="gain-display" class="text-xl">Gain: 1Hz/s (Boosted by 1.25)</div>
-
-        <div class="mt-8 border-t border-gray-500 pt-4">
-          <div class="text-3xl font-bold">Double Gain Speed</div>
-          <div class="text-lg mt-2">Double Click Gain</div>
-          <div class="flex space-x-4">
-            <button id="upgrade-button" class="mt-4 px-4 py-2 border border-gray-300 text-white">BUY</button>
-            <button id="max-button" class="mt-4 px-4 py-2 border border-gray-300 text-white">MAX</button>
-          </div>
-          <div id="cost-display" class="text-lg mt-2">7Hz</div>
+        <div class="stat-display text-center">
+          <div class="text-3xl mb-2">You Have</div>
+          <div id="hz-display" class="text-7xl font-bold mb-4 text-white">0 Hz</div>
+          <div id="gain-display" class="text-2xl text-gray-300">1 Hz/s</div>
         </div>
 
-        <div class="mt-8 border-t border-gray-500 pt-4 flex space-x-8">
-          <div>
-            <div class="text-3xl font-bold">Power The Frequency</div>
-            <div class="text-lg mt-2">Boost Gain Speed by 25%</div>
-            <div class="flex space-x-4">
-              <button id="power-frequency-button" class="mt-4 px-4 py-2 border border-gray-300 text-white">BUY</button>
+        <div class="grid-upgrades">
+          <!-- Upgrade 1 -->
+          <div class="upgrade-card">
+            <div class="text-2xl font-bold mb-2"><i class="fas fa-arrow-up"></i> Double Production</div>
+            <div class="text-sm mb-3 text-gray-400">Multiply Hz/s by 2</div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-lg">Cost: <span id="upgrade1-cost" class="text-yellow-400">7</span> Hz</div>
+                <div class="text-sm text-gray-400">Level: <span id="upgrade1-level">0</span></div>
+              </div>
+              <button id="upgrade1-btn" class="upgrade-btn border-yellow-400 text-yellow-400">BUY</button>
             </div>
-            <div class="text-lg mt-2">100Hz</div>
           </div>
 
-          <div>
-            <div class="text-3xl font-bold">Nerf the Decrease</div>
-            <div class="text-lg mt-2">Decrease Gain Speed Reduction</div>
-            <div class="flex space-x-4">
-              <button id="nerf-decrease-button" class="mt-4 px-4 py-2 border border-gray-300 text-white">BUY</button>
+          <!-- Upgrade 2 -->
+          <div class="upgrade-card">
+            <div class="text-2xl font-bold mb-2"><i class="fas fa-fire"></i> Power Boost</div>
+            <div class="text-sm mb-3 text-gray-400">Multiply Hz/s by 1.25</div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-lg">Cost: <span id="upgrade2-cost" class="text-orange-400">100</span> Hz</div>
+                <div class="text-sm text-gray-400">Level: <span id="upgrade2-level">0</span></div>
+              </div>
+              <button id="upgrade2-btn" class="upgrade-btn border-orange-400 text-orange-400">BUY</button>
             </div>
-            <div class="text-lg mt-2">250Hz</div>
+          </div>
+
+          <!-- Upgrade 3 -->
+          <div class="upgrade-card">
+            <div class="text-2xl font-bold mb-2"><i class="fas fa-rocket"></i> Frequency Surge</div>
+            <div class="text-sm mb-3 text-gray-400">Multiply Hz/s by 1.5</div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-lg">Cost: <span id="upgrade3-cost" class="text-red-400">500</span> Hz</div>
+                <div class="text-sm text-gray-400">Level: <span id="upgrade3-level">0</span></div>
+              </div>
+              <button id="upgrade3-btn" class="upgrade-btn border-red-400 text-red-400">BUY</button>
+            </div>
+          </div>
+
+          <!-- Upgrade 4 -->
+          <div class="upgrade-card">
+            <div class="text-2xl font-bold mb-2"><i class="fas fa-star"></i> Harmonic Resonance</div>
+            <div class="text-sm mb-3 text-gray-400">Multiply Hz/s by 2</div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-lg">Cost: <span id="upgrade4-cost" class="text-green-400">2500</span> Hz</div>
+                <div class="text-sm text-gray-400">Level: <span id="upgrade4-level">0</span></div>
+              </div>
+              <button id="upgrade4-btn" class="upgrade-btn border-green-400 text-green-400">BUY</button>
+            </div>
+          </div>
+
+          <!-- Upgrade 5 -->
+          <div class="upgrade-card">
+            <div class="text-2xl font-bold mb-2"><i class="fas fa-chart-line"></i> Wave Amplifier</div>
+            <div class="text-sm mb-3 text-gray-400">Multiply Hz/s by 3</div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-lg">Cost: <span id="upgrade5-cost" class="text-blue-400">10000</span> Hz</div>
+                <div class="text-sm text-gray-400">Level: <span id="upgrade5-level">0</span></div>
+              </div>
+              <button id="upgrade5-btn" class="upgrade-btn border-blue-400 text-blue-400">BUY</button>
+            </div>
+          </div>
+
+          <!-- Upgrade 6 -->
+          <div class="upgrade-card">
+            <div class="text-2xl font-bold mb-2"><i class="fas fa-crown"></i> Sonic Overdrive</div>
+            <div class="text-sm mb-3 text-gray-400">Multiply Hz/s by 5</div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-lg">Cost: <span id="upgrade6-cost" class="text-purple-400">50000</span> Hz</div>
+                <div class="text-sm text-gray-400">Level: <span id="upgrade6-level">0</span></div>
+              </div>
+              <button id="upgrade6-btn" class="upgrade-btn border-purple-400 text-purple-400">BUY</button>
+            </div>
           </div>
         </div>
 
-        <div class="mt-8 border-t border-gray-500 pt-4 hidden" id="unlock-volume-button">
-          <button class="mt-4 px-4 py-2 border border-teal-500 text-blue-500">Unlock Volume</button>
+        <!-- Volume Prestige -->
+        <div class="stat-display mt-8 bg-purple-900 bg-opacity-30 border-purple-500">
+          <div class="text-3xl font-bold mb-4 text-purple-400"><i class="fas fa-volume-up"></i> VOLUME PRESTIGE</div>
+          <div class="text-xl mb-4">Reset Hz upgrades to gain <span id="volume-gain-display" class="text-purple-300 font-bold">0</span> Volume</div>
+          <div class="text-lg mb-4 text-gray-400">Requirement: 1,000,000 Hz (first time) or gain at least 1 Volume</div>
+          <button id="prestige-volume-btn" class="prestige-btn">TURN UP THE VOLUME</button>
         </div>
       </div>
 
-      <!-- Achievements -->
-      <div id="achievement-content" class="content hidden">
-        <div class="border border-gray-500 p-4">
-          <div class="text-2xl font-bold">Achievements</div>
-          <hr class="border-gray-500 my-4">
-          <div class="achievement" id="achievement">First Hertz</div>
-          <div class="achievement" id="achievement2">I can hear now</div>
-          <div class="achievement" id="achievement3">beep thing XD</div>
-          <div class="achievement" id="achievement4">Volumeness</div>
-        </div>
-      </div>
-
-      <!-- Settings -->
-      <div id="settings-content" class="content hidden">
-        <div class="flex flex-row space-x-4">
-          <button id="save-button" class="px-4 py-2 border border-gray-300 text-white">Save</button>
-          <button id="load-button" class="px-4 py-2 border border-gray-300 text-white">Load</button>
-          <button id="copy-button" class="px-4 py-2 border border-gray-300 text-white">Copy</button>
-          <button id="download-button" class="px-4 py-2 border border-gray-300 text-white">Download</button>
-          <button id="reset-button" class="px-4 py-2 border border-gray-300 text-white">Reset</button>
-        </div>
-      </div>
-
-      <!-- Changelog -->
-      <div id="changelog-content" class="content hidden">
-        <div class="text-lg">v0.3.2a - fixes!!!1</div>
-      </div>
-
-      <!-- Volume -->
+      <!-- Volume Tab -->
       <div id="volume-content" class="content hidden">
-        <div class="text-4xl text-blue-500">The volume is 0% (Boosts hz gain by x1!)</div>
-        <div class="text-teal-500 text-lg">Upgrades soon. ;></div>
+        <div class="stat-display text-center">
+          <div class="text-3xl mb-2"><i class="fas fa-volume-up"></i> Volume</div>
+          <div id="volume-display" class="text-7xl font-bold mb-4 text-purple-400">0</div>
+          <div class="text-2xl text-gray-300">Hz Boost: <span id="volume-boost" class="text-purple-300">1x</span></div>
+        </div>
+
+        <div class="grid-upgrades">
+          <!-- Volume Upgrade 1 -->
+          <div class="upgrade-card border-purple-400">
+            <div class="text-2xl font-bold mb-2"><i class="fas fa-plus-circle"></i> Volume Power</div>
+            <div class="text-sm mb-3 text-gray-400">Boost Volume effect by 1.5x</div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-lg">Cost: <span id="vol-up1-cost" class="text-purple-400">10</span> Volume</div>
+                <div class="text-sm text-gray-400">Level: <span id="vol-up1-level">0</span></div>
+              </div>
+              <button id="vol-up1-btn" class="upgrade-btn border-purple-400 text-purple-400">BUY</button>
+            </div>
+          </div>
+
+          <!-- Volume Upgrade 2 -->
+          <div class="upgrade-card border-purple-400">
+            <div class="text-2xl font-bold mb-2"><i class="fas fa-gem"></i> Volume Multiplier</div>
+            <div class="text-sm mb-3 text-gray-400">Double Volume gain on prestige</div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-lg">Cost: <span id="vol-up2-cost" class="text-purple-400">25</span> Volume</div>
+                <div class="text-sm text-gray-400">Level: <span id="vol-up2-level">0</span></div>
+              </div>
+              <button id="vol-up2-btn" class="upgrade-btn border-purple-400 text-purple-400">BUY</button>
+            </div>
+          </div>
+
+          <!-- Volume Upgrade 3 -->
+          <div class="upgrade-card border-purple-400">
+            <div class="text-2xl font-bold mb-2"><i class="fas fa-bolt"></i> Resonant Frequency</div>
+            <div class="text-sm mb-3 text-gray-400">Double Hz production directly</div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-lg">Cost: <span id="vol-up3-cost" class="text-purple-400">50</span> Volume</div>
+                <div class="text-sm text-gray-400">Level: <span id="vol-up3-level">0</span></div>
+              </div>
+              <button id="vol-up3-btn" class="upgrade-btn border-purple-400 text-purple-400">BUY</button>
+            </div>
+          </div>
+
+          <!-- Volume Upgrade 4 -->
+          <div class="upgrade-card border-purple-400">
+            <div class="text-2xl font-bold mb-2"><i class="fas fa-compress-arrows-alt"></i> Compression</div>
+            <div class="text-sm mb-3 text-gray-400">Improve Hz upgrade efficiency</div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-lg">Cost: <span id="vol-up4-cost" class="text-purple-400">100</span> Volume</div>
+                <div class="text-sm text-gray-400">Level: <span id="vol-up4-level">0</span></div>
+              </div>
+              <button id="vol-up4-btn" class="upgrade-btn border-purple-400 text-purple-400">BUY</button>
+            </div>
+          </div>
+
+          <!-- Volume Upgrade 5 -->
+          <div class="upgrade-card border-purple-400">
+            <div class="text-2xl font-bold mb-2"><i class="fas fa-infinity"></i> Logarithmic Scale</div>
+            <div class="text-sm mb-3 text-gray-400">Hz boost based on current Hz (log formula)</div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-lg">Cost: <span id="vol-up5-cost" class="text-purple-400">250</span> Volume</div>
+                <div class="text-sm text-gray-400">Level: <span id="vol-up5-level">0</span></div>
+              </div>
+              <button id="vol-up5-btn" class="upgrade-btn border-purple-400 text-purple-400">BUY</button>
+            </div>
+          </div>
+
+          <!-- Volume Upgrade 6 -->
+          <div class="upgrade-card border-purple-400">
+            <div class="text-2xl font-bold mb-2"><i class="fas fa-magic"></i> Perfect Pitch</div>
+            <div class="text-sm mb-3 text-gray-400">Unlock advanced resonance patterns</div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-lg">Cost: <span id="vol-up6-cost" class="text-purple-400">500</span> Volume</div>
+                <div class="text-sm text-gray-400">Level: <span id="vol-up6-level">0</span></div>
+              </div>
+              <button id="vol-up6-btn" class="upgrade-btn border-purple-400 text-purple-400">BUY</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Speaker Prestige -->
+        <div id="speaker-prestige-section" class="stat-display mt-8 bg-teal-900 bg-opacity-30 border-teal-500 hidden">
+          <div class="text-3xl font-bold mb-4 text-teal-400"><i class="fas fa-broadcast-tower"></i> SPEAKER PRESTIGE</div>
+          <div class="text-xl mb-4">Reset Volume & Hz to gain <span id="speaker-gain-display" class="text-teal-300 font-bold">0</span> Speakers</div>
+          <div class="text-lg mb-4 text-gray-400">Requirement: 100 Volume (first time) or gain at least 1 Speaker</div>
+          <button id="prestige-speaker-btn" class="prestige-btn bg-gradient-to-br from-teal-500 to-cyan-500 border-teal-400">AMPLIFY WITH SPEAKERS</button>
+        </div>
+      </div>
+
+      <!-- Speakers Tab -->
+      <div id="speakers-content" class="content hidden">
+        <div class="stat-display text-center">
+          <div class="text-3xl mb-2"><i class="fas fa-broadcast-tower"></i> Speakers</div>
+          <div id="speakers-display" class="text-7xl font-bold mb-4 text-teal-400">0</div>
+          <div class="text-2xl text-gray-300">Hz Boost: <span id="speakers-boost" class="text-teal-300">1x</span></div>
+        </div>
+
+        <div class="grid-upgrades">
+          <!-- Speaker Upgrade 1 -->
+          <div class="upgrade-card border-teal-400">
+            <div class="text-2xl font-bold mb-2"><i class="fas fa-volume-up"></i> Speaker Amplification</div>
+            <div class="text-sm mb-3 text-gray-400">Double Speaker boost effect</div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-lg">Cost: <span id="spk-up1-cost" class="text-teal-400">5</span> Speakers</div>
+                <div class="text-sm text-gray-400">Level: <span id="spk-up1-level">0</span></div>
+              </div>
+              <button id="spk-up1-btn" class="upgrade-btn border-teal-400 text-teal-400">BUY</button>
+            </div>
+          </div>
+
+          <!-- Speaker Upgrade 2 -->
+          <div class="upgrade-card border-teal-400">
+            <div class="text-2xl font-bold mb-2"><i class="fas fa-layer-group"></i> Volume Enhancement</div>
+            <div class="text-sm mb-3 text-gray-400">Boost Volume gain by 1.5x</div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-lg">Cost: <span id="spk-up2-cost" class="text-teal-400">10</span> Speakers</div>
+                <div class="text-sm text-gray-400">Level: <span id="spk-up2-level">0</span></div>
+              </div>
+              <button id="spk-up2-btn" class="upgrade-btn border-teal-400 text-teal-400">BUY</button>
+            </div>
+          </div>
+
+          <!-- Speaker Upgrade 3 -->
+          <div class="upgrade-card border-teal-400">
+            <div class="text-2xl font-bold mb-2"><i class="fas fa-tachometer-alt"></i> Triple Hz Power</div>
+            <div class="text-sm mb-3 text-gray-400">Multiply Hz/s by 3 directly</div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-lg">Cost: <span id="spk-up3-cost" class="text-teal-400">20</span> Speakers</div>
+                <div class="text-sm text-gray-400">Level: <span id="spk-up3-level">0</span></div>
+              </div>
+              <button id="spk-up3-btn" class="upgrade-btn border-teal-400 text-teal-400">BUY</button>
+            </div>
+          </div>
+
+          <!-- Speaker Upgrade 4 -->
+          <div class="upgrade-card border-teal-400">
+            <div class="text-2xl font-bold mb-2"><i class="fas fa-sync-alt"></i> Feedback Loop</div>
+            <div class="text-sm mb-3 text-gray-400">Volume gain scales with Speakers</div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-lg">Cost: <span id="spk-up4-cost" class="text-teal-400">50</span> Speakers</div>
+                <div class="text-sm text-gray-400">Level: <span id="spk-up4-level">0</span></div>
+              </div>
+              <button id="spk-up4-btn" class="upgrade-btn border-teal-400 text-teal-400">BUY</button>
+            </div>
+          </div>
+
+          <!-- Speaker Upgrade 5 -->
+          <div class="upgrade-card border-teal-400">
+            <div class="text-2xl font-bold mb-2"><i class="fas fa-atom"></i> Volume Synergy</div>
+            <div class="text-sm mb-3 text-gray-400">Hz boost based on Volume amount</div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-lg">Cost: <span id="spk-up5-cost" class="text-teal-400">100</span> Speakers</div>
+                <div class="text-sm text-gray-400">Level: <span id="spk-up5-level">0</span></div>
+              </div>
+              <button id="spk-up5-btn" class="upgrade-btn border-teal-400 text-teal-400">BUY</button>
+            </div>
+          </div>
+
+          <!-- Speaker Upgrade 6 -->
+          <div class="upgrade-card border-teal-400">
+            <div class="text-2xl font-bold mb-2"><i class="fas fa-recycle"></i> Efficient Prestige</div>
+            <div class="text-sm mb-3 text-gray-400">Double Speaker gain on prestige</div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-lg">Cost: <span id="spk-up6-cost" class="text-teal-400">250</span> Speakers</div>
+                <div class="text-sm text-gray-400">Level: <span id="spk-up6-level">0</span></div>
+              </div>
+              <button id="spk-up6-btn" class="upgrade-btn border-teal-400 text-teal-400">BUY</button>
+            </div>
+          </div>
+
+          <!-- Speaker Upgrade 7 -->
+          <div class="upgrade-card border-teal-400">
+            <div class="text-2xl font-bold mb-2"><i class="fas fa-star"></i> Megaphone</div>
+            <div class="text-sm mb-3 text-gray-400">Multiply Hz/s by 10 (MEGA BOOST!)</div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-lg">Cost: <span id="spk-up7-cost" class="text-teal-400">1000</span> Speakers</div>
+                <div class="text-sm text-gray-400">Level: <span id="spk-up7-level">0</span></div>
+              </div>
+              <button id="spk-up7-btn" class="upgrade-btn border-teal-400 text-teal-400">BUY</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Achievements Tab -->
+      <div id="achievements-content" class="content hidden">
+        <div class="stat-display">
+          <div class="text-3xl font-bold mb-6 text-center"><i class="fas fa-trophy"></i> ACHIEVEMENTS</div>
+          <div class="achievement" id="ach1">First Hertz - Reach 1 Hz</div>
+          <div class="achievement" id="ach2">Frequency Rising - Reach 100 Hz</div>
+          <div class="achievement" id="ach3">Sonic Boom - Reach 10,000 Hz</div>
+          <div class="achievement" id="ach4">Turn It Up! - Unlock Volume</div>
+          <div class="achievement" id="ach5">Sound System - Unlock Speakers</div>
+          <div class="achievement" id="ach6">Concert Hall - Reach 10 Speakers</div>
+        </div>
+      </div>
+
+      <!-- Settings Tab -->
+      <div id="settings-content" class="content hidden">
+        <div class="stat-display">
+          <div class="text-3xl font-bold mb-6"><i class="fas fa-cog"></i> SETTINGS</div>
+          
+          <div class="space-y-4">
+            <button id="save-button" class="upgrade-btn border-green-400 text-green-400 w-full">
+              <i class="fas fa-save"></i> SAVE GAME
+            </button>
+            
+            <button id="load-button" class="upgrade-btn border-blue-400 text-blue-400 w-full">
+              <i class="fas fa-upload"></i> LOAD SAVE
+            </button>
+            
+            <button id="export-button" class="upgrade-btn border-yellow-400 text-yellow-400 w-full">
+              <i class="fas fa-copy"></i> COPY SAVE TO CLIPBOARD
+            </button>
+            
+            <button id="download-button" class="upgrade-btn border-purple-400 text-purple-400 w-full">
+              <i class="fas fa-download"></i> DOWNLOAD SAVE
+            </button>
+            
+            <button id="theme-button" class="upgrade-btn border-pink-400 text-pink-400 w-full">
+              <i class="fas fa-palette"></i> CHANGE THEME
+            </button>
+            
+            <button id="reset-button" class="upgrade-btn border-red-400 text-red-400 w-full">
+              <i class="fas fa-trash"></i> HARD RESET
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Changelog Tab -->
+      <div id="changelog-content" class="content hidden">
+        <div class="stat-display">
+          <div class="text-3xl font-bold mb-6"><i class="fas fa-list"></i> CHANGELOG</div>
+          
+          <div class="space-y-4">
+            <div class="upgrade-card border-blue-400">
+              <div class="text-2xl font-bold mb-2">v0.4a - The Anniversary Update 🎉</div>
+              <ul class="list-disc list-inside space-y-2 text-gray-300">
+                <li>Complete remaster with modern UI/UX</li>
+                <li>Switched to Break Eternity.js for better number handling</li>
+                <li>Added 10 beautiful themes (Red, Orange, Yellow, Green, Blue, Purple, Pink, Brown, Black, White)</li>
+                <li>Volume prestige system now fully functional with 6 unique upgrades</li>
+                <li>NEW: Speakers prestige layer with 7 powerful upgrades</li>
+                <li>Added 6 new Hz upgrades for better progression</li>
+                <li>Improved achievement system</li>
+                <li>Better save/load functionality</li>
+                <li>Auto-save every 30 seconds</li>
+                <li>Smooth animations and visual effects</li>
+                <li>Responsive grid layout for upgrades</li>
+                <li>Custom scrollbar styling</li>
+              </ul>
+            </div>
+
+            <div class="upgrade-card border-gray-400">
+              <div class="text-xl font-bold mb-2">v0.3.2a - Fixes</div>
+              <ul class="list-disc list-inside text-gray-400">
+                <li>Bug fixes and improvements</li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-
-    <!-- Popups -->
-    <div id="popup" class="popup hidden"></div>
-
-    <div id="popup2" class="popup2 hidden">
-      <div class="text-white text-xl absolute top-4 left-4">Load Save</div>
-      <input id="save-input2" type="text" class="mt-8 p-2 rounded-lg bg-gray-500 bg-opacity-50 text-white w-3/4">
-      <div class="flex space-x-4 absolute bottom-4 right-4">
-        <button id="submit-button2" class="px-4 py-2 border border-gray-300 text-white">Submit</button>
-        <button id="cancel-button2" class="px-4 py-2 border border-gray-300 text-white">Cancel</button>
-      </div>
-    </div>
-
-    <div id="popup3" class="popup3 hidden">
-      <div class="text-pink-500 text-xl absolute top-4 left-4">Are you sure you wanna reset?</div>
-      <div class="flex space-x-4 absolute bottom-4 right-4">
-        <button id="yes-button" class="px-4 py-2 border border-gray-300 text-white">Yes</button>
-        <button id="cancel-button3" class="px-4 py-2 border border-gray-300 text-white">Cancel</button>
-      </div>
-    </div>
-
-    <!-- Version -->
-    <div class="version">v0.3.2a</div>
   </div>
+
+  <!-- Popups -->
+  <div id="popup" class="popup"></div>
+
+  <div id="popup2" class="popup2 bg-gray-900 bg-opacity-95">
+    <div class="text-white text-2xl font-bold mb-4"><i class="fas fa-upload"></i> Load Save</div>
+    <input id="save-input" type="text" placeholder="Paste your save here..." class="mt-4 p-3 rounded-lg bg-gray-700 text-white w-full border-2 border-gray-500 focus:border-blue-400 outline-none">
+    <div class="flex space-x-4 mt-6">
+      <button id="submit-load" class="upgrade-btn border-green-400 text-green-400 flex-1">SUBMIT</button>
+      <button id="cancel-load" class="upgrade-btn border-red-400 text-red-400 flex-1">CANCEL</button>
+    </div>
+  </div>
+
+  <div id="popup-theme" class="popup-theme bg-gray-900 bg-opacity-95">
+    <div class="text-white text-2xl font-bold mb-6 text-center"><i class="fas fa-palette"></i> Choose Your Theme</div>
+    <div class="flex flex-wrap justify-center">
+      <div id="theme-red" class="theme-btn" style="background: linear-gradient(135deg, #991b1b, #dc2626);"></div>
+      <div id="theme-orange" class="theme-btn" style="background: linear-gradient(135deg, #9a3412, #ea580c);"></div>
+      <div id="theme-yellow" class="theme-btn" style="background: linear-gradient(135deg, #854d0e, #eab308);"></div>
+      <div id="theme-green" class="theme-btn" style="background: linear-gradient(135deg, #166534, #22c55e);"></div>
+      <div id="theme-blue" class="theme-btn" style="background: linear-gradient(135deg, #1e40af, #3b82f6);"></div>
+      <div id="theme-purple" class="theme-btn" style="background: linear-gradient(135deg, #6b21a8, #a855f7);"></div>
+      <div id="theme-pink" class="theme-btn" style="background: linear-gradient(135deg, #9f1239, #ec4899);"></div>
+      <div id="theme-brown" class="theme-btn" style="background: linear-gradient(135deg, #4e342e, #795548);"></div>
+      <div id="theme-black" class="theme-btn active" style="background: linear-gradient(135deg, #000000, #374151);"></div>
+      <div id="theme-white" class="theme-btn" style="background: linear-gradient(135deg, #e5e5e5, #ffffff);"></div>
+    </div>
+    <button id="close-theme" class="upgrade-btn border-gray-400 text-gray-400 mt-6 w-full">CLOSE</button>
+  </div>
+
+  <!-- Version -->
+  <div class="version"><i class="fas fa-code"></i> v0.4a - The Anniversary Update</div>
 </body>
 </html>
