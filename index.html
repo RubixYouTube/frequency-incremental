@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hertz Incremental - v0.4.1a</title>
+  <title>Hertz Incremental - v0.4.2a</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
@@ -49,7 +49,8 @@
     .popup,
     .popup2,
     .popup3,
-    .popup-theme {
+    .popup-theme,
+    .popup-infinity {
       position: fixed;
       top: 50%;
       left: 50%;
@@ -71,7 +72,8 @@
     .popup.visible,
     .popup2.visible,
     .popup3.visible,
-    .popup-theme.visible {
+    .popup-theme.visible,
+    .popup-infinity.visible {
       display: flex;
       opacity: 1;
     }
@@ -82,6 +84,24 @@
       text-align: center;
       font-size: 1.2rem;
       font-weight: bold;
+    }
+
+    .popup-infinity {
+      width: 700px;
+      height: 400px;
+      background: #000;
+      border-color: #8b5cf6;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .typing-text {
+      font-size: 1.3rem;
+      line-height: 1.8;
+      color: #a78bfa;
+      text-align: center;
+      margin-bottom: 30px;
+      min-height: 200px;
     }
 
     .popup3 {
@@ -339,6 +359,38 @@
     .scrollable-content::-webkit-scrollbar-thumb:hover {
       background: rgba(255,255,255,0.5);
     }
+
+    .nerf-indicator {
+      background: rgba(255, 0, 0, 0.2);
+      border: 2px solid #ff0000;
+      padding: 10px;
+      border-radius: 10px;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    @keyframes glitch {
+      0% { transform: translate(0); }
+      20% { transform: translate(-2px, 2px); }
+      40% { transform: translate(-2px, -2px); }
+      60% { transform: translate(2px, 2px); }
+      80% { transform: translate(2px, -2px); }
+      100% { transform: translate(0); }
+    }
+
+    .infinity-text {
+      background: linear-gradient(90deg, #8b5cf6, #ec4899, #8b5cf6);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradient 3s ease infinite;
+    }
+
+    @keyframes gradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
   </style>
 
   <script>
@@ -383,6 +435,24 @@
         speakerUpgrade6: new Decimal(0),
         speakerUpgrade7: new Decimal(0),
         
+        // Infinity (Prestige 3)
+        infinity: new Decimal(0),
+        infinityUnlocked: false,
+        infinityUpgrade1: new Decimal(0),
+        infinityUpgrade2: new Decimal(0),
+        infinityUpgrade3: new Decimal(0),
+        infinityUpgrade4: new Decimal(0),
+        infinityUpgrade5: new Decimal(0),
+        infinityUpgrade6: new Decimal(0),
+        infinityUpgrade7: new Decimal(0),
+        infinityUpgrade8: new Decimal(0),
+        infinityUpgrade9: new Decimal(0),
+        infinityUpgrade10: new Decimal(0),
+        infinityUpgrade11: new Decimal(0),
+        infinityUpgrade12: new Decimal(0),
+        infinityUpgrade13: new Decimal(0),
+        infinityUpgrade14: new Decimal(0),
+        
         // Achievements
         achievements: {
           ach1: false,
@@ -391,6 +461,7 @@
           ach4: false,
           ach5: false,
           ach6: false,
+          ach7: false,
         },
         
         // Settings
@@ -419,41 +490,121 @@
       // Apply theme
       applyTheme(gameState.theme);
 
-      // Calculate Hz per second
+      // Softcap function
+      function softcap(value, start, power) {
+        value = new Decimal(value);
+        start = new Decimal(start);
+        if (value.lte(start)) return value;
+        return value.div(start).pow(power).times(start);
+      }
+
+      // Calculate volume gain nerfs
+      function getVolumeNerfMultiplier() {
+        let mult = new Decimal(1);
+        const vol = gameState.volume;
+        
+        // Nerf 1: At 1000 Volume
+        if (vol.gte(1000)) {
+          mult = mult.times(0.5);
+        }
+        
+        // Nerf 2: At 10000 Volume
+        if (vol.gte(10000)) {
+          mult = mult.times(0.25);
+        }
+        
+        // Nerf 3: At 100000 Volume
+        if (vol.gte(100000)) {
+          mult = mult.times(0.1);
+        }
+        
+        // Nerf 4: At 1M Volume
+        if (vol.gte(1000000)) {
+          mult = mult.times(0.05);
+        }
+        
+        // Nerf 5: At 10M Volume
+        if (vol.gte(10000000)) {
+          mult = mult.times(0.01);
+        }
+        
+        return mult;
+      }
+
+      // Calculate speaker gain nerfs
+      function getSpeakerNerfMultiplier() {
+        let mult = new Decimal(1);
+        const spk = gameState.speakers;
+        
+        // Nerf 1: At 100 Speakers
+        if (spk.gte(100)) {
+          mult = mult.times(0.5);
+        }
+        
+        // Nerf 2: At 500 Speakers
+        if (spk.gte(500)) {
+          mult = mult.times(0.3);
+        }
+        
+        // Nerf 3: At 2000 Speakers
+        if (spk.gte(2000)) {
+          mult = mult.times(0.15);
+        }
+        
+        // Nerf 4: At 10000 Speakers
+        if (spk.gte(10000)) {
+          mult = mult.times(0.05);
+        }
+        
+        // Nerf 5: At 50000 Speakers
+        if (spk.gte(50000)) {
+          mult = mult.times(0.01);
+        }
+        
+        return mult;
+      }
+
+      // Calculate Hz per second with better formulas
       function calculateHzPerSec() {
         let base = new Decimal(1);
         
-        // Upgrade 1: Double per level
-        base = base.times(Decimal.pow(2, gameState.upgrade1Level));
+        // Upgrade 1: Softcapped at level 100
+        let u1Effect = Decimal.pow(2, softcap(gameState.upgrade1Level, 100, 0.5));
+        base = base.times(u1Effect);
         
-        // Upgrade 2: 1.25x per level
-        base = base.times(Decimal.pow(1.25, gameState.upgrade2Level));
+        // Upgrade 2: Softcapped at level 80
+        let u2Effect = Decimal.pow(1.25, softcap(gameState.upgrade2Level, 80, 0.6));
+        base = base.times(u2Effect);
         
-        // Upgrade 3: 1.5x per level
-        base = base.times(Decimal.pow(1.5, gameState.upgrade3Level));
+        // Upgrade 3: Softcapped at level 60
+        let u3Effect = Decimal.pow(1.5, softcap(gameState.upgrade3Level, 60, 0.55));
+        base = base.times(u3Effect);
         
-        // Upgrade 4: 2x per level
-        base = base.times(Decimal.pow(2, gameState.upgrade4Level));
+        // Upgrade 4: Softcapped at level 50
+        let u4Effect = Decimal.pow(2, softcap(gameState.upgrade4Level, 50, 0.5));
+        base = base.times(u4Effect);
         
-        // Upgrade 5: 3x per level
-        base = base.times(Decimal.pow(3, gameState.upgrade5Level));
+        // Upgrade 5: Softcapped at level 40
+        let u5Effect = Decimal.pow(3, softcap(gameState.upgrade5Level, 40, 0.45));
+        base = base.times(u5Effect);
         
-        // Upgrade 6: 5x per level
-        base = base.times(Decimal.pow(5, gameState.upgrade6Level));
+        // Upgrade 6: Softcapped at level 30
+        let u6Effect = Decimal.pow(5, softcap(gameState.upgrade6Level, 30, 0.4));
+        base = base.times(u6Effect);
         
         // Volume boost
         if (gameState.volumeUnlocked) {
-          let volumeBoost = gameState.volume.plus(1);
+          let volumeBoost = gameState.volume.plus(1).pow(0.8); // Root scaling
           
           // Volume upgrades
           if (gameState.volumeUpgrade1.gt(0)) {
-            volumeBoost = volumeBoost.times(Decimal.pow(1.5, gameState.volumeUpgrade1));
+            volumeBoost = volumeBoost.times(Decimal.pow(1.5, softcap(gameState.volumeUpgrade1, 20, 0.5)));
           }
           if (gameState.volumeUpgrade3.gt(0)) {
-            base = base.times(Decimal.pow(2, gameState.volumeUpgrade3));
+            base = base.times(Decimal.pow(2, softcap(gameState.volumeUpgrade3, 15, 0.5)));
           }
           if (gameState.volumeUpgrade5.gt(0)) {
-            base = base.times(gameState.hz.plus(1).log10().plus(1).pow(gameState.volumeUpgrade5.times(0.1)));
+            base = base.times(gameState.hz.plus(1).log10().plus(1).pow(gameState.volumeUpgrade5.times(0.05)));
           }
           
           base = base.times(volumeBoost);
@@ -461,23 +612,58 @@
         
         // Speaker boost
         if (gameState.speakersUnlocked) {
-          let speakerBoost = gameState.speakers.plus(1).pow(2);
+          let speakerBoost = gameState.speakers.plus(1).pow(1.5); // Reduced from ^2
           
           // Speaker upgrades
           if (gameState.speakerUpgrade1.gt(0)) {
-            speakerBoost = speakerBoost.times(Decimal.pow(2, gameState.speakerUpgrade1));
+            speakerBoost = speakerBoost.times(Decimal.pow(2, softcap(gameState.speakerUpgrade1, 10, 0.5)));
           }
           if (gameState.speakerUpgrade3.gt(0)) {
-            base = base.times(Decimal.pow(3, gameState.speakerUpgrade3));
+            base = base.times(Decimal.pow(3, softcap(gameState.speakerUpgrade3, 8, 0.5)));
           }
           if (gameState.speakerUpgrade5.gt(0)) {
-            base = base.times(gameState.volume.plus(1).pow(gameState.speakerUpgrade5.times(0.5)));
+            base = base.times(gameState.volume.plus(1).pow(gameState.speakerUpgrade5.times(0.3)));
           }
           if (gameState.speakerUpgrade7.gt(0)) {
-            base = base.times(Decimal.pow(10, gameState.speakerUpgrade7));
+            base = base.times(Decimal.pow(10, softcap(gameState.speakerUpgrade7, 5, 0.4)));
           }
           
           base = base.times(speakerBoost);
+        }
+        
+        // Infinity boost
+        if (gameState.infinityUnlocked) {
+          let infinityBoost = gameState.infinity.plus(1).pow(3);
+          
+          // Infinity upgrades
+          if (gameState.infinityUpgrade1.gt(0)) {
+            base = base.times(Decimal.pow(10, gameState.infinityUpgrade1));
+          }
+          if (gameState.infinityUpgrade3.gt(0)) {
+            base = base.times(gameState.infinity.plus(1).pow(gameState.infinityUpgrade3.times(0.5)));
+          }
+          if (gameState.infinityUpgrade5.gt(0)) {
+            base = base.times(Decimal.pow(2, gameState.infinityUpgrade5.times(gameState.speakers.plus(1).log10())));
+          }
+          if (gameState.infinityUpgrade7.gt(0)) {
+            base = base.times(gameState.hz.plus(10).log10().pow(gameState.infinityUpgrade7.times(0.5)));
+          }
+          if (gameState.infinityUpgrade9.gt(0)) {
+            base = base.times(Decimal.pow(100, gameState.infinityUpgrade9));
+          }
+          if (gameState.infinityUpgrade11.gt(0)) {
+            base = base.times(gameState.volume.plus(1).times(gameState.speakers.plus(1)).pow(gameState.infinityUpgrade11.times(0.2)));
+          }
+          if (gameState.infinityUpgrade13.gt(0)) {
+            base = base.times(Decimal.pow(1000, gameState.infinityUpgrade13));
+          }
+          
+          base = base.times(infinityBoost);
+        }
+        
+        // Final softcap at e100
+        if (base.gte("1e100")) {
+          base = softcap(base, new Decimal("1e100"), 0.75);
         }
         
         return base;
@@ -485,33 +671,74 @@
 
       // Calculate volume gain
       function calculateVolumeGain() {
-        let base = gameState.hz.div(1000000).sqrt().floor();
+        let base = gameState.hz.div(1000000).pow(0.4).floor(); // Nerfed formula
         
         // Volume upgrade 2: increase volume gain
         if (gameState.volumeUpgrade2.gt(0)) {
-          base = base.times(Decimal.pow(2, gameState.volumeUpgrade2));
+          base = base.times(Decimal.pow(2, softcap(gameState.volumeUpgrade2, 10, 0.5)));
         }
         
         // Speaker upgrade 2: boost volume gain
         if (gameState.speakerUpgrade2.gt(0)) {
-          base = base.times(Decimal.pow(1.5, gameState.speakerUpgrade2));
+          base = base.times(Decimal.pow(1.5, softcap(gameState.speakerUpgrade2, 8, 0.5)));
         }
         
         // Speaker upgrade 4: massive volume boost
         if (gameState.speakerUpgrade4.gt(0)) {
-          base = base.times(gameState.speakers.plus(1).pow(gameState.speakerUpgrade4));
+          base = base.times(gameState.speakers.plus(1).pow(gameState.speakerUpgrade4.times(0.5)));
         }
+        
+        // Infinity boost
+        if (gameState.infinityUpgrade2.gt(0)) {
+          base = base.times(Decimal.pow(5, gameState.infinityUpgrade2));
+        }
+        if (gameState.infinityUpgrade6.gt(0)) {
+          base = base.times(gameState.infinity.plus(1).pow(gameState.infinityUpgrade6));
+        }
+        if (gameState.infinityUpgrade10.gt(0)) {
+          base = base.times(Decimal.pow(50, gameState.infinityUpgrade10));
+        }
+        
+        // Apply nerfs
+        base = base.times(getVolumeNerfMultiplier());
         
         return base.floor();
       }
 
       // Calculate speaker gain
       function calculateSpeakerGain() {
-        let base = gameState.volume.div(100).sqrt().floor();
+        let base = gameState.volume.div(100).pow(0.35).floor(); // Nerfed formula
         
         // Speaker upgrade 6: boost speaker gain
         if (gameState.speakerUpgrade6.gt(0)) {
-          base = base.times(Decimal.pow(2, gameState.speakerUpgrade6));
+          base = base.times(Decimal.pow(2, softcap(gameState.speakerUpgrade6, 6, 0.5)));
+        }
+        
+        // Infinity boost
+        if (gameState.infinityUpgrade4.gt(0)) {
+          base = base.times(Decimal.pow(10, gameState.infinityUpgrade4));
+        }
+        if (gameState.infinityUpgrade8.gt(0)) {
+          base = base.times(gameState.infinity.plus(1).pow(gameState.infinityUpgrade8.times(0.75)));
+        }
+        if (gameState.infinityUpgrade12.gt(0)) {
+          base = base.times(Decimal.pow(25, gameState.infinityUpgrade12));
+        }
+        
+        // Apply nerfs
+        base = base.times(getSpeakerNerfMultiplier());
+        
+        return base.floor();
+      }
+
+      // Calculate infinity gain
+      function calculateInfinityGain() {
+        if (gameState.hz.lt("1e308")) return new Decimal(0);
+        
+        let base = gameState.hz.log10().div(308).pow(0.5).floor();
+        
+        if (gameState.infinityUpgrade14.gt(0)) {
+          base = base.times(Decimal.pow(2, gameState.infinityUpgrade14));
         }
         
         return base.floor();
@@ -523,10 +750,9 @@
         if (num.lt(1000)) return num.toFixed(0);
         if (num.lt(1000000)) return num.toFixed(decimals);
         
-        const abbrev = ['', 'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc'];
-        const exp = Math.floor(num.e / 3);
-        
-        if (exp < abbrev.length) {
+        if (num.lt("1e9")) {
+          const abbrev = ['', 'K', 'M', 'B'];
+          const exp = Math.floor(num.e / 3);
           const mantissa = num.div(Decimal.pow(10, exp * 3));
           return mantissa.toFixed(decimals) + abbrev[exp];
         }
@@ -554,7 +780,7 @@
         if (gameState.volumeUnlocked) {
           document.getElementById('tab-volume').classList.remove('hidden');
           document.getElementById('volume-display').textContent = formatNumber(gameState.volume);
-          const volumeBoost = gameState.volume.plus(1);
+          const volumeBoost = gameState.volume.plus(1).pow(0.8);
           document.getElementById('volume-boost').textContent = formatNumber(volumeBoost, 2) + 'x';
           
           updateVolumeUpgrade('vol-up1', new Decimal(10).times(Decimal.pow(5, gameState.volumeUpgrade1)), gameState.volumeUpgrade1);
@@ -563,13 +789,16 @@
           updateVolumeUpgrade('vol-up4', new Decimal(100).times(Decimal.pow(50, gameState.volumeUpgrade4)), gameState.volumeUpgrade4);
           updateVolumeUpgrade('vol-up5', new Decimal(250).times(Decimal.pow(100, gameState.volumeUpgrade5)), gameState.volumeUpgrade5);
           updateVolumeUpgrade('vol-up6', new Decimal(500).times(Decimal.pow(250, gameState.volumeUpgrade6)), gameState.volumeUpgrade6);
+          
+          // Show volume nerfs
+          updateNerfDisplay('volume-nerfs', getVolumeNerfMultiplier());
         }
         
         // Speakers
         if (gameState.speakersUnlocked) {
           document.getElementById('tab-speakers').classList.remove('hidden');
           document.getElementById('speakers-display').textContent = formatNumber(gameState.speakers);
-          const speakerBoost = gameState.speakers.plus(1).pow(2);
+          const speakerBoost = gameState.speakers.plus(1).pow(1.5);
           document.getElementById('speakers-boost').textContent = formatNumber(speakerBoost, 2) + 'x';
           
           updateSpeakerUpgrade('spk-up1', new Decimal(5).times(Decimal.pow(10, gameState.speakerUpgrade1)), gameState.speakerUpgrade1);
@@ -579,11 +808,30 @@
           updateSpeakerUpgrade('spk-up5', new Decimal(100).times(Decimal.pow(200, gameState.speakerUpgrade5)), gameState.speakerUpgrade5);
           updateSpeakerUpgrade('spk-up6', new Decimal(250).times(Decimal.pow(500, gameState.speakerUpgrade6)), gameState.speakerUpgrade6);
           updateSpeakerUpgrade('spk-up7', new Decimal(1000).times(Decimal.pow(1000, gameState.speakerUpgrade7)), gameState.speakerUpgrade7);
+          
+          // Show speaker nerfs
+          updateNerfDisplay('speaker-nerfs', getSpeakerNerfMultiplier());
+        }
+        
+        // Infinity
+        if (gameState.infinityUnlocked) {
+          document.getElementById('tab-infinity').classList.remove('hidden');
+          document.getElementById('infinity-display').textContent = formatNumber(gameState.infinity);
+          const infinityBoost = gameState.infinity.plus(1).pow(3);
+          document.getElementById('infinity-boost').textContent = formatNumber(infinityBoost, 2) + 'x';
+          
+          // Update all infinity upgrades
+          for (let i = 1; i <= 14; i++) {
+            updateInfinityUpgrade(`inf-up${i}`, 
+              new Decimal(i).times(Decimal.pow(i * 5, gameState[`infinityUpgrade${i}`])), 
+              gameState[`infinityUpgrade${i}`]);
+          }
         }
         
         // Prestige buttons
         const volumeGain = calculateVolumeGain();
         const speakerGain = calculateSpeakerGain();
+        const infinityGain = calculateInfinityGain();
         
         document.getElementById('volume-gain-display').textContent = formatNumber(volumeGain);
         document.getElementById('speaker-gain-display').textContent = formatNumber(speakerGain);
@@ -604,7 +852,23 @@
           }
         }
         
+        // Check for infinity trigger
+        if (gameState.hz.gte("1e308") && !gameState.infinityUnlocked) {
+          triggerInfinity();
+        }
+        
         checkAchievements();
+      }
+
+      function updateNerfDisplay(id, mult) {
+        const el = document.getElementById(id);
+        if (mult.lt(1)) {
+          el.classList.remove('hidden');
+          const percent = mult.times(100).toFixed(2);
+          el.textContent = `⚠️ EXTREME NERF ACTIVE: Gain reduced to ${percent}%`;
+        } else {
+          el.classList.add('hidden');
+        }
       }
 
       function updateUpgradeButton(id, cost, level) {
@@ -637,6 +901,96 @@
         btn.disabled = gameState.speakers.lt(cost);
       }
 
+      function updateInfinityUpgrade(id, cost, level) {
+        const btn = document.getElementById(id + '-btn');
+        const costEl = document.getElementById(id + '-cost');
+        const levelEl = document.getElementById(id + '-level');
+        
+        costEl.textContent = formatNumber(cost);
+        levelEl.textContent = formatNumber(level);
+        btn.disabled = gameState.infinity.lt(cost);
+      }
+
+      // Typing effect for infinity popup
+      function typeWriter(element, text, speed, callback) {
+        let i = 0;
+        element.textContent = '';
+        
+        function type() {
+          if (i < text.length) {
+            element.textContent += text.charAt(i);
+            i++;
+            setTimeout(type, speed);
+          } else if (callback) {
+            callback();
+          }
+        }
+        type();
+      }
+
+      // Trigger infinity
+      function triggerInfinity() {
+        const popup = document.getElementById('popup-infinity');
+        const typingText = document.getElementById('typing-text');
+        const okBtn = document.getElementById('infinity-ok-btn');
+        
+        okBtn.classList.add('hidden');
+        popup.classList.add('visible');
+        
+        const message = "The Reality has collapsed due to so much hertz being made, the infinite being named 'Nal' has reset you for faster progression.";
+        
+        typeWriter(typingText, message, 50, () => {
+          okBtn.classList.remove('hidden');
+        });
+      }
+
+      // Accept infinity
+      function acceptInfinity() {
+        const gain = calculateInfinityGain();
+        gameState.infinity = gameState.infinity.plus(gain.max(1));
+        gameState.infinityUnlocked = true;
+        
+        // Full reset
+        gameState.hz = new Decimal(0);
+        gameState.volume = new Decimal(0);
+        gameState.speakers = new Decimal(0);
+        
+        // Reset all upgrades
+        gameState.upgrade1Level = new Decimal(0);
+        gameState.upgrade1Cost = new Decimal(7);
+        gameState.upgrade2Level = new Decimal(0);
+        gameState.upgrade2Cost = new Decimal(100);
+        gameState.upgrade3Level = new Decimal(0);
+        gameState.upgrade3Cost = new Decimal(500);
+        gameState.upgrade4Level = new Decimal(0);
+        gameState.upgrade4Cost = new Decimal(2500);
+        gameState.upgrade5Level = new Decimal(0);
+        gameState.upgrade5Cost = new Decimal(10000);
+        gameState.upgrade6Level = new Decimal(0);
+        gameState.upgrade6Cost = new Decimal(50000);
+        
+        gameState.volumeUpgrade1 = new Decimal(0);
+        gameState.volumeUpgrade2 = new Decimal(0);
+        gameState.volumeUpgrade3 = new Decimal(0);
+        gameState.volumeUpgrade4 = new Decimal(0);
+        gameState.volumeUpgrade5 = new Decimal(0);
+        gameState.volumeUpgrade6 = new Decimal(0);
+        
+        gameState.speakerUpgrade1 = new Decimal(0);
+        gameState.speakerUpgrade2 = new Decimal(0);
+        gameState.speakerUpgrade3 = new Decimal(0);
+        gameState.speakerUpgrade4 = new Decimal(0);
+        gameState.speakerUpgrade5 = new Decimal(0);
+        gameState.speakerUpgrade6 = new Decimal(0);
+        gameState.speakerUpgrade7 = new Decimal(0);
+        
+        document.getElementById('popup-infinity').classList.remove('visible');
+        updateDisplay();
+        saveGame();
+        
+        showPopup(`Reality Collapsed! +${formatNumber(gain.max(1))} Infinity`, 'achievement');
+      }
+
       // Check achievements
       function checkAchievements() {
         if (gameState.hz.gte(1) && !gameState.achievements.ach1) {
@@ -656,6 +1010,9 @@
         }
         if (gameState.speakers.gte(10) && !gameState.achievements.ach6) {
           unlockAchievement('ach6', 'Concert Hall');
+        }
+        if (gameState.infinityUnlocked && !gameState.achievements.ach7) {
+          unlockAchievement('ach7', 'Reality Breaker');
         }
         
         // Update achievement display
@@ -703,7 +1060,6 @@
       }
 
       function buyVolumeUpgrade(upgradeNum) {
-        const id = `vol-up${upgradeNum}`;
         const levelKey = `volumeUpgrade${upgradeNum}`;
         const cost = new Decimal(upgradeNum === 1 ? 10 : upgradeNum === 2 ? 25 : upgradeNum === 3 ? 50 : upgradeNum === 4 ? 100 : upgradeNum === 5 ? 250 : 500)
           .times(Decimal.pow(upgradeNum === 1 ? 5 : upgradeNum === 2 ? 10 : upgradeNum === 3 ? 20 : upgradeNum === 4 ? 50 : upgradeNum === 5 ? 100 : 250, gameState[levelKey]));
@@ -716,13 +1072,23 @@
       }
 
       function buySpeakerUpgrade(upgradeNum) {
-        const id = `spk-up${upgradeNum}`;
         const levelKey = `speakerUpgrade${upgradeNum}`;
         const cost = new Decimal(upgradeNum === 1 ? 5 : upgradeNum === 2 ? 10 : upgradeNum === 3 ? 20 : upgradeNum === 4 ? 50 : upgradeNum === 5 ? 100 : upgradeNum === 6 ? 250 : 1000)
           .times(Decimal.pow(upgradeNum === 1 ? 10 : upgradeNum === 2 ? 25 : upgradeNum === 3 ? 50 : upgradeNum === 4 ? 100 : upgradeNum === 5 ? 200 : upgradeNum === 6 ? 500 : 1000, gameState[levelKey]));
         
         if (gameState.speakers.gte(cost)) {
           gameState.speakers = gameState.speakers.minus(cost);
+          gameState[levelKey] = gameState[levelKey].plus(1);
+          updateDisplay();
+        }
+      }
+
+      function buyInfinityUpgrade(upgradeNum) {
+        const levelKey = `infinityUpgrade${upgradeNum}`;
+        const cost = new Decimal(upgradeNum).times(Decimal.pow(upgradeNum * 5, gameState[levelKey]));
+        
+        if (gameState.infinity.gte(cost)) {
+          gameState.infinity = gameState.infinity.minus(cost);
           gameState[levelKey] = gameState[levelKey].plus(1);
           updateDisplay();
         }
@@ -874,7 +1240,7 @@
       // Tab system
       function switchTab(tabName) {
         document.querySelectorAll('.tab').forEach(tab => {
-          tab.classList.remove('bg-white', 'bg-green-500', 'bg-orange-500', 'bg-blue-500', 'bg-purple-500', 'bg-teal-500', 'text-black');
+          tab.classList.remove('bg-white', 'bg-green-500', 'bg-orange-500', 'bg-blue-500', 'bg-purple-500', 'bg-teal-500', 'bg-pink-500', 'text-black');
           tab.classList.add('text-gray-300', 'bg-gray-800');
         });
         
@@ -903,8 +1269,13 @@
         document.getElementById(`spk-up${i}-btn`).addEventListener('click', () => buySpeakerUpgrade(i));
       }
 
+      for (let i = 1; i <= 14; i++) {
+        document.getElementById(`inf-up${i}-btn`).addEventListener('click', () => buyInfinityUpgrade(i));
+      }
+
       document.getElementById('prestige-volume-btn').addEventListener('click', prestigeVolume);
       document.getElementById('prestige-speaker-btn').addEventListener('click', prestigeSpeaker);
+      document.getElementById('infinity-ok-btn').addEventListener('click', acceptInfinity);
       
       document.getElementById('save-button').addEventListener('click', saveGame);
       document.getElementById('load-button').addEventListener('click', () => {
@@ -964,6 +1335,10 @@
         <i class="fas fa-broadcast-tower"></i> Speakers
       </div>
 
+      <div id="tab-infinity" class="tab text-lg text-gray-300 bg-gray-800 p-4 cursor-pointer rounded-lg border-2 border-pink-500 hidden" data-color="bg-pink-500">
+        <i class="fas fa-infinity"></i> Infinity
+      </div>
+
       <div id="tab-achievements" class="tab text-lg text-gray-300 bg-gray-800 p-4 cursor-pointer rounded-lg border-2 border-green-500" data-color="bg-green-500">
         <i class="fas fa-trophy"></i> Achievements
       </div>
@@ -991,7 +1366,7 @@
           <!-- Upgrade 1 -->
           <div class="upgrade-card">
             <div class="text-2xl font-bold mb-2 text-primary"><i class="fas fa-arrow-up"></i> Double Production</div>
-            <div class="text-sm mb-3 text-secondary">Multiply Hz/s by 2</div>
+            <div class="text-sm mb-3 text-secondary">Multiply Hz/s by 2 (softcapped at 100)</div>
             <div class="flex justify-between items-center">
               <div>
                 <div class="text-lg text-secondary">Cost: <span id="upgrade1-cost" class="text-yellow-400">7</span> Hz</div>
@@ -1004,7 +1379,7 @@
           <!-- Upgrade 2 -->
           <div class="upgrade-card">
             <div class="text-2xl font-bold mb-2 text-primary"><i class="fas fa-fire"></i> Power Boost</div>
-            <div class="text-sm mb-3 text-secondary">Multiply Hz/s by 1.25</div>
+            <div class="text-sm mb-3 text-secondary">Multiply Hz/s by 1.25 (softcapped at 80)</div>
             <div class="flex justify-between items-center">
               <div>
                 <div class="text-lg text-secondary">Cost: <span id="upgrade2-cost" class="text-orange-400">100</span> Hz</div>
@@ -1017,7 +1392,7 @@
           <!-- Upgrade 3 -->
           <div class="upgrade-card">
             <div class="text-2xl font-bold mb-2 text-primary"><i class="fas fa-rocket"></i> Frequency Surge</div>
-            <div class="text-sm mb-3 text-secondary">Multiply Hz/s by 1.5</div>
+            <div class="text-sm mb-3 text-secondary">Multiply Hz/s by 1.5 (softcapped at 60)</div>
             <div class="flex justify-between items-center">
               <div>
                 <div class="text-lg text-secondary">Cost: <span id="upgrade3-cost" class="text-red-400">500</span> Hz</div>
@@ -1030,7 +1405,7 @@
           <!-- Upgrade 4 -->
           <div class="upgrade-card">
             <div class="text-2xl font-bold mb-2 text-primary"><i class="fas fa-star"></i> Harmonic Resonance</div>
-            <div class="text-sm mb-3 text-secondary">Multiply Hz/s by 2</div>
+            <div class="text-sm mb-3 text-secondary">Multiply Hz/s by 2 (softcapped at 50)</div>
             <div class="flex justify-between items-center">
               <div>
                 <div class="text-lg text-secondary">Cost: <span id="upgrade4-cost" class="text-green-400">2500</span> Hz</div>
@@ -1043,7 +1418,7 @@
           <!-- Upgrade 5 -->
           <div class="upgrade-card">
             <div class="text-2xl font-bold mb-2 text-primary"><i class="fas fa-chart-line"></i> Wave Amplifier</div>
-            <div class="text-sm mb-3 text-secondary">Multiply Hz/s by 3</div>
+            <div class="text-sm mb-3 text-secondary">Multiply Hz/s by 3 (softcapped at 40)</div>
             <div class="flex justify-between items-center">
               <div>
                 <div class="text-lg text-secondary">Cost: <span id="upgrade5-cost" class="text-blue-400">10000</span> Hz</div>
@@ -1056,7 +1431,7 @@
           <!-- Upgrade 6 -->
           <div class="upgrade-card">
             <div class="text-2xl font-bold mb-2 text-primary"><i class="fas fa-crown"></i> Sonic Overdrive</div>
-            <div class="text-sm mb-3 text-secondary">Multiply Hz/s by 5</div>
+            <div class="text-sm mb-3 text-secondary">Multiply Hz/s by 5 (softcapped at 30)</div>
             <div class="flex justify-between items-center">
               <div>
                 <div class="text-lg text-secondary">Cost: <span id="upgrade6-cost" class="text-purple-400">50000</span> Hz</div>
@@ -1082,6 +1457,7 @@
           <div class="text-3xl mb-2 text-secondary"><i class="fas fa-volume-up"></i> Volume</div>
           <div id="volume-display" class="text-7xl font-bold mb-4 text-purple-400">0</div>
           <div class="text-2xl text-secondary">Hz Boost: <span id="volume-boost" class="text-purple-300">1x</span></div>
+          <div id="volume-nerfs" class="nerf-indicator hidden"></div>
         </div>
 
         <div class="grid-upgrades">
@@ -1179,6 +1555,7 @@
           <div class="text-3xl mb-2 text-secondary"><i class="fas fa-broadcast-tower"></i> Speakers</div>
           <div id="speakers-display" class="text-7xl font-bold mb-4 text-teal-400">0</div>
           <div class="text-2xl text-secondary">Hz Boost: <span id="speakers-boost" class="text-teal-300">1x</span></div>
+          <div id="speaker-nerfs" class="nerf-indicator hidden"></div>
         </div>
 
         <div class="grid-upgrades">
@@ -1275,6 +1652,200 @@
         </div>
       </div>
 
+      <!-- Infinity Tab -->
+      <div id="infinity-content" class="content hidden">
+        <div class="stat-display text-center">
+          <div class="text-3xl mb-2 text-secondary"><i class="fas fa-infinity"></i> Infinity</div>
+          <div id="infinity-display" class="text-7xl font-bold mb-4 infinity-text">0</div>
+          <div class="text-2xl text-secondary">Hz Boost: <span id="infinity-boost" class="infinity-text">1x</span></div>
+          <div class="text-lg mt-4 text-secondary">Granted by Nal, the Infinite Being</div>
+        </div>
+
+        <div class="grid-upgrades">
+          <!-- Infinity Upgrade 1 -->
+          <div class="upgrade-card border-pink-400">
+            <div class="text-2xl font-bold mb-2 text-primary"><i class="fas fa-rocket"></i> Nal's Blessing</div>
+            <div class="text-sm mb-3 text-secondary">Multiply Hz/s by 10</div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-lg text-secondary">Cost: <span id="inf-up1-cost" class="infinity-text">1</span> Infinity</div>
+                <div class="text-sm text-secondary">Level: <span id="inf-up1-level">0</span></div>
+              </div>
+              <button id="inf-up1-btn" class="upgrade-btn border-pink-400 text-pink-400">BUY</button>
+            </div>
+          </div>
+
+          <!-- Infinity Upgrade 2 -->
+          <div class="upgrade-card border-pink-400">
+            <div class="text-2xl font-bold mb-2 text-primary"><i class="fas fa-volume-up"></i> Volume Acceleration</div>
+            <div class="text-sm mb-3 text-secondary">Multiply Volume gain by 5</div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-lg text-secondary">Cost: <span id="inf-up2-cost" class="infinity-text">2</span> Infinity</div>
+                <div class="text-sm text-secondary">Level: <span id="inf-up2-level">0</span></div>
+              </div>
+              <button id="inf-up2-btn" class="upgrade-btn border-pink-400 text-pink-400">BUY</button>
+            </div>
+          </div>
+
+          <!-- Infinity Upgrade 3 -->
+          <div class="upgrade-card border-pink-400">
+            <div class="text-2xl font-bold mb-2 text-primary"><i class="fas fa-infinity"></i> Self-Synergy</div>
+            <div class="text-sm mb-3 text-secondary">Hz boost based on Infinity (^0.5 per level)</div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-lg text-secondary">Cost: <span id="inf-up3-cost" class="infinity-text">3</span> Infinity</div>
+                <div class="text-sm text-secondary">Level: <span id="inf-up3-level">0</span></div>
+              </div>
+              <button id="inf-up3-btn" class="upgrade-btn border-pink-400 text-pink-400">BUY</button>
+            </div>
+          </div>
+
+          <!-- Infinity Upgrade 4 -->
+          <div class="upgrade-card border-pink-400">
+            <div class="text-2xl font-bold mb-2 text-primary"><i class="fas fa-broadcast-tower"></i> Speaker Boost</div>
+            <div class="text-sm mb-3 text-secondary">Multiply Speaker gain by 10</div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-lg text-secondary">Cost: <span id="inf-up4-cost" class="infinity-text">4</span> Infinity</div>
+                <div class="text-sm text-secondary">Level: <span id="inf-up4-level">0</span></div>
+              </div>
+              <button id="inf-up4-btn" class="upgrade-btn border-pink-400 text-pink-400">BUY</button>
+            </div>
+          </div>
+
+          <!-- Infinity Upgrade 5 -->
+          <div class="upgrade-card border-pink-400">
+            <div class="text-2xl font-bold mb-2 text-primary"><i class="fas fa-layer-group"></i> Cross-Layer</div>
+            <div class="text-sm mb-3 text-secondary">Hz boost based on Speakers (log formula)</div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-lg text-secondary">Cost: <span id="inf-up5-cost" class="infinity-text">5</span> Infinity</div>
+                <div class="text-sm text-secondary">Level: <span id="inf-up5-level">0</span></div>
+              </div>
+              <button id="inf-up5-btn" class="upgrade-btn border-pink-400 text-pink-400">BUY</button>
+            </div>
+          </div>
+
+          <!-- Infinity Upgrade 6 -->
+          <div class="upgrade-card border-pink-400">
+            <div class="text-2xl font-bold mb-2 text-primary"><i class="fas fa-compress"></i> Volume Compression</div>
+            <div class="text-sm mb-3 text-secondary">Volume gain scales with Infinity</div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-lg text-secondary">Cost: <span id="inf-up6-cost" class="infinity-text">6</span> Infinity</div>
+                <div class="text-sm text-secondary">Level: <span id="inf-up6-level">0</span></div>
+              </div>
+              <button id="inf-up6-btn" class="upgrade-btn border-pink-400 text-pink-400">BUY</button>
+            </div>
+          </div>
+
+          <!-- Infinity Upgrade 7 -->
+          <div class="upgrade-card border-pink-400">
+            <div class="text-2xl font-bold mb-2 text-primary"><i class="fas fa-chart-line"></i> Hz Scaling</div>
+            <div class="text-sm mb-3 text-secondary">Hz boost based on current Hz (log^0.5)</div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-lg text-secondary">Cost: <span id="inf-up7-cost" class="infinity-text">7</span> Infinity</div>
+                <div class="text-sm text-secondary">Level: <span id="inf-up7-level">0</span></div>
+              </div>
+              <button id="inf-up7-btn" class="upgrade-btn border-pink-400 text-pink-400">BUY</button>
+            </div>
+          </div>
+
+          <!-- Infinity Upgrade 8 -->
+          <div class="upgrade-card border-pink-400">
+            <div class="text-2xl font-bold mb-2 text-primary"><i class="fas fa-users"></i> Speaker Synergy</div>
+            <div class="text-sm mb-3 text-secondary">Speaker gain scales with Infinity (^0.75)</div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-lg text-secondary">Cost: <span id="inf-up8-cost" class="infinity-text">8</span> Infinity</div>
+                <div class="text-sm text-secondary">Level: <span id="inf-up8-level">0</span></div>
+              </div>
+              <button id="inf-up8-btn" class="upgrade-btn border-pink-400 text-pink-400">BUY</button>
+            </div>
+          </div>
+
+          <!-- Infinity Upgrade 9 -->
+          <div class="upgrade-card border-pink-400">
+            <div class="text-2xl font-bold mb-2 text-primary"><i class="fas fa-fire"></i> Reality Warp</div>
+            <div class="text-sm mb-3 text-secondary">Multiply Hz/s by 100 (INSANE!)</div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-lg text-secondary">Cost: <span id="inf-up9-cost" class="infinity-text">9</span> Infinity</div>
+                <div class="text-sm text-secondary">Level: <span id="inf-up9-level">0</span></div>
+              </div>
+              <button id="inf-up9-btn" class="upgrade-btn border-pink-400 text-pink-400">BUY</button>
+            </div>
+          </div>
+
+          <!-- Infinity Upgrade 10 -->
+          <div class="upgrade-card border-pink-400">
+            <div class="text-2xl font-bold mb-2 text-primary"><i class="fas fa-meteor"></i> Volume Meteor</div>
+            <div class="text-sm mb-3 text-secondary">Multiply Volume gain by 50</div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-lg text-secondary">Cost: <span id="inf-up10-cost" class="infinity-text">10</span> Infinity</div>
+                <div class="text-sm text-secondary">Level: <span id="inf-up10-level">0</span></div>
+              </div>
+              <button id="inf-up10-btn" class="upgrade-btn border-pink-400 text-pink-400">BUY</button>
+            </div>
+          </div>
+
+          <!-- Infinity Upgrade 11 -->
+          <div class="upgrade-card border-pink-400">
+            <div class="text-2xl font-bold mb-2 text-primary"><i class="fas fa-atom"></i> Perfect Harmony</div>
+            <div class="text-sm mb-3 text-secondary">Hz boost from Volume × Speakers (^0.2)</div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-lg text-secondary">Cost: <span id="inf-up11-cost" class="infinity-text">11</span> Infinity</div>
+                <div class="text-sm text-secondary">Level: <span id="inf-up11-level">0</span></div>
+              </div>
+              <button id="inf-up11-btn" class="upgrade-btn border-pink-400 text-pink-400">BUY</button>
+            </div>
+          </div>
+
+          <!-- Infinity Upgrade 12 -->
+          <div class="upgrade-card border-pink-400">
+            <div class="text-2xl font-bold mb-2 text-primary"><i class="fas fa-asterisk"></i> Speaker Storm</div>
+            <div class="text-sm mb-3 text-secondary">Multiply Speaker gain by 25</div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-lg text-secondary">Cost: <span id="inf-up12-cost" class="infinity-text">12</span> Infinity</div>
+                <div class="text-sm text-secondary">Level: <span id="inf-up12-level">0</span></div>
+              </div>
+              <button id="inf-up12-btn" class="upgrade-btn border-pink-400 text-pink-400">BUY</button>
+            </div>
+          </div>
+
+          <!-- Infinity Upgrade 13 -->
+          <div class="upgrade-card border-pink-400">
+            <div class="text-2xl font-bold mb-2 text-primary"><i class="fas fa-crown"></i> Nal's Gift</div>
+            <div class="text-sm mb-3 text-secondary">Multiply Hz/s by 1000 (GODLIKE!)</div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-lg text-secondary">Cost: <span id="inf-up13-cost" class="infinity-text">13</span> Infinity</div>
+                <div class="text-sm text-secondary">Level: <span id="inf-up13-level">0</span></div>
+              </div>
+              <button id="inf-up13-btn" class="upgrade-btn border-pink-400 text-pink-400">BUY</button>
+            </div>
+          </div>
+
+          <!-- Infinity Upgrade 14 -->
+          <div class="upgrade-card border-pink-400">
+            <div class="text-2xl font-bold mb-2 text-primary"><i class="fas fa-redo"></i> Eternal Loop</div>
+            <div class="text-sm mb-3 text-secondary">Double Infinity gain on collapse</div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-lg text-secondary">Cost: <span id="inf-up14-cost" class="infinity-text">14</span> Infinity</div>
+                <div class="text-sm text-secondary">Level: <span id="inf-up14-level">0</span></div>
+              </div>
+              <button id="inf-up14-btn" class="upgrade-btn border-pink-400 text-pink-400">BUY</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Achievements Tab -->
       <div id="achievements-content" class="content hidden">
         <div class="stat-display">
@@ -1285,6 +1856,7 @@
           <div class="achievement" id="ach4">Turn It Up! - Unlock Volume</div>
           <div class="achievement" id="ach5">Sound System - Unlock Speakers</div>
           <div class="achievement" id="ach6">Concert Hall - Reach 10 Speakers</div>
+          <div class="achievement" id="ach7">Reality Breaker - Meet Nal and Unlock Infinity</div>
         </div>
       </div>
 
@@ -1327,39 +1899,40 @@
           <div class="text-3xl font-bold mb-6 text-primary"><i class="fas fa-list"></i> CHANGELOG</div>
           
           <div class="space-y-4">
+            <div class="upgrade-card border-pink-400">
+              <div class="text-2xl font-bold mb-2 text-primary">v0.4.2a - Reality Collapse Update 💥</div>
+              <ul class="list-disc list-inside space-y-2 text-secondary">
+                <li>NEW: Infinity prestige layer at 1e308 Hz!</li>
+                <li>Dramatic reality collapse event with Nal, the Infinite Being</li>
+                <li>Typing effect storytelling for infinity trigger</li>
+                <li>14 powerful Infinity upgrades with unique mechanics</li>
+                <li>Better formulas with softcaps to prevent number explosion</li>
+                <li>All numbers now use Break Eternity syntax properly</li>
+                <li>5 EXTREME nerfs for Volume gain at high amounts</li>
+                <li>5 EXTREME nerfs for Speaker gain at high amounts</li>
+                <li>Nerf indicators show when active</li>
+                <li>Improved balance across all layers</li>
+                <li>New "Reality Breaker" achievement</li>
+                <li>Better number formatting</li>
+              </ul>
+            </div>
+
             <div class="upgrade-card border-blue-400">
               <div class="text-2xl font-bold mb-2 text-primary">v0.4.1a - Polish Update</div>
               <ul class="list-disc list-inside space-y-2 text-secondary">
-                <li>Fixed popup sizes - no more oversized dialogs!</li>
-                <li>Added theme-based text coloring for better readability</li>
-                <li>Improved popup styling and animations</li>
-                <li>Better contrast across all themes</li>
-                <li>Minor UI improvements</li>
+                <li>Fixed popup sizes</li>
+                <li>Added theme-based text coloring</li>
+                <li>Improved UI consistency</li>
               </ul>
             </div>
 
             <div class="upgrade-card border-purple-400">
               <div class="text-2xl font-bold mb-2 text-primary">v0.4a - The Anniversary Update 🎉</div>
               <ul class="list-disc list-inside space-y-2 text-secondary">
-                <li>Complete remaster with modern UI/UX</li>
-                <li>Switched to Break Eternity.js for better number handling</li>
-                <li>Added 10 beautiful themes (Red, Orange, Yellow, Green, Blue, Purple, Pink, Brown, Black, White)</li>
-                <li>Volume prestige system now fully functional with 6 unique upgrades</li>
-                <li>NEW: Speakers prestige layer with 7 powerful upgrades</li>
-                <li>Added 6 new Hz upgrades for better progression</li>
-                <li>Improved achievement system</li>
-                <li>Better save/load functionality</li>
-                <li>Auto-save every 30 seconds</li>
-                <li>Smooth animations and visual effects</li>
-                <li>Responsive grid layout for upgrades</li>
-                <li>Custom scrollbar styling</li>
-              </ul>
-            </div>
-
-            <div class="upgrade-card border-gray-400">
-              <div class="text-xl font-bold mb-2 text-secondary">v0.3.2a - Fixes</div>
-              <ul class="list-disc list-inside text-secondary">
-                <li>Bug fixes and improvements</li>
+                <li>Complete remaster</li>
+                <li>10 beautiful themes</li>
+                <li>Volume & Speakers prestige systems</li>
+                <li>Modern UI/UX</li>
               </ul>
             </div>
           </div>
@@ -1397,7 +1970,12 @@
     <button id="close-theme" class="upgrade-btn border-gray-400 text-gray-400 mt-6 w-full">CLOSE</button>
   </div>
 
+  <div id="popup-infinity" class="popup-infinity">
+    <div id="typing-text" class="typing-text"></div>
+    <button id="infinity-ok-btn" class="prestige-btn hidden bg-gradient-to-br from-pink-500 to-purple-600">OK</button>
+  </div>
+
   <!-- Version -->
-  <div class="version"><i class="fas fa-code"></i> v0.4.1a - Polish Update</div>
+  <div class="version"><i class="fas fa-code"></i> v0.4.2a - Reality Collapse Update</div>
 </body>
 </html>
