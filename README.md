@@ -9,7 +9,7 @@ fixed pop ups
 ## Bug fixes?:
 oversized popups.
 ## Planned updates
--0.4.1a: better popups, text aligning to theme-
+done
 0.4.2a: Better formula to prevent very large numbers happening, Infinity prestige layer
 0.4.3a: Eternity layer (get 1.79e308 infinity)
 0.4.4a: PROGRAMMING LANGUAGE OF ITS OWN????!?!
