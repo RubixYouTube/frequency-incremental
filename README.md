@@ -3,16 +3,13 @@ Start your HZ Gain.
 reach 1M Hz to get volume.
 get more volume for speaker
 and thats it for all.
-# 0.4a
+# 0.4.1a
 ## MAIN IMPROVEMENTS
-modern ui/ux
-MORE UPGRADES!
-actual functioning prestige system
-new prestige system: Speakers
+fixed pop ups
 ## Bug fixes?:
-none.
+oversized popups.
 ## Planned updates
-0.4.1a: better popups, text aligning to theme
+-0.4.1a: better popups, text aligning to theme-
 0.4.2a: Better formula to prevent very large numbers happening, Infinity prestige layer
 0.4.3a: Eternity layer (get 1.79e308 infinity)
 0.4.4a: PROGRAMMING LANGUAGE OF ITS OWN????!?!
