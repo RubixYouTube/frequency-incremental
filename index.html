@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hertz Incremental - v0.4.2a</title>
+  <title>Hertz Incremental - v0.4.2.1a</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
@@ -369,15 +369,6 @@
       font-weight: bold;
     }
 
-    @keyframes glitch {
-      0% { transform: translate(0); }
-      20% { transform: translate(-2px, 2px); }
-      40% { transform: translate(-2px, -2px); }
-      60% { transform: translate(2px, 2px); }
-      80% { transform: translate(2px, -2px); }
-      100% { transform: translate(0); }
-    }
-
     .infinity-text {
       background: linear-gradient(90deg, #8b5cf6, #ec4899, #8b5cf6);
       background-size: 200% 200%;
@@ -390,6 +381,40 @@
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
+    }
+
+    .machine-card {
+      border: 3px solid;
+      padding: 15px;
+      border-radius: 12px;
+      margin: 10px 0;
+      background: rgba(255,255,255,0.05);
+      transition: all 0.3s ease;
+    }
+
+    .machine-card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 20px currentColor;
+    }
+
+    .machine-red { border-color: #ef4444; }
+    .machine-orange { border-color: #f97316; }
+    .machine-yellow { border-color: #eab308; }
+    .machine-green { border-color: #22c55e; }
+    .machine-blue { border-color: #3b82f6; }
+    .machine-purple { border-color: #a855f7; }
+    .machine-pink { border-color: #ec4899; }
+    .machine-brown { border-color: #a1887f; }
+    .machine-rainbow { 
+      border: 3px solid;
+      border-image: linear-gradient(45deg, red, orange, yellow, green, blue, purple, pink) 1;
+      animation: rainbow 3s linear infinite;
+    }
+    .machine-monochrome { border-color: #888; }
+
+    @keyframes rainbow {
+      0% { filter: hue-rotate(0deg); }
+      100% { filter: hue-rotate(360deg); }
     }
   </style>
 
@@ -438,6 +463,8 @@
         // Infinity (Prestige 3)
         infinity: new Decimal(0),
         infinityUnlocked: false,
+        infinityTimes: new Decimal(0), // Track number of infinitizes
+        nextInfinityReq: new Decimal("1e308"),
         infinityUpgrade1: new Decimal(0),
         infinityUpgrade2: new Decimal(0),
         infinityUpgrade3: new Decimal(0),
@@ -452,6 +479,20 @@
         infinityUpgrade12: new Decimal(0),
         infinityUpgrade13: new Decimal(0),
         infinityUpgrade14: new Decimal(0),
+        infinityUpgrade15: new Decimal(0), // Passive Infinity
+        
+        // Infinite Machines
+        machinesUnlocked: false,
+        machineRed: new Decimal(0),
+        machineOrange: new Decimal(0),
+        machineYellow: new Decimal(0),
+        machineGreen: new Decimal(0),
+        machineBlue: new Decimal(0),
+        machinePurple: new Decimal(0),
+        machinePink: new Decimal(0),
+        machineBrown: new Decimal(0),
+        machineRainbow: new Decimal(0),
+        machineMonochrome: new Decimal(0),
         
         // Achievements
         achievements: {
@@ -462,11 +503,14 @@
           ach5: false,
           ach6: false,
           ach7: false,
+          ach8: false,
         },
         
         // Settings
         theme: 'black',
       };
+
+      let typingInProgress = false;
 
       // Load saved game
       const savedData = localStorage.getItem('hzGameSave');
@@ -503,30 +547,11 @@
         let mult = new Decimal(1);
         const vol = gameState.volume;
         
-        // Nerf 1: At 1000 Volume
-        if (vol.gte(1000)) {
-          mult = mult.times(0.5);
-        }
-        
-        // Nerf 2: At 10000 Volume
-        if (vol.gte(10000)) {
-          mult = mult.times(0.25);
-        }
-        
-        // Nerf 3: At 100000 Volume
-        if (vol.gte(100000)) {
-          mult = mult.times(0.1);
-        }
-        
-        // Nerf 4: At 1M Volume
-        if (vol.gte(1000000)) {
-          mult = mult.times(0.05);
-        }
-        
-        // Nerf 5: At 10M Volume
-        if (vol.gte(10000000)) {
-          mult = mult.times(0.01);
-        }
+        if (vol.gte(1000)) mult = mult.times(0.5);
+        if (vol.gte(10000)) mult = mult.times(0.25);
+        if (vol.gte(100000)) mult = mult.times(0.1);
+        if (vol.gte(1000000)) mult = mult.times(0.05);
+        if (vol.gte(10000000)) mult = mult.times(0.01);
         
         return mult;
       }
@@ -536,67 +561,60 @@
         let mult = new Decimal(1);
         const spk = gameState.speakers;
         
-        // Nerf 1: At 100 Speakers
-        if (spk.gte(100)) {
-          mult = mult.times(0.5);
-        }
-        
-        // Nerf 2: At 500 Speakers
-        if (spk.gte(500)) {
-          mult = mult.times(0.3);
-        }
-        
-        // Nerf 3: At 2000 Speakers
-        if (spk.gte(2000)) {
-          mult = mult.times(0.15);
-        }
-        
-        // Nerf 4: At 10000 Speakers
-        if (spk.gte(10000)) {
-          mult = mult.times(0.05);
-        }
-        
-        // Nerf 5: At 50000 Speakers
-        if (spk.gte(50000)) {
-          mult = mult.times(0.01);
-        }
+        if (spk.gte(100)) mult = mult.times(0.5);
+        if (spk.gte(500)) mult = mult.times(0.3);
+        if (spk.gte(2000)) mult = mult.times(0.15);
+        if (spk.gte(10000)) mult = mult.times(0.05);
+        if (spk.gte(50000)) mult = mult.times(0.01);
         
         return mult;
+      }
+
+      // Get machine boost
+      function getMachineBoost() {
+        let boost = new Decimal(1);
+        
+        if (gameState.machinesUnlocked) {
+          boost = boost.times(gameState.machineRed.plus(1).pow(1.5));
+          boost = boost.times(gameState.machineOrange.plus(1).pow(1.6));
+          boost = boost.times(gameState.machineYellow.plus(1).pow(1.7));
+          boost = boost.times(gameState.machineGreen.plus(1).pow(1.8));
+          boost = boost.times(gameState.machineBlue.plus(1).pow(2));
+          boost = boost.times(gameState.machinePurple.plus(1).pow(2.5));
+          boost = boost.times(gameState.machinePink.plus(1).pow(3));
+          boost = boost.times(gameState.machineBrown.plus(1).pow(4));
+          boost = boost.times(gameState.machineRainbow.plus(1).pow(5));
+          boost = boost.times(gameState.machineMonochrome.plus(1).pow(10));
+        }
+        
+        return boost;
       }
 
       // Calculate Hz per second with better formulas
       function calculateHzPerSec() {
         let base = new Decimal(1);
         
-        // Upgrade 1: Softcapped at level 100
         let u1Effect = Decimal.pow(2, softcap(gameState.upgrade1Level, 100, 0.5));
         base = base.times(u1Effect);
         
-        // Upgrade 2: Softcapped at level 80
         let u2Effect = Decimal.pow(1.25, softcap(gameState.upgrade2Level, 80, 0.6));
         base = base.times(u2Effect);
         
-        // Upgrade 3: Softcapped at level 60
         let u3Effect = Decimal.pow(1.5, softcap(gameState.upgrade3Level, 60, 0.55));
         base = base.times(u3Effect);
         
-        // Upgrade 4: Softcapped at level 50
         let u4Effect = Decimal.pow(2, softcap(gameState.upgrade4Level, 50, 0.5));
         base = base.times(u4Effect);
         
-        // Upgrade 5: Softcapped at level 40
         let u5Effect = Decimal.pow(3, softcap(gameState.upgrade5Level, 40, 0.45));
         base = base.times(u5Effect);
         
-        // Upgrade 6: Softcapped at level 30
         let u6Effect = Decimal.pow(5, softcap(gameState.upgrade6Level, 30, 0.4));
         base = base.times(u6Effect);
         
-        // Volume boost
         if (gameState.volumeUnlocked) {
-          let volumeBoost = gameState.volume.plus(1).pow(0.8); // Root scaling
+          let volumeBoost = gameState.volume.plus(1).pow(0.8);
           
-          // Volume upgrades
           if (gameState.volumeUpgrade1.gt(0)) {
             volumeBoost = volumeBoost.times(Decimal.pow(1.5, softcap(gameState.volumeUpgrade1, 20, 0.5)));
           }
@@ -610,11 +628,9 @@
           base = base.times(volumeBoost);
         }
         
-        // Speaker boost
         if (gameState.speakersUnlocked) {
-          let speakerBoost = gameState.speakers.plus(1).pow(1.5); // Reduced from ^2
+          let speakerBoost = gameState.speakers.plus(1).pow(1.5);
           
-          // Speaker upgrades
           if (gameState.speakerUpgrade1.gt(0)) {
             speakerBoost = speakerBoost.times(Decimal.pow(2, softcap(gameState.speakerUpgrade1, 10, 0.5)));
           }
@@ -631,11 +647,9 @@
           base = base.times(speakerBoost);
         }
         
-        // Infinity boost
         if (gameState.infinityUnlocked) {
           let infinityBoost = gameState.infinity.plus(1).pow(3);
           
-          // Infinity upgrades
           if (gameState.infinityUpgrade1.gt(0)) {
             base = base.times(Decimal.pow(10, gameState.infinityUpgrade1));
           }
@@ -661,7 +675,9 @@
           base = base.times(infinityBoost);
         }
         
-        // Final softcap at e100
+        // Machine boost
+        base = base.times(getMachineBoost());
+        
         if (base.gte("1e100")) {
           base = softcap(base, new Decimal("1e100"), 0.75);
         }
@@ -671,24 +687,20 @@
 
       // Calculate volume gain
       function calculateVolumeGain() {
-        let base = gameState.hz.div(1000000).pow(0.4).floor(); // Nerfed formula
+        let base = gameState.hz.div(1000000).pow(0.4).floor();
         
-        // Volume upgrade 2: increase volume gain
         if (gameState.volumeUpgrade2.gt(0)) {
           base = base.times(Decimal.pow(2, softcap(gameState.volumeUpgrade2, 10, 0.5)));
         }
         
-        // Speaker upgrade 2: boost volume gain
         if (gameState.speakerUpgrade2.gt(0)) {
           base = base.times(Decimal.pow(1.5, softcap(gameState.speakerUpgrade2, 8, 0.5)));
         }
         
-        // Speaker upgrade 4: massive volume boost
         if (gameState.speakerUpgrade4.gt(0)) {
           base = base.times(gameState.speakers.plus(1).pow(gameState.speakerUpgrade4.times(0.5)));
         }
         
-        // Infinity boost
         if (gameState.infinityUpgrade2.gt(0)) {
           base = base.times(Decimal.pow(5, gameState.infinityUpgrade2));
         }
@@ -699,7 +711,7 @@
           base = base.times(Decimal.pow(50, gameState.infinityUpgrade10));
         }
         
-        // Apply nerfs
+        base = base.times(getMachineBoost());
         base = base.times(getVolumeNerfMultiplier());
         
         return base.floor();
@@ -707,14 +719,12 @@
 
       // Calculate speaker gain
       function calculateSpeakerGain() {
-        let base = gameState.volume.div(100).pow(0.35).floor(); // Nerfed formula
+        let base = gameState.volume.div(100).pow(0.35).floor();
         
-        // Speaker upgrade 6: boost speaker gain
         if (gameState.speakerUpgrade6.gt(0)) {
           base = base.times(Decimal.pow(2, softcap(gameState.speakerUpgrade6, 6, 0.5)));
         }
         
-        // Infinity boost
         if (gameState.infinityUpgrade4.gt(0)) {
           base = base.times(Decimal.pow(10, gameState.infinityUpgrade4));
         }
@@ -725,7 +735,7 @@
           base = base.times(Decimal.pow(25, gameState.infinityUpgrade12));
         }
         
-        // Apply nerfs
+        base = base.times(getMachineBoost());
         base = base.times(getSpeakerNerfMultiplier());
         
         return base.floor();
@@ -733,18 +743,20 @@
 
       // Calculate infinity gain
       function calculateInfinityGain() {
-        if (gameState.hz.lt("1e308")) return new Decimal(0);
+        if (gameState.hz.lt(gameState.nextInfinityReq)) return new Decimal(0);
         
-        let base = gameState.hz.log10().div(308).pow(0.5).floor();
+        let base = gameState.hz.log10().div(gameState.nextInfinityReq.log10()).floor();
         
         if (gameState.infinityUpgrade14.gt(0)) {
           base = base.times(Decimal.pow(2, gameState.infinityUpgrade14));
         }
         
-        return base.floor();
+        base = base.times(getMachineBoost());
+        
+        return base.floor().max(1);
       }
 
-      // Format number
+      // Format number with XeYeZ notation
       function formatNumber(num, decimals = 2) {
         num = new Decimal(num);
         if (num.lt(1000)) return num.toFixed(0);
@@ -757,6 +769,13 @@
           return mantissa.toFixed(decimals) + abbrev[exp];
         }
         
+        // XeYeZ notation for very large numbers
+        if (num.e >= 1000) {
+          const firstE = Math.floor(num.e / 1000);
+          const secondE = num.e % 1000;
+          return num.mantissa.toFixed(2) + 'e' + firstE + 'e' + secondE;
+        }
+        
         return num.mantissa.toFixed(decimals) + 'e' + num.e;
       }
 
@@ -764,11 +783,9 @@
       function updateDisplay() {
         gameState.hzPerSec = calculateHzPerSec();
         
-        // Hz display
         document.getElementById('hz-display').textContent = formatNumber(gameState.hz) + ' Hz';
         document.getElementById('gain-display').textContent = formatNumber(gameState.hzPerSec) + ' Hz/s';
         
-        // Upgrade costs
         updateUpgradeButton('upgrade1', gameState.upgrade1Cost, gameState.upgrade1Level);
         updateUpgradeButton('upgrade2', gameState.upgrade2Cost, gameState.upgrade2Level);
         updateUpgradeButton('upgrade3', gameState.upgrade3Cost, gameState.upgrade3Level);
@@ -776,7 +793,6 @@
         updateUpgradeButton('upgrade5', gameState.upgrade5Cost, gameState.upgrade5Level);
         updateUpgradeButton('upgrade6', gameState.upgrade6Cost, gameState.upgrade6Level);
         
-        // Volume
         if (gameState.volumeUnlocked) {
           document.getElementById('tab-volume').classList.remove('hidden');
           document.getElementById('volume-display').textContent = formatNumber(gameState.volume);
@@ -790,11 +806,9 @@
           updateVolumeUpgrade('vol-up5', new Decimal(250).times(Decimal.pow(100, gameState.volumeUpgrade5)), gameState.volumeUpgrade5);
           updateVolumeUpgrade('vol-up6', new Decimal(500).times(Decimal.pow(250, gameState.volumeUpgrade6)), gameState.volumeUpgrade6);
           
-          // Show volume nerfs
           updateNerfDisplay('volume-nerfs', getVolumeNerfMultiplier());
         }
         
-        // Speakers
         if (gameState.speakersUnlocked) {
           document.getElementById('tab-speakers').classList.remove('hidden');
           document.getElementById('speakers-display').textContent = formatNumber(gameState.speakers);
@@ -809,29 +823,57 @@
           updateSpeakerUpgrade('spk-up6', new Decimal(250).times(Decimal.pow(500, gameState.speakerUpgrade6)), gameState.speakerUpgrade6);
           updateSpeakerUpgrade('spk-up7', new Decimal(1000).times(Decimal.pow(1000, gameState.speakerUpgrade7)), gameState.speakerUpgrade7);
           
-          // Show speaker nerfs
           updateNerfDisplay('speaker-nerfs', getSpeakerNerfMultiplier());
+          
+          // Show infinitize button if unlocked
+          if (gameState.infinityUnlocked) {
+            const infGain = calculateInfinityGain();
+            document.getElementById('infinitize-section').classList.remove('hidden');
+            document.getElementById('infinitize-gain').textContent = formatNumber(infGain);
+            document.getElementById('infinitize-next').textContent = formatNumber(gameState.nextInfinityReq);
+            document.getElementById('infinitize-btn').disabled = infGain.lt(1);
+          }
         }
         
-        // Infinity
         if (gameState.infinityUnlocked) {
           document.getElementById('tab-infinity').classList.remove('hidden');
           document.getElementById('infinity-display').textContent = formatNumber(gameState.infinity);
           const infinityBoost = gameState.infinity.plus(1).pow(3);
           document.getElementById('infinity-boost').textContent = formatNumber(infinityBoost, 2) + 'x';
           
-          // Update all infinity upgrades
-          for (let i = 1; i <= 14; i++) {
+          for (let i = 1; i <= 15; i++) {
+            const baseCost = i === 15 ? 1000000 : i;
             updateInfinityUpgrade(`inf-up${i}`, 
-              new Decimal(i).times(Decimal.pow(i * 5, gameState[`infinityUpgrade${i}`])), 
+              new Decimal(baseCost).times(Decimal.pow(i * 5, gameState[`infinityUpgrade${i}`])), 
               gameState[`infinityUpgrade${i}`]);
           }
         }
         
-        // Prestige buttons
+        // Machines
+        if (gameState.infinity.gte(1000000)) {
+          gameState.machinesUnlocked = true;
+          document.getElementById('tab-machines').classList.remove('hidden');
+          
+          const machineData = [
+            { name: 'Red', cost: new Decimal("1e6"), key: 'machineRed' },
+            { name: 'Orange', cost: new Decimal("1e9"), key: 'machineOrange' },
+            { name: 'Yellow', cost: new Decimal("1e12"), key: 'machineYellow' },
+            { name: 'Green', cost: new Decimal("1e15"), key: 'machineGreen' },
+            { name: 'Blue', cost: new Decimal("1e20"), key: 'machineBlue' },
+            { name: 'Purple', cost: new Decimal("1e30"), key: 'machinePurple' },
+            { name: 'Pink', cost: new Decimal("1e40"), key: 'machinePink' },
+            { name: 'Brown', cost: new Decimal("1e60"), key: 'machineBrown' },
+            { name: 'Rainbow', cost: new Decimal("1e80"), key: 'machineRainbow' },
+            { name: 'Monochrome', cost: new Decimal("1e100"), key: 'machineMonochrome' }
+          ];
+          
+          machineData.forEach((machine, index) => {
+            updateMachineDisplay(machine.name.toLowerCase(), machine.cost, gameState[machine.key]);
+          });
+        }
+        
         const volumeGain = calculateVolumeGain();
         const speakerGain = calculateSpeakerGain();
-        const infinityGain = calculateInfinityGain();
         
         document.getElementById('volume-gain-display').textContent = formatNumber(volumeGain);
         document.getElementById('speaker-gain-display').textContent = formatNumber(speakerGain);
@@ -852,12 +894,18 @@
           }
         }
         
-        // Check for infinity trigger
-        if (gameState.hz.gte("1e308") && !gameState.infinityUnlocked) {
+        if (gameState.hz.gte(gameState.nextInfinityReq) && !gameState.infinityUnlocked && !typingInProgress) {
           triggerInfinity();
         }
         
         checkAchievements();
+      }
+
+      function updateMachineDisplay(name, baseCost, amount) {
+        const cost = baseCost.times(Decimal.pow(10, amount.times(amount.plus(1).div(2))));
+        document.getElementById(`machine-${name}-count`).textContent = formatNumber(amount);
+        document.getElementById(`machine-${name}-cost`).textContent = formatNumber(cost);
+        document.getElementById(`machine-${name}-btn`).disabled = gameState.infinity.lt(cost);
       }
 
       function updateNerfDisplay(id, mult) {
@@ -911,18 +959,20 @@
         btn.disabled = gameState.infinity.lt(cost);
       }
 
-      // Typing effect for infinity popup
-      function typeWriter(element, text, speed, callback) {
+      // Typing effect for infinity popup (1 char per 1/12 second)
+      function typeWriter(element, text, callback) {
         let i = 0;
         element.textContent = '';
+        typingInProgress = true;
         
         function type() {
           if (i < text.length) {
             element.textContent += text.charAt(i);
             i++;
-            setTimeout(type, speed);
-          } else if (callback) {
-            callback();
+            setTimeout(type, 1000 / 12); // 1 char per 1/12 second
+          } else {
+            typingInProgress = false;
+            if (callback) callback();
           }
         }
         type();
@@ -939,23 +989,78 @@
         
         const message = "The Reality has collapsed due to so much hertz being made, the infinite being named 'Nal' has reset you for faster progression.";
         
-        typeWriter(typingText, message, 50, () => {
+        typeWriter(typingText, message, () => {
           okBtn.classList.remove('hidden');
         });
       }
 
       // Accept infinity
       function acceptInfinity() {
-        const gain = calculateInfinityGain();
-        gameState.infinity = gameState.infinity.plus(gain.max(1));
+        const gain = calculateInfinityGain().max(1);
+        gameState.infinity = gameState.infinity.plus(gain);
         gameState.infinityUnlocked = true;
+        gameState.infinityTimes = gameState.infinityTimes.plus(1);
         
-        // Full reset
+        // Increase next requirement: multiply by 10^(20 * 2^times)
+        const multiplier = Decimal.pow(10, new Decimal(20).times(Decimal.pow(2, gameState.infinityTimes)));
+        gameState.nextInfinityReq = gameState.nextInfinityReq.times(multiplier);
+        
+        resetBelowInfinity();
+        
+        document.getElementById('popup-infinity').classList.remove('visible');
+        updateDisplay();
+        saveGame();
+        
+        showPopup(`Reality Collapsed! +${formatNumber(gain)} Infinity`, 'achievement');
+      }
+
+      // Infinitize (manual reset)
+      function infinitize() {
+        const gain = calculateInfinityGain();
+        if (gain.gte(1)) {
+          gameState.infinity = gameState.infinity.plus(gain);
+          gameState.infinityTimes = gameState.infinityTimes.plus(1);
+          
+          const multiplier = Decimal.pow(10, new Decimal(20).times(Decimal.pow(2, gameState.infinityTimes)));
+          gameState.nextInfinityReq = gameState.nextInfinityReq.times(multiplier);
+          
+          resetBelowInfinity();
+          updateDisplay();
+          showPopup(`Infinitized! +${formatNumber(gain)} Infinity`, 'achievement');
+        }
+      }
+
+      // Bulk Infinitize
+      function bulkInfinitize() {
+        let totalGain = new Decimal(0);
+        let count = 0;
+        
+        while (calculateInfinityGain().gte(1) && count < 1000) {
+          const gain = calculateInfinityGain();
+          totalGain = totalGain.plus(gain);
+          gameState.infinity = gameState.infinity.plus(gain);
+          gameState.infinityTimes = gameState.infinityTimes.plus(1);
+          
+          const multiplier = Decimal.pow(10, new Decimal(20).times(Decimal.pow(2, gameState.infinityTimes)));
+          gameState.nextInfinityReq = gameState.nextInfinityReq.times(multiplier);
+          
+          // Check if next infinity is possible
+          if (gameState.hz.lt(gameState.nextInfinityReq)) break;
+          count++;
+        }
+        
+        if (totalGain.gt(0)) {
+          resetBelowInfinity();
+          updateDisplay();
+          showPopup(`Bulk Infinitized ${count} times! +${formatNumber(totalGain)} Infinity`, 'achievement');
+        }
+      }
+
+      function resetBelowInfinity() {
         gameState.hz = new Decimal(0);
         gameState.volume = new Decimal(0);
         gameState.speakers = new Decimal(0);
         
-        // Reset all upgrades
         gameState.upgrade1Level = new Decimal(0);
         gameState.upgrade1Cost = new Decimal(7);
         gameState.upgrade2Level = new Decimal(0);
@@ -983,12 +1088,6 @@
         gameState.speakerUpgrade5 = new Decimal(0);
         gameState.speakerUpgrade6 = new Decimal(0);
         gameState.speakerUpgrade7 = new Decimal(0);
-        
-        document.getElementById('popup-infinity').classList.remove('visible');
-        updateDisplay();
-        saveGame();
-        
-        showPopup(`Reality Collapsed! +${formatNumber(gain.max(1))} Infinity`, 'achievement');
       }
 
       // Check achievements
@@ -1014,8 +1113,10 @@
         if (gameState.infinityUnlocked && !gameState.achievements.ach7) {
           unlockAchievement('ach7', 'Reality Breaker');
         }
+        if (gameState.machinesUnlocked && !gameState.achievements.ach8) {
+          unlockAchievement('ach8', 'Machine Era');
+        }
         
-        // Update achievement display
         Object.keys(gameState.achievements).forEach(key => {
           const el = document.getElementById(key);
           if (gameState.achievements[key]) {
@@ -1040,6 +1141,14 @@
         setTimeout(() => popup.classList.remove('visible'), 3000);
       }
 
+      // Passive infinity gain
+      function passiveInfinityGain() {
+        if (gameState.infinityUpgrade15.gt(0)) {
+          const gain = gameState.infinityUpgrade15.times(0.01); // 1% per level per second
+          gameState.infinity = gameState.infinity.plus(gain);
+        }
+      }
+
       // Game loop
       function gameLoop() {
         gameState.hz = gameState.hz.plus(gameState.hzPerSec.div(30));
@@ -1057,6 +1166,21 @@
           gameState[costKey] = gameState[costKey].times(upgradeNum === 1 ? 2 : upgradeNum === 2 ? 2.5 : upgradeNum === 3 ? 3 : upgradeNum === 4 ? 4 : upgradeNum === 5 ? 5 : 6);
           updateDisplay();
         }
+      }
+
+      function buyMaxUpgrade(upgradeNum) {
+        const costKey = `upgrade${upgradeNum}Cost`;
+        const levelKey = `upgrade${upgradeNum}Level`;
+        const mult = upgradeNum === 1 ? 2 : upgradeNum === 2 ? 2.5 : upgradeNum === 3 ? 3 : upgradeNum === 4 ? 4 : upgradeNum === 5 ? 5 : 6;
+        
+        let bought = 0;
+        while (gameState.hz.gte(gameState[costKey]) && bought < 1000) {
+          gameState.hz = gameState.hz.minus(gameState[costKey]);
+          gameState[levelKey] = gameState[levelKey].plus(1);
+          gameState[costKey] = gameState[costKey].times(mult);
+          bought++;
+        }
+        updateDisplay();
       }
 
       function buyVolumeUpgrade(upgradeNum) {
@@ -1085,11 +1209,37 @@
 
       function buyInfinityUpgrade(upgradeNum) {
         const levelKey = `infinityUpgrade${upgradeNum}`;
-        const cost = new Decimal(upgradeNum).times(Decimal.pow(upgradeNum * 5, gameState[levelKey]));
+        const baseCost = upgradeNum === 15 ? 1000000 : upgradeNum;
+        const cost = new Decimal(baseCost).times(Decimal.pow(upgradeNum * 5, gameState[levelKey]));
         
         if (gameState.infinity.gte(cost)) {
           gameState.infinity = gameState.infinity.minus(cost);
           gameState[levelKey] = gameState[levelKey].plus(1);
+          updateDisplay();
+        }
+      }
+
+      function buyMachine(machineName) {
+        const machineData = {
+          'red': { cost: new Decimal("1e6"), key: 'machineRed' },
+          'orange': { cost: new Decimal("1e9"), key: 'machineOrange' },
+          'yellow': { cost: new Decimal("1e12"), key: 'machineYellow' },
+          'green': { cost: new Decimal("1e15"), key: 'machineGreen' },
+          'blue': { cost: new Decimal("1e20"), key: 'machineBlue' },
+          'purple': { cost: new Decimal("1e30"), key: 'machinePurple' },
+          'pink': { cost: new Decimal("1e40"), key: 'machinePink' },
+          'brown': { cost: new Decimal("1e60"), key: 'machineBrown' },
+          'rainbow': { cost: new Decimal("1e80"), key: 'machineRainbow' },
+          'monochrome': { cost: new Decimal("1e100"), key: 'machineMonochrome' }
+        };
+        
+        const machine = machineData[machineName];
+        const amount = gameState[machine.key];
+        const cost = machine.cost.times(Decimal.pow(10, amount.times(amount.plus(1).div(2))));
+        
+        if (gameState.infinity.gte(cost)) {
+          gameState.infinity = gameState.infinity.minus(cost);
+          gameState[machine.key] = gameState[machine.key].plus(1);
           updateDisplay();
         }
       }
@@ -1101,7 +1251,6 @@
           gameState.volume = gameState.volume.plus(gain);
           gameState.volumeUnlocked = true;
           
-          // Reset Hz stuff
           gameState.hz = new Decimal(0);
           gameState.upgrade1Level = new Decimal(0);
           gameState.upgrade1Cost = new Decimal(7);
@@ -1127,7 +1276,6 @@
           gameState.speakers = gameState.speakers.plus(gain);
           gameState.speakersUnlocked = true;
           
-          // Reset everything below
           gameState.volume = new Decimal(0);
           gameState.volumeUpgrade1 = new Decimal(0);
           gameState.volumeUpgrade2 = new Decimal(0);
@@ -1223,7 +1371,6 @@
         themes.forEach(t => body.classList.remove(`theme-${t}`));
         body.classList.add(`theme-${theme}`);
         
-        // Update active theme button
         document.querySelectorAll('.theme-btn').forEach(btn => {
           btn.classList.remove('active');
         });
@@ -1240,7 +1387,7 @@
       // Tab system
       function switchTab(tabName) {
         document.querySelectorAll('.tab').forEach(tab => {
-          tab.classList.remove('bg-white', 'bg-green-500', 'bg-orange-500', 'bg-blue-500', 'bg-purple-500', 'bg-teal-500', 'bg-pink-500', 'text-black');
+          tab.classList.remove('bg-white', 'bg-green-500', 'bg-orange-500', 'bg-blue-500', 'bg-purple-500', 'bg-teal-500', 'bg-pink-500', 'bg-yellow-500', 'text-black');
           tab.classList.add('text-gray-300', 'bg-gray-800');
         });
         
@@ -1259,6 +1406,7 @@
       // Event listeners
       for (let i = 1; i <= 6; i++) {
         document.getElementById(`upgrade${i}-btn`).addEventListener('click', () => buyUpgrade(i));
+        document.getElementById(`upgrade${i}-max`).addEventListener('click', () => buyMaxUpgrade(i));
       }
       
       for (let i = 1; i <= 6; i++) {
@@ -1269,13 +1417,20 @@
         document.getElementById(`spk-up${i}-btn`).addEventListener('click', () => buySpeakerUpgrade(i));
       }
 
-      for (let i = 1; i <= 14; i++) {
+      for (let i = 1; i <= 15; i++) {
         document.getElementById(`inf-up${i}-btn`).addEventListener('click', () => buyInfinityUpgrade(i));
       }
+
+      const machines = ['red', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'brown', 'rainbow', 'monochrome'];
+      machines.forEach(machine => {
+        document.getElementById(`machine-${machine}-btn`).addEventListener('click', () => buyMachine(machine));
+      });
 
       document.getElementById('prestige-volume-btn').addEventListener('click', prestigeVolume);
       document.getElementById('prestige-speaker-btn').addEventListener('click', prestigeSpeaker);
       document.getElementById('infinity-ok-btn').addEventListener('click', acceptInfinity);
+      document.getElementById('infinitize-btn').addEventListener('click', infinitize);
+      document.getElementById('bulk-infinitize-btn').addEventListener('click', bulkInfinitize);
       
       document.getElementById('save-button').addEventListener('click', saveGame);
       document.getElementById('load-button').addEventListener('click', () => {
@@ -1296,13 +1451,11 @@
         document.getElementById('popup-theme').classList.remove('visible');
       });
 
-      // Theme buttons
       const themes = ['red', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'brown', 'black', 'white'];
       themes.forEach(theme => {
         document.getElementById(`theme-${theme}`).addEventListener('click', () => changeTheme(theme));
       });
 
-      // Tab buttons
       document.querySelectorAll('.tab').forEach(tab => {
         tab.addEventListener('click', function() {
           const contentName = this.id.replace('tab-', '');
@@ -1312,7 +1465,8 @@
 
       // Start game loop
       setInterval(gameLoop, 1000 / 30);
-      setInterval(saveGame, 30000); // Auto-save every 30 seconds
+      setInterval(passiveInfinityGain, 1000);
+      setInterval(saveGame, 30000);
       
       updateDisplay();
     });
@@ -1339,6 +1493,10 @@
         <i class="fas fa-infinity"></i> Infinity
       </div>
 
+      <div id="tab-machines" class="tab text-lg text-gray-300 bg-gray-800 p-4 cursor-pointer rounded-lg border-2 border-red-500 hidden" data-color="bg-red-500">
+        <i class="fas fa-cogs"></i> Machines
+      </div>
+
       <div id="tab-achievements" class="tab text-lg text-gray-300 bg-gray-800 p-4 cursor-pointer rounded-lg border-2 border-green-500" data-color="bg-green-500">
         <i class="fas fa-trophy"></i> Achievements
       </div>
@@ -1349,6 +1507,10 @@
 
       <div id="tab-changelog" class="tab text-lg text-gray-300 bg-gray-800 p-4 cursor-pointer rounded-lg border-2 border-blue-500" data-color="bg-blue-500">
         <i class="fas fa-list"></i> Changelog
+      </div>
+
+      <div id="tab-about" class="tab text-lg text-gray-300 bg-gray-800 p-4 cursor-pointer rounded-lg border-2 border-yellow-500" data-color="bg-yellow-500">
+        <i class="fas fa-question-circle"></i> About this?
       </div>
     </div>
 
@@ -1372,7 +1534,10 @@
                 <div class="text-lg text-secondary">Cost: <span id="upgrade1-cost" class="text-yellow-400">7</span> Hz</div>
                 <div class="text-sm text-secondary">Level: <span id="upgrade1-level">0</span></div>
               </div>
-              <button id="upgrade1-btn" class="upgrade-btn border-yellow-400 text-yellow-400">BUY</button>
+              <div class="flex space-x-2">
+                <button id="upgrade1-btn" class="upgrade-btn border-yellow-400 text-yellow-400">BUY</button>
+                <button id="upgrade1-max" class="upgrade-btn border-yellow-400 text-yellow-400">MAX</button>
+              </div>
             </div>
           </div>
 
@@ -1385,7 +1550,10 @@
                 <div class="text-lg text-secondary">Cost: <span id="upgrade2-cost" class="text-orange-400">100</span> Hz</div>
                 <div class="text-sm text-secondary">Level: <span id="upgrade2-level">0</span></div>
               </div>
-              <button id="upgrade2-btn" class="upgrade-btn border-orange-400 text-orange-400">BUY</button>
+              <div class="flex space-x-2">
+                <button id="upgrade2-btn" class="upgrade-btn border-orange-400 text-orange-400">BUY</button>
+                <button id="upgrade2-max" class="upgrade-btn border-orange-400 text-orange-400">MAX</button>
+              </div>
             </div>
           </div>
 
@@ -1398,7 +1566,10 @@
                 <div class="text-lg text-secondary">Cost: <span id="upgrade3-cost" class="text-red-400">500</span> Hz</div>
                 <div class="text-sm text-secondary">Level: <span id="upgrade3-level">0</span></div>
               </div>
-              <button id="upgrade3-btn" class="upgrade-btn border-red-400 text-red-400">BUY</button>
+              <div class="flex space-x-2">
+                <button id="upgrade3-btn" class="upgrade-btn border-red-400 text-red-400">BUY</button>
+                <button id="upgrade3-max" class="upgrade-btn border-red-400 text-red-400">MAX</button>
+              </div>
             </div>
           </div>
 
@@ -1411,7 +1582,10 @@
                 <div class="text-lg text-secondary">Cost: <span id="upgrade4-cost" class="text-green-400">2500</span> Hz</div>
                 <div class="text-sm text-secondary">Level: <span id="upgrade4-level">0</span></div>
               </div>
-              <button id="upgrade4-btn" class="upgrade-btn border-green-400 text-green-400">BUY</button>
+              <div class="flex space-x-2">
+                <button id="upgrade4-btn" class="upgrade-btn border-green-400 text-green-400">BUY</button>
+                <button id="upgrade4-max" class="upgrade-btn border-green-400 text-green-400">MAX</button>
+              </div>
             </div>
           </div>
 
@@ -1424,7 +1598,10 @@
                 <div class="text-lg text-secondary">Cost: <span id="upgrade5-cost" class="text-blue-400">10000</span> Hz</div>
                 <div class="text-sm text-secondary">Level: <span id="upgrade5-level">0</span></div>
               </div>
-              <button id="upgrade5-btn" class="upgrade-btn border-blue-400 text-blue-400">BUY</button>
+              <div class="flex space-x-2">
+                <button id="upgrade5-btn" class="upgrade-btn border-blue-400 text-blue-400">BUY</button>
+                <button id="upgrade5-max" class="upgrade-btn border-blue-400 text-blue-400">MAX</button>
+              </div>
             </div>
           </div>
 
@@ -1437,7 +1614,10 @@
                 <div class="text-lg text-secondary">Cost: <span id="upgrade6-cost" class="text-purple-400">50000</span> Hz</div>
                 <div class="text-sm text-secondary">Level: <span id="upgrade6-level">0</span></div>
               </div>
-              <button id="upgrade6-btn" class="upgrade-btn border-purple-400 text-purple-400">BUY</button>
+              <div class="flex space-x-2">
+                <button id="upgrade6-btn" class="upgrade-btn border-purple-400 text-purple-400">BUY</button>
+                <button id="upgrade6-max" class="upgrade-btn border-purple-400 text-purple-400">MAX</button>
+              </div>
             </div>
           </div>
         </div>
@@ -1556,6 +1736,17 @@
           <div id="speakers-display" class="text-7xl font-bold mb-4 text-teal-400">0</div>
           <div class="text-2xl text-secondary">Hz Boost: <span id="speakers-boost" class="text-teal-300">1x</span></div>
           <div id="speaker-nerfs" class="nerf-indicator hidden"></div>
+        </div>
+
+        <!-- Infinitize Section -->
+        <div id="infinitize-section" class="stat-display bg-pink-900 bg-opacity-30 border-pink-500 hidden">
+          <div class="text-3xl font-bold mb-4 infinity-text"><i class="fas fa-infinity"></i> INFINITIZE!</div>
+          <div class="text-xl mb-2 text-secondary">Collapse Reality to gain <span id="infinitize-gain" class="infinity-text font-bold">0</span> Infinity</div>
+          <div class="text-lg mb-4 text-secondary">Next at: <span id="infinitize-next" class="text-pink-300">1e308</span> Hz</div>
+          <div class="flex space-x-4">
+            <button id="infinitize-btn" class="prestige-btn flex-1 bg-gradient-to-br from-pink-500 to-purple-600">INFINITIZE!</button>
+            <button id="bulk-infinitize-btn" class="prestige-btn flex-1 bg-gradient-to-br from-purple-500 to-indigo-600">BULK INFINITIZE</button>
+          </div>
         </div>
 
         <div class="grid-upgrades">
@@ -1843,6 +2034,169 @@
               <button id="inf-up14-btn" class="upgrade-btn border-pink-400 text-pink-400">BUY</button>
             </div>
           </div>
+
+          <!-- Infinity Upgrade 15 - PASSIVE INFINITY -->
+          <div class="upgrade-card border-pink-400 bg-pink-900 bg-opacity-20">
+            <div class="text-2xl font-bold mb-2 text-primary"><i class="fas fa-hourglass-half"></i> Passive Infinity</div>
+            <div class="text-sm mb-3 text-secondary">Gain 1% Infinity per level per second (NO RESET!)</div>
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-lg text-secondary">Cost: <span id="inf-up15-cost" class="infinity-text">1000000</span> Infinity</div>
+                <div class="text-sm text-secondary">Level: <span id="inf-up15-level">0</span></div>
+              </div>
+              <button id="inf-up15-btn" class="upgrade-btn border-pink-400 text-pink-400">BUY</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Machines Tab -->
+      <div id="machines-content" class="content hidden">
+        <div class="stat-display text-center">
+          <div class="text-3xl mb-4 text-primary"><i class="fas fa-cogs"></i> INFINITE MACHINES</div>
+          <div class="text-xl text-secondary">Machines boost ALL prestige layers (including themselves!)</div>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Red Machine -->
+          <div class="machine-card machine-red">
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-2xl font-bold text-red-400"><i class="fas fa-square"></i> Red Machine</div>
+                <div class="text-sm text-secondary">Count: <span id="machine-red-count">0</span> | Boost: x<span id="machine-red-boost">1</span></div>
+              </div>
+              <div>
+                <div class="text-lg text-secondary">Cost: <span id="machine-red-cost" class="text-red-400">1e6</span> Infinity</div>
+                <button id="machine-red-btn" class="upgrade-btn border-red-400 text-red-400">BUY</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Orange Machine -->
+          <div class="machine-card machine-orange">
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-2xl font-bold text-orange-400"><i class="fas fa-square"></i> Orange Machine</div>
+                <div class="text-sm text-secondary">Count: <span id="machine-orange-count">0</span> | Boost: x<span id="machine-orange-boost">1</span></div>
+              </div>
+              <div>
+                <div class="text-lg text-secondary">Cost: <span id="machine-orange-cost" class="text-orange-400">1e9</span> Infinity</div>
+                <button id="machine-orange-btn" class="upgrade-btn border-orange-400 text-orange-400">BUY</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Yellow Machine -->
+          <div class="machine-card machine-yellow">
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-2xl font-bold text-yellow-400"><i class="fas fa-square"></i> Yellow Machine</div>
+                <div class="text-sm text-secondary">Count: <span id="machine-yellow-count">0</span> | Boost: x<span id="machine-yellow-boost">1</span></div>
+              </div>
+              <div>
+                <div class="text-lg text-secondary">Cost: <span id="machine-yellow-cost" class="text-yellow-400">1e12</span> Infinity</div>
+                <button id="machine-yellow-btn" class="upgrade-btn border-yellow-400 text-yellow-400">BUY</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Green Machine -->
+          <div class="machine-card machine-green">
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-2xl font-bold text-green-400"><i class="fas fa-square"></i> Green Machine</div>
+                <div class="text-sm text-secondary">Count: <span id="machine-green-count">0</span> | Boost: x<span id="machine-green-boost">1</span></div>
+              </div>
+              <div>
+                <div class="text-lg text-secondary">Cost: <span id="machine-green-cost" class="text-green-400">1e15</span> Infinity</div>
+                <button id="machine-green-btn" class="upgrade-btn border-green-400 text-green-400">BUY</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Blue Machine -->
+          <div class="machine-card machine-blue">
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-2xl font-bold text-blue-400"><i class="fas fa-square"></i> Blue Machine</div>
+                <div class="text-sm text-secondary">Count: <span id="machine-blue-count">0</span> | Boost: x<span id="machine-blue-boost">1</span></div>
+              </div>
+              <div>
+                <div class="text-lg text-secondary">Cost: <span id="machine-blue-cost" class="text-blue-400">1e20</span> Infinity</div>
+                <button id="machine-blue-btn" class="upgrade-btn border-blue-400 text-blue-400">BUY</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Purple Machine -->
+          <div class="machine-card machine-purple">
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-2xl font-bold text-purple-400"><i class="fas fa-square"></i> Purple Machine</div>
+                <div class="text-sm text-secondary">Count: <span id="machine-purple-count">0</span> | Boost: x<span id="machine-purple-boost">1</span></div>
+              </div>
+              <div>
+                <div class="text-lg text-secondary">Cost: <span id="machine-purple-cost" class="text-purple-400">1e30</span> Infinity</div>
+                <button id="machine-purple-btn" class="upgrade-btn border-purple-400 text-purple-400">BUY</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pink Machine -->
+          <div class="machine-card machine-pink">
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-2xl font-bold text-pink-400"><i class="fas fa-square"></i> Pink Machine</div>
+                <div class="text-sm text-secondary">Count: <span id="machine-pink-count">0</span> | Boost: x<span id="machine-pink-boost">1</span></div>
+              </div>
+              <div>
+                <div class="text-lg text-secondary">Cost: <span id="machine-pink-cost" class="text-pink-400">1e40</span> Infinity</div>
+                <button id="machine-pink-btn" class="upgrade-btn border-pink-400 text-pink-400">BUY</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Brown Machine -->
+          <div class="machine-card machine-brown">
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-2xl font-bold" style="color: #a1887f;"><i class="fas fa-square"></i> Brown Machine</div>
+                <div class="text-sm text-secondary">Count: <span id="machine-brown-count">0</span> | Boost: x<span id="machine-brown-boost">1</span></div>
+              </div>
+              <div>
+                <div class="text-lg text-secondary">Cost: <span id="machine-brown-cost" style="color: #a1887f;">1e60</span> Infinity</div>
+                <button id="machine-brown-btn" class="upgrade-btn" style="border-color: #a1887f; color: #a1887f;">BUY</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rainbow Machine -->
+          <div class="machine-card machine-rainbow">
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-2xl font-bold text-white"><i class="fas fa-rainbow"></i> Rainbow Machine</div>
+                <div class="text-sm text-secondary">Count: <span id="machine-rainbow-count">0</span> | Boost: x<span id="machine-rainbow-boost">1</span></div>
+              </div>
+              <div>
+                <div class="text-lg text-secondary">Cost: <span id="machine-rainbow-cost" class="text-white">1e80</span> Infinity</div>
+                <button id="machine-rainbow-btn" class="upgrade-btn border-white text-white">BUY</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Monochrome Machine -->
+          <div class="machine-card machine-monochrome">
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-2xl font-bold text-gray-400"><i class="fas fa-circle"></i> Monochrome Machine</div>
+                <div class="text-sm text-secondary">Count: <span id="machine-monochrome-count">0</span> | Boost: x<span id="machine-monochrome-boost">1</span></div>
+              </div>
+              <div>
+                <div class="text-lg text-secondary">Cost: <span id="machine-monochrome-cost" class="text-gray-400">1e100</span> Infinity</div>
+                <button id="machine-monochrome-btn" class="upgrade-btn border-gray-400 text-gray-400">BUY</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1857,6 +2211,7 @@
           <div class="achievement" id="ach5">Sound System - Unlock Speakers</div>
           <div class="achievement" id="ach6">Concert Hall - Reach 10 Speakers</div>
           <div class="achievement" id="ach7">Reality Breaker - Meet Nal and Unlock Infinity</div>
+          <div class="achievement" id="ach8">Machine Era - Unlock Infinite Machines</div>
         </div>
       </div>
 
@@ -1900,41 +2255,55 @@
           
           <div class="space-y-4">
             <div class="upgrade-card border-pink-400">
+              <div class="text-2xl font-bold mb-2 text-primary">v0.4.2.1a - Infinity Overhaul 🔥</div>
+              <ul class="list-disc list-inside space-y-2 text-secondary">
+                <li>FIXED: Can now infinitize multiple times!</li>
+                <li>Added "Infinitize!" button on Speakers tab</li>
+                <li>Added BULK INFINITIZE feature</li>
+                <li>Infinity requirement scaling: +20, +40, +80, +160 digits...</li>
+                <li>Shows next infinity requirement</li>
+                <li>NEW: Passive Infinity upgrade (1M cost)</li>
+                <li>NEW: Infinite Machines system (10 tiers!)</li>
+                <li>Unlocks at 1,000,000 Infinity</li>
+                <li>Red, Orange, Yellow, Green, Blue, Purple, Pink, Brown, Rainbow, Monochrome</li>
+                <li>Typing speed: 1 char per 1/12 second</li>
+                <li>Added BUY MAX buttons to Hz upgrades</li>
+                <li>NEW: "About this?" tab with developer message</li>
+                <li>XeYeZ number notation for huge numbers</li>
+                <li>New "Machine Era" achievement</li>
+              </ul>
+            </div>
+
+            <div class="upgrade-card border-pink-400">
               <div class="text-2xl font-bold mb-2 text-primary">v0.4.2a - Reality Collapse Update 💥</div>
               <ul class="list-disc list-inside space-y-2 text-secondary">
-                <li>NEW: Infinity prestige layer at 1e308 Hz!</li>
-                <li>Dramatic reality collapse event with Nal, the Infinite Being</li>
-                <li>Typing effect storytelling for infinity trigger</li>
-                <li>14 powerful Infinity upgrades with unique mechanics</li>
-                <li>Better formulas with softcaps to prevent number explosion</li>
-                <li>All numbers now use Break Eternity syntax properly</li>
-                <li>5 EXTREME nerfs for Volume gain at high amounts</li>
-                <li>5 EXTREME nerfs for Speaker gain at high amounts</li>
-                <li>Nerf indicators show when active</li>
-                <li>Improved balance across all layers</li>
-                <li>New "Reality Breaker" achievement</li>
-                <li>Better number formatting</li>
+                <li>NEW: Infinity prestige layer</li>
+                <li>14 powerful Infinity upgrades</li>
+                <li>Better formulas with softcaps</li>
+                <li>5 EXTREME nerfs for Volume & Speakers</li>
               </ul>
             </div>
+          </div>
+        </div>
+      </div>
 
-            <div class="upgrade-card border-blue-400">
-              <div class="text-2xl font-bold mb-2 text-primary">v0.4.1a - Polish Update</div>
-              <ul class="list-disc list-inside space-y-2 text-secondary">
-                <li>Fixed popup sizes</li>
-                <li>Added theme-based text coloring</li>
-                <li>Improved UI consistency</li>
-              </ul>
-            </div>
+      <!-- About Tab -->
+      <div id="about-content" class="content hidden">
+        <div class="stat-display text-center">
+          <div class="text-3xl font-bold mb-6 text-yellow-400"><i class="fas fa-question-circle"></i> ABOUT THIS GAME</div>
+          
+          <div class="text-xl leading-relaxed text-secondary mb-8 text-left">
+            <p class="mb-4">This game started out as a blank page with text saying "it's coming soon."</p>
+            <p class="mb-4">Then it showed regular buttons and a Hz meter (just orange).</p>
+            <p class="mb-4">Then it changed to a blue theme with tabs until v0.3.2a.</p>
+            <p class="mb-4">Then it was entirely CHANGED and had a new look.</p>
+            <p class="mb-4">And now... it's now a cool game that you're playing now.</p>
+            <p class="mb-8">The incredible journey I had...</p>
+            <p class="mb-4"><strong>This wouldn't be possible without You guys.</strong></p>
+          </div>
 
-            <div class="upgrade-card border-purple-400">
-              <div class="text-2xl font-bold mb-2 text-primary">v0.4a - The Anniversary Update 🎉</div>
-              <ul class="list-disc list-inside space-y-2 text-secondary">
-                <li>Complete remaster</li>
-                <li>10 beautiful themes</li>
-                <li>Volume & Speakers prestige systems</li>
-                <li>Modern UI/UX</li>
-              </ul>
-            </div>
+          <div class="text-6xl font-bold text-yellow-500 mt-8">
+            Sincerely, Rubix.
           </div>
         </div>
       </div>
@@ -1976,6 +2345,6 @@
   </div>
 
   <!-- Version -->
-  <div class="version"><i class="fas fa-code"></i> v0.4.2a - Reality Collapse Update</div>
+  <div class="version"><i class="fas fa-code"></i> v0.4.2.1a - Infinity Overhaul</div>
 </body>
 </html>
