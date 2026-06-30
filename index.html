@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hertz Incremental - v0.4.46a</title>
+  <title>Hertz Incremental - v0.4.4a</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/gh/Patashu/break_eternity.js@master/break_eternity.min.js"></script>
@@ -11,18 +11,12 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{transition:background 0.5s ease,color 0.3s ease;font-family:'Segoe UI',sans-serif}
 @keyframes bgShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-@keyframes pulse{0%,100%{box-shadow:0 0 20px rgba(255,255,255,0.2)}50%{box-shadow:0 0 30px rgba(255,255,255,0.5)}}
-@keyframes slideIn{from{transform:translateX(-20px);opacity:0}to{transform:translateX(0);opacity:1}}
-@keyframes notifSlide{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
 .animated-bg{background-size:400% 400%;animation:bgShift 15s ease infinite}
-.fade-in{animation:fadeIn 0.4s ease}
-.tab{transition:all 0.3s ease;position:relative;overflow:hidden;animation:slideIn 0.3s ease}
+.tab{transition:all 0.3s ease;position:relative;overflow:hidden}
 .tab::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);transition:left 0.5s ease}
 .tab:hover::before{left:100%}
 .tab:hover{transform:translateX(5px);box-shadow:0 0 20px rgba(255,255,255,0.3)}
-.tab.active-tab{animation:pulse 2s ease infinite}
-.popup,.popup2,.popup-theme,.popup-infinity,.popup-eternity{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:450px;padding:25px;display:none;flex-direction:column;border-radius:20px;box-shadow:0 0 40px rgba(0,0,0,0.9);opacity:0;transition:opacity 0.3s ease;backdrop-filter:blur(20px);z-index:1000;border:2px solid rgba(255,255,255,0.3);background:rgba(0,0,0,0.92)}
+.popup,.popup2,.popup-theme,.popup-infinity,.popup-eternity{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:450px;padding:25px;display:none;flex-direction:column;border-radius:15px;box-shadow:0 0 30px rgba(0,0,0,0.8);opacity:0;transition:opacity 0.3s ease;backdrop-filter:blur(15px);z-index:1000;border:2px solid rgba(255,255,255,0.3);background:rgba(0,0,0,0.92)}
 .popup.visible,.popup2.visible,.popup-theme.visible,.popup-infinity.visible,.popup-eternity.visible{display:flex;opacity:1}
 .popup{width:400px;padding:20px;text-align:center;font-size:1.1rem;font-weight:bold}
 .popup-infinity,.popup-eternity{width:700px;min-height:350px;justify-content:center;align-items:center}
@@ -30,46 +24,38 @@ body{transition:background 0.5s ease,color 0.3s ease;font-family:'Segoe UI',sans
 .popup-eternity{border-color:#00e870}
 .typing-text{font-size:1.2rem;line-height:1.8;color:#a78bfa;text-align:center;margin-bottom:30px;min-height:150px}
 .typing-text-et{background:linear-gradient(90deg,#00e870,#00aede,#00ba54);background-size:200% 200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:grad 3s ease infinite}
-.achievement{background:linear-gradient(135deg,#064e3b,#065f46);border:2px solid #10b981;width:100%;padding:16px;display:flex;align-items:center;justify-content:space-between;border-radius:12px;margin-top:10px;transition:all 0.3s;box-shadow:0 4px 12px rgba(0,0,0,0.3);font-size:1rem;font-weight:bold}
-.achievement.completed{background:linear-gradient(135deg,#10b981,#34d399);color:#000;transform:scale(1.01)}
-.achievement:hover{transform:translateX(5px)}
-.upgrade-card{background:linear-gradient(135deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03));border:2px solid rgba(255,255,255,0.2);border-radius:15px;padding:16px;transition:all 0.3s;backdrop-filter:blur(10px);position:relative;overflow:hidden}
-.upgrade-card::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:2px;background:linear-gradient(90deg,transparent,currentColor,transparent);transition:left 0.6s ease}
-.upgrade-card:hover::before{left:100%}
-.upgrade-card:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,0.5);border-color:rgba(255,255,255,0.5)}
+.achievement{background:linear-gradient(135deg,#064e3b,#065f46);border:2px solid #10b981;width:100%;padding:16px;display:flex;align-items:center;justify-content:space-between;border-radius:10px;margin-top:10px;transition:all 0.3s;box-shadow:0 4px 6px rgba(0,0,0,0.3);font-size:1rem;font-weight:bold}
+.achievement.completed{background:linear-gradient(135deg,#10b981,#34d399);color:#000}
+.upgrade-card{background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.2);border-radius:15px;padding:16px;transition:all 0.3s;backdrop-filter:blur(10px)}
+.upgrade-card:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,0,0,0.5);border-color:rgba(255,255,255,0.5)}
 .upgrade-btn{padding:10px 20px;border:2px solid;border-radius:10px;font-weight:bold;transition:all 0.3s;cursor:pointer;background:rgba(255,255,255,0.1);text-transform:uppercase;letter-spacing:1px;font-size:0.85rem}
-.upgrade-btn:hover:not(:disabled){transform:scale(1.05);box-shadow:0 0 20px currentColor;background:rgba(255,255,255,0.2)}
-.upgrade-btn:active:not(:disabled){transform:scale(0.98)}
+.upgrade-btn:hover:not(:disabled){transform:scale(1.05);box-shadow:0 0 20px currentColor}
 .upgrade-btn:disabled{opacity:0.4;cursor:not-allowed}
 .theme-btn{width:55px;height:55px;border-radius:50%;border:3px solid #fff;margin:8px;cursor:pointer;transition:all 0.3s;position:relative}
-.theme-btn:hover{transform:scale(1.2) rotate(15deg);box-shadow:0 0 25px currentColor}
+.theme-btn:hover{transform:scale(1.2);box-shadow:0 0 20px currentColor}
 .theme-btn.active::after{content:'✓';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:26px;color:#fff;text-shadow:0 0 10px #000}
-.stat-display{background:linear-gradient(135deg,rgba(255,255,255,0.12),rgba(255,255,255,0.04));border-radius:18px;padding:25px;margin:15px 0;border:2px solid rgba(255,255,255,0.2);box-shadow:0 8px 24px rgba(0,0,0,0.3);backdrop-filter:blur(10px);animation:fadeIn 0.4s ease}
-.prestige-btn{border:3px solid;padding:16px 32px;border-radius:15px;font-size:1.3rem;font-weight:bold;color:#fff;cursor:pointer;transition:all 0.3s;text-transform:uppercase;letter-spacing:2px;position:relative;overflow:hidden}
-.prestige-btn::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);transition:left 0.5s ease}
-.prestige-btn:hover:not(:disabled)::before{left:100%}
-.prestige-btn:hover:not(:disabled){transform:translateY(-3px);box-shadow:0 10px 25px rgba(0,0,0,0.4)}
+.stat-display{background:linear-gradient(135deg,rgba(255,255,255,0.1),rgba(255,255,255,0.05));border-radius:15px;padding:25px;margin:15px 0;border:2px solid rgba(255,255,255,0.2);box-shadow:0 8px 16px rgba(0,0,0,0.3)}
+.prestige-btn{border:3px solid;padding:16px 32px;border-radius:15px;font-size:1.3rem;font-weight:bold;color:#fff;cursor:pointer;transition:all 0.3s;text-transform:uppercase;letter-spacing:2px}
+.prestige-btn:hover:not(:disabled){transform:translateY(-3px)}
 .prestige-btn:disabled{opacity:0.4;cursor:not-allowed;background:#4b5563!important}
-.version{position:fixed;bottom:10px;left:10px;color:rgba(255,255,255,0.5);text-shadow:0 0 5px rgba(255,255,255,0.5);font-size:0.85rem;z-index:50}
+.version{position:fixed;bottom:10px;left:10px;color:rgba(255,255,255,0.5);text-shadow:0 0 5px rgba(255,255,255,0.5);font-size:0.85rem}
 .hidden{display:none!important}
 .grid-upgrades{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:15px;margin-top:15px}
 .machine-card{background:linear-gradient(135deg,rgba(255,255,255,0.1),rgba(255,255,255,0.05));border:3px solid;border-radius:15px;padding:15px;text-align:center;transition:all 0.3s}
-.machine-card:hover{transform:scale(1.05) rotate(1deg);box-shadow:0 0 30px currentColor}
+.machine-card:hover{transform:scale(1.03);box-shadow:0 0 25px currentColor}
 .machine-card.locked{opacity:0.4;filter:grayscale(100%)}
-.nerf-indicator{background:rgba(255,0,0,0.2);border:2px solid #ff0000;padding:10px;border-radius:10px;margin-top:10px;font-weight:bold;animation:pulse 2s infinite}
+.nerf-indicator{background:rgba(255,0,0,0.2);border:2px solid #ff0000;padding:10px;border-radius:10px;margin-top:10px;font-weight:bold}
 @keyframes grad{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 .infinity-text{background:linear-gradient(90deg,#8b5cf6,#ec4899,#8b5cf6);background-size:200% 200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:grad 3s ease infinite}
 .eternity-text{background:linear-gradient(90deg,#00e870,#00aede,#00ba54,#00e870);background-size:200% 200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:grad 3s ease infinite}
 .rainbow-text{background:linear-gradient(90deg,red,orange,yellow,green,blue,purple,pink);background-size:200% 200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:grad 3s ease infinite}
 .scrollable-content{max-height:calc(100vh - 40px);overflow-y:auto;padding-right:10px}
-.scrollable-content::-webkit-scrollbar{width:10px}
+.scrollable-content::-webkit-scrollbar{width:8px}
 .scrollable-content::-webkit-scrollbar-track{background:rgba(255,255,255,0.05);border-radius:10px}
-.scrollable-content::-webkit-scrollbar-thumb{background:linear-gradient(180deg,rgba(255,255,255,0.3),rgba(255,255,255,0.1));border-radius:10px}
-.scrollable-content::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.4)}
+.scrollable-content::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.2);border-radius:10px}
 .sidebar-tabs{max-height:calc(100vh - 40px);overflow-y:auto}
 .sidebar-tabs::-webkit-scrollbar{width:6px}
 .sidebar-tabs::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.2);border-radius:10px}
-.sidebar{background:rgba(0,0,0,0.6);backdrop-filter:blur(15px);border-right:2px solid rgba(255,255,255,0.15);box-shadow:4px 0 20px rgba(0,0,0,0.3)}
 /* Themes */
 .theme-red{background:linear-gradient(135deg,#7f1d1d,#991b1b,#b91c1c,#7f1d1d);color:#fca5a5}
 .theme-red .text-primary{color:#ef4444!important}.theme-red .text-secondary{color:#fca5a5!important}
@@ -92,39 +78,22 @@ body{transition:background 0.5s ease,color 0.3s ease;font-family:'Segoe UI',sans
 .theme-white{background:linear-gradient(135deg,#e5e5e5,#f5f5f5,#fafafa,#e5e5e5);color:#1a1a1a}
 .theme-white .text-primary{color:#000!important}.theme-white .text-secondary{color:#374151!important}
 .theme-white .stat-display,.theme-white .upgrade-card{background:rgba(0,0,0,0.05);border-color:rgba(0,0,0,0.2)}
-.theme-white .sidebar{background:rgba(255,255,255,0.6)}
 /* Code editor */
-.code-editor{width:100%;min-height:320px;background:#0d1117;color:#c9d1d9;border:2px solid #30363d;border-radius:12px;padding:15px;font-family:'Fira Code','Courier New',monospace;font-size:14px;line-height:1.6;resize:vertical;outline:none;tab-size:2;transition:border-color 0.3s}
-.code-editor:focus{border-color:#58a6ff;box-shadow:0 0 0 3px rgba(88,166,255,0.2)}
-.console-output{width:100%;height:220px;background:#0d1117;color:#8b949e;border:2px solid #30363d;border-radius:12px;padding:15px;font-family:'Fira Code','Courier New',monospace;font-size:13px;line-height:1.5;overflow-y:auto;white-space:pre-wrap}
+.code-editor{width:100%;min-height:300px;background:#0d1117;color:#c9d1d9;border:2px solid #30363d;border-radius:12px;padding:15px;font-family:'Fira Code','Courier New',monospace;font-size:14px;line-height:1.6;resize:vertical;outline:none;tab-size:2}
+.code-editor:focus{border-color:#58a6ff}
+.console-output{width:100%;height:200px;background:#0d1117;color:#8b949e;border:2px solid #30363d;border-radius:12px;padding:15px;font-family:'Fira Code','Courier New',monospace;font-size:13px;line-height:1.5;overflow-y:auto;white-space:pre-wrap}
 .console-output .log-info{color:#58a6ff}
 .console-output .log-success{color:#3fb950}
 .console-output .log-error{color:#f85149}
 .console-output .log-warn{color:#d29922}
-.console-output .log-notif{color:#ff79c6}
-.doc-section{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:15px;margin:10px 0;transition:all 0.3s}
-.doc-section:hover{border-color:rgba(255,255,255,0.3);background:rgba(255,255,255,0.07)}
-.doc-section code{background:rgba(88,166,255,0.15);padding:2px 6px;border-radius:4px;font-family:'Fira Code','Courier New',monospace;font-size:0.9em;color:#58a6ff}
-/* Notification system */
-.notif-container{position:fixed;top:20px;right:20px;z-index:2000;display:flex;flex-direction:column;gap:10px;max-width:380px;pointer-events:none}
-.notif{background:linear-gradient(135deg,rgba(0,0,0,0.95),rgba(20,20,30,0.95));border-left:5px solid;border-radius:12px;padding:15px 20px;box-shadow:0 8px 24px rgba(0,0,0,0.5);backdrop-filter:blur(15px);animation:notifSlide 0.4s ease;color:#fff;pointer-events:auto;font-weight:bold}
-.notif.notif-info{border-left-color:#58a6ff}
-.notif.notif-success{border-left-color:#3fb950}
-.notif.notif-warn{border-left-color:#d29922}
-.notif.notif-error{border-left-color:#f85149}
-.notif.notif-special{border-left-color:#ec4899;background:linear-gradient(135deg,rgba(139,92,246,0.3),rgba(236,72,153,0.3))}
-.notif-title{font-size:1.05rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
-.notif-msg{font-size:0.9rem;font-weight:normal;color:#d1d5db}
-.status-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;font-size:0.85rem;font-weight:bold}
-.status-on{background:rgba(34,197,94,0.2);color:#22c55e;border:1px solid #22c55e}
-.status-off{background:rgba(239,68,68,0.2);color:#ef4444;border:1px solid #ef4444}
-.pulse-dot{width:8px;height:8px;border-radius:50%;background:currentColor;animation:pulse 1.5s infinite}
+.doc-section{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:15px;margin:10px 0}
+.doc-section code{background:rgba(255,255,255,0.1);padding:2px 6px;border-radius:4px;font-family:'Fira Code','Courier New',monospace;font-size:0.9em}
 </style>
 </head>
 <body class="theme-black animated-bg font-sans h-screen overflow-hidden">
 <div class="flex h-full">
 <!-- Sidebar -->
-<div class="w-1/5 sidebar p-4">
+<div class="w-1/5 bg-black bg-opacity-50 p-4 border-r-2 border-white border-opacity-20">
 <div class="sidebar-tabs flex flex-col space-y-2" id="sidebar-tabs"></div>
 </div>
 <!-- Main Content -->
@@ -153,9 +122,7 @@ body{transition:background 0.5s ease,color 0.3s ease;font-family:'Segoe UI',sans
 <div id="typing-text-et" class="typing-text typing-text-et"></div>
 <button id="eternity-ok-btn" class="prestige-btn bg-gradient-to-r from-green-500 to-cyan-500 border-green-400 hidden" onclick="acceptEternity()">OK</button>
 </div>
-<!-- Notification system -->
-<div id="notif-container" class="notif-container"></div>
-<div class="version"><i class="fas fa-code"></i> v0.4.46a - Bug Fix Update</div>
+<div class="version"><i class="fas fa-code"></i> v0.4.4a - The Automator Update</div>
 
 <script>
 // ===== BREAK ETERNITY USAGE =====
@@ -247,11 +214,11 @@ const ACHIEVEMENTS = [
   {id:'ach12',name:'Volume Lord',desc:'Reach 1000 Volume',check:()=>G.volume.gte(1000)},
   {id:'ach13',name:'Speaker Master',desc:'Reach 100 Speakers',check:()=>G.speakers.gte(100)},
   {id:'ach14',name:'Infinity×10',desc:'Infinitize 10 times',check:()=>G.infinityTimes.gte(10)},
-  {id:'ach15',name:'Rainbow Power',desc:'Unlock Rainbow Machine',check:()=>G.infinity.gte(D("1e80"))},
+  {id:'ach15',name:'Rainbow Power',desc:'Unlock Rainbow Machine',check:()=>G.infinity.gte(1e80)},
   {id:'ach16',name:'Automator',desc:'Unlock Automations',check:()=>G.automatorUnlocked},
   {id:'ach17',name:'Eternal×5',desc:'Eternitize 5 times',check:()=>G.eternityTimes.gte(5)},
   {id:'ach18',name:'1e100 Hz',desc:'Reach 1e100 Hz',check:()=>G.hz.gte("1e100")},
-  {id:'ach19',name:'Monochrome Master',desc:'Unlock Monochrome Machine',check:()=>G.infinity.gte(D("1e100"))},
+  {id:'ach19',name:'Monochrome Master',desc:'Unlock Monochrome Machine',check:()=>G.infinity.gte(1e100)},
   {id:'ach20',name:'Infinity Pool',desc:'Reach 1e50 Infinity',check:()=>G.infinity.gte("1e50")},
 ];
 
@@ -273,24 +240,23 @@ const THEMES = ['red','orange','yellow','green','blue','purple','pink','brown','
 const THEME_COLORS = {red:'#991b1b,#dc2626',orange:'#9a3412,#ea580c',yellow:'#854d0e,#eab308',green:'#166534,#22c55e',blue:'#1e40af,#3b82f6',purple:'#6b21a8,#a855f7',pink:'#9f1239,#ec4899',brown:'#4e342e,#795548',black:'#000,#374151',white:'#e5e5e5,#fff'};
 
 const MACHINES = [
-  {id:'red',name:'Red',req:"1e6",mult:2,color:'#ef4444'},
-  {id:'orange',name:'Orange',req:"1e9",mult:3,color:'#f97316'},
-  {id:'yellow',name:'Yellow',req:"1e12",mult:5,color:'#eab308'},
-  {id:'green',name:'Green',req:"1e15",mult:10,color:'#22c55e'},
-  {id:'blue',name:'Blue',req:"1e20",mult:25,color:'#3b82f6'},
-  {id:'purple',name:'Purple',req:"1e30",mult:100,color:'#a855f7'},
-  {id:'pink',name:'Pink',req:"1e40",mult:1000,color:'#ec4899'},
-  {id:'brown',name:'Brown',req:"1e60",mult:1e4,color:'#a1887f'},
-  {id:'rainbow',name:'Rainbow',req:"1e80",mult:1e5,color:'rainbow'},
-  {id:'mono',name:'Monochrome',req:"1e100",mult:1e6,color:'#888'},
+  {id:'red',name:'Red',req:1e6,mult:2,color:'#ef4444'},
+  {id:'orange',name:'Orange',req:1e9,mult:3,color:'#f97316'},
+  {id:'yellow',name:'Yellow',req:1e12,mult:5,color:'#eab308'},
+  {id:'green',name:'Green',req:1e15,mult:10,color:'#22c55e'},
+  {id:'blue',name:'Blue',req:1e20,mult:25,color:'#3b82f6'},
+  {id:'purple',name:'Purple',req:1e30,mult:100,color:'#a855f7'},
+  {id:'pink',name:'Pink',req:1e40,mult:1000,color:'#ec4899'},
+  {id:'brown',name:'Brown',req:1e60,mult:1e4,color:'#a1887f'},
+  {id:'rainbow',name:'Rainbow',req:1e80,mult:1e5,color:'rainbow'},
+  {id:'mono',name:'Monochrome',req:1e100,mult:1e6,color:'#888'},
 ];
 
 // ===== GAME STATE =====
 let G = makeDefaultState();
 let activeTab = 'hz';
 let automatorRunning = false;
-let lastTickTime = Date.now(); // [FIX #10] delta-time tracking
-let lastSidebarHash = ''; // [FIX #18] avoid redundant sidebar renders
+let automatorInterval = null;
 
 function makeDefaultState() {
   let s = {
@@ -302,7 +268,7 @@ function makeDefaultState() {
     machinesUnlocked: false, automatorUnlocked: false,
     infinityDialogShown: false, eternityDialogShown: false,
     achievements: {}, theme: 'black',
-    automatorCode: '// Welcome to HzScript v2!\n// Type your automation code here\n// Try: notify "Hello" "World" or theme blue\n\nbuymax hz 1\nbuymax hz 2\nwait 500\n',
+    automatorCode: '// Welcome to HzScript!\n// Type your automation code here\n\n',
     ups: {} // upgrade levels
   };
   // Init upgrade levels
@@ -316,11 +282,8 @@ function makeDefaultState() {
 
 function getUpLevel(type, id) { return G.ups[type + '_' + id] || ZERO; }
 function setUpLevel(type, id, v) { G.ups[type + '_' + id] = D(v); }
-
-// [FIX #9] Guard against undefined upgrade IDs
 function getUpCost(type, id) {
-  const u = UPGRADES[type] && UPGRADES[type].find(x => x.id === id);
-  if (!u) return D(Infinity); // unpurchasable if upgrade doesn't exist
+  const u = UPGRADES[type].find(x => x.id === id);
   const lv = getUpLevel(type, id);
   return D(u.base).times(Decimal.pow(u.mult, lv));
 }
@@ -332,22 +295,18 @@ function softcap(v, start, pow) {
   return v.div(start).pow(pow).times(start);
 }
 
-// [FIX #1 & #12] Rewritten fmt() with proper number ranges
 function fmt(num, dec=2) {
   num = D(num);
   if (num.lt(0)) return '-' + fmt(num.neg(), dec);
-  if (num.eq(0)) return '0';
-  if (num.lt(0.01) && num.gt(0)) return num.toExponential(dec);
-  if (num.lt(1000)) return num.toFixed(num.lt(10) ? dec : (num.lt(100) ? 1 : 0));
-  if (num.lt(1e6)) {
-    // [FIX #1] Format 1,000–999,999 as K
-    return (num.toNumber() / 1e3).toFixed(dec) + 'K';
+  if (num.lt(1000)) return num.toFixed(num.lt(10) ? dec : 0);
+  if (num.lt(1e6)) return num.toFixed(dec);
+  if (num.lt(1e9)) {
+    const a = ['','K','M','B'];
+    const e = Math.floor(num.e / 3);
+    return num.div(Decimal.pow(10, e*3)).toFixed(dec) + a[e];
   }
-  if (num.lt(1e9)) return (num.toNumber() / 1e6).toFixed(dec) + 'M';
-  if (num.lt(1e12)) return (num.toNumber() / 1e9).toFixed(dec) + 'B';
-  if (num.lt(1e15)) return (num.toNumber() / 1e12).toFixed(dec) + 'T';
-  // Scientific for large numbers
   if (num.layer > 0 || num.e >= 1000) {
+    // XeYeZ
     if (num.e >= 1e6) {
       return num.mantissa.toFixed(2) + 'e' + fmt(D(num.e));
     }
@@ -387,7 +346,7 @@ function machineBoost() {
   let b = ONE;
   MACHINES.forEach(m => {
     if (G.infinity.gte(m.req)) {
-      b = b.times(Decimal.pow(m.mult, G.infinity.div(D(m.req)).log10().plus(1)));
+      b = b.times(Decimal.pow(m.mult, G.infinity.div(m.req).log10().plus(1)));
     }
   });
   return b;
@@ -513,79 +472,33 @@ function calcEtGain() {
 
 // ===== BUY UPGRADES =====
 function getCurrency(type) {
-  // [FIX #16] normalize type to lowercase
-  type = type.toLowerCase();
   if (type==='hz') return G.hz;
-  if (type==='volume' || type==='vol') return G.volume;
-  if (type==='speaker' || type==='speakers' || type==='spk') return G.speakers;
-  if (type==='infinity' || type==='inf') return G.infinity;
-  if (type==='eternity' || type==='et') return G.eternity;
-  return ZERO;
+  if (type==='volume') return G.volume;
+  if (type==='speaker') return G.speakers;
+  if (type==='infinity') return G.infinity;
+  if (type==='eternity') return G.eternity;
 }
 function setCurrency(type, v) {
-  type = type.toLowerCase();
   if (type==='hz') G.hz = v;
-  if (type==='volume' || type==='vol') G.volume = v;
-  if (type==='speaker' || type==='speakers' || type==='spk') G.speakers = v;
-  if (type==='infinity' || type==='inf') G.infinity = v;
-  if (type==='eternity' || type==='et') G.eternity = v;
-}
-
-// [FIX #16] Normalize layer name for UPGRADES lookup
-function normalizeLayer(type) {
-  type = type.toLowerCase();
-  if (type === 'vol' || type === 'volume') return 'volume';
-  if (type === 'spk' || type === 'speakers' || type === 'speaker') return 'speaker';
-  if (type === 'inf') return 'infinity';
-  if (type === 'et') return 'eternity';
-  return type;
+  if (type==='volume') G.volume = v;
+  if (type==='speaker') G.speakers = v;
+  if (type==='infinity') G.infinity = v;
+  if (type==='eternity') G.eternity = v;
 }
 
 function buyUp(type, id) {
-  const normType = normalizeLayer(type);
-  const cost = getUpCost(normType, id);
-  if (!isFinite(cost.toNumber()) && cost.e === Infinity) return; // [FIX #9] invalid upgrade
-  const cur = getCurrency(normType);
+  const cost = getUpCost(type, id);
+  const cur = getCurrency(type);
   if (cur.gte(cost)) {
-    setCurrency(normType, cur.minus(cost));
-    setUpLevel(normType, id, getUpLevel(normType, id).plus(1));
+    setCurrency(type, cur.minus(cost));
+    setUpLevel(type, id, getUpLevel(type, id).plus(1));
   }
 }
 
-// [FIX #2] Rewritten buyMaxUp with logarithmic calculation instead of brute-force loop
 function buyMaxUp(type, id) {
-  const normType = normalizeLayer(type);
-  const u = UPGRADES[normType] && UPGRADES[normType].find(x => x.id === id);
-  if (!u) return;
-
-  let cur = getCurrency(normType);
-  let lv = getUpLevel(normType, id);
-  const base = D(u.base);
-  const mult = D(u.mult);
-
-  // For geometric series: total cost of n levels from current = base * mult^lv * (mult^n - 1) / (mult - 1)
-  // We solve for max n where player can afford the sum
-  // Fallback to iterative for small counts to keep it simple & safe
-  if (mult.eq(1)) {
-    // Linear cost: each level costs base
-    const affordable = cur.div(base).floor();
-    if (affordable.gt(0)) {
-      const totalCost = base.times(affordable);
-      setCurrency(normType, cur.minus(totalCost));
-      setUpLevel(normType, id, lv.plus(affordable));
-    }
-    return;
-  }
-
-  // Iterative with a sane cap (1000 per call is plenty for 30fps)
   let bought = 0;
-  while (bought < 1000) {
-    const cost = base.times(Decimal.pow(mult, lv));
-    cur = getCurrency(normType);
-    if (cur.lt(cost)) break;
-    setCurrency(normType, cur.minus(cost));
-    lv = lv.plus(1);
-    setUpLevel(normType, id, lv);
+  while (getCurrency(type).gte(getUpCost(type, id)) && bought < 100000) {
+    buyUp(type, id);
     bought++;
   }
 }
@@ -601,7 +514,7 @@ function resetVol() {
   resetHz();
 }
 function resetSpk() {
-  G.speakers = ZERO;
+  G.speakers = ZERO; // don't reset speakers count
   UPGRADES.speaker.forEach(u => setUpLevel('speaker', u.id, ZERO));
   resetVol();
 }
@@ -620,27 +533,22 @@ function resetEt() {
   resetInf();
 }
 
-// [FIX #5] Prestige only grants resources when gain >= 1
 function prestigeVolume() {
   const g = calcVolGain();
-  const firstUnlock = !G.volumeUnlocked && G.hz.gte(1e6);
-  if (g.gte(1) || firstUnlock) {
-    const actualGain = g.max(firstUnlock ? 1 : 0); // guarantee at least 1 on first unlock
-    G.volume = G.volume.plus(actualGain);
+  if (g.gte(1) || (!G.volumeUnlocked && G.hz.gte(1e6))) {
+    G.volume = G.volume.plus(g);
     G.volumeUnlocked = true;
     resetHz();
-    showNotif('Volume Prestige', `+${fmt(actualGain)} Volume`, 'success');
+    showPopup(`+${fmt(g)} Volume`,'achievement');
   }
 }
 function prestigeSpeaker() {
   const g = calcSpkGain();
-  const firstUnlock = !G.speakersUnlocked && G.volume.gte(100);
-  if (g.gte(1) || firstUnlock) {
-    const actualGain = g.max(firstUnlock ? 1 : 0);
-    G.speakers = G.speakers.plus(actualGain);
+  if (g.gte(1) || (!G.speakersUnlocked && G.volume.gte(100))) {
+    G.speakers = G.speakers.plus(g);
     G.speakersUnlocked = true;
     resetVol();
-    showNotif('Speaker Prestige', `+${fmt(actualGain)} Speakers`, 'success');
+    showPopup(`+${fmt(g)} Speakers`,'achievement');
   }
 }
 function doInfinity() {
@@ -651,40 +559,23 @@ function doInfinity() {
   G.infinityTimes = G.infinityTimes.plus(1);
   G.infinityReq = G.infinityReq.times(Decimal.pow(10, Decimal.pow(2, G.infinityTimes)));
   resetSpk(); G.speakers = ZERO;
-  showNotif('Infinity!', `+${fmt(g.max(1))} Infinity`, 'special');
+  showPopup(`+${fmt(g.max(1))} Infinity`,'achievement');
 }
-
-// [FIX #3] Bulk prestige: snapshot Hz before loop, compute all gains against rising req
 function bulkInfinity() {
-  const snapshotHz = G.hz; // snapshot pre-reset value
   let total = ZERO, count = 0;
-  let req = G.infinityReq;
-  let times = G.infinityTimes;
-
-  while (snapshotHz.gte(req) && count < 10000) {
-    // compute gain using snapshot
-    let b = snapshotHz.log10().div(req.log10()).pow(0.5).floor();
-    const il = (id) => getUpLevel('infinity', id);
-    const el = (id) => getUpLevel('eternity', id);
-    if (il(14).gt(0)) b = b.times(Decimal.pow(2, il(14)));
-    if (el(2).gt(0)) b = b.times(Decimal.pow(100, el(2)));
-    b = b.times(machineBoost()).times(eternityBoost());
-    b = b.floor().max(1);
-
-    total = total.plus(b);
-    times = times.plus(1);
-    req = req.times(Decimal.pow(10, Decimal.pow(2, times)));
+  while (G.hz.gte(G.infinityReq) && count < 10000) {
+    const g = calcInfGain();
+    total = total.plus(g);
+    G.infinityTimes = G.infinityTimes.plus(1);
+    G.infinityReq = G.infinityReq.times(Decimal.pow(10, Decimal.pow(2, G.infinityTimes)));
     count++;
   }
   if (total.gt(0)) {
     G.infinity = G.infinity.plus(total);
-    G.infinityTimes = times;
-    G.infinityReq = req;
     resetSpk(); G.speakers = ZERO;
-    showNotif('Bulk Infinity', `+${fmt(total)} Infinity (${count}×)`, 'special');
+    showPopup(`Bulk +${fmt(total)} Infinity (${count}×)`,'achievement');
   }
 }
-
 function doEternity() {
   const g = calcEtGain();
   if (g.lt(1) && G.eternityUnlocked) return;
@@ -693,34 +584,21 @@ function doEternity() {
   G.eternityTimes = G.eternityTimes.plus(1);
   G.eternityReq = G.eternityReq.times(Decimal.pow(10, Decimal.pow(3, G.eternityTimes)));
   G.infinity = ZERO; resetInf();
-  showNotif('Eternity!', `+${fmt(g.max(1))} Eternity`, 'special');
+  showPopup(`+${fmt(g.max(1))} Eternity`,'achievement');
 }
-
-// [FIX #3] Bulk eternity with snapshot
 function bulkEternity() {
-  const snapshotInf = G.infinity;
   let total = ZERO, count = 0;
-  let req = G.eternityReq;
-  let times = G.eternityTimes;
-
-  while (snapshotInf.gte(req) && count < 10000) {
-    let b = snapshotInf.log10().div(req.log10()).pow(0.4).floor();
-    const el = (id) => getUpLevel('eternity', id);
-    if (el(10).gt(0)) b = b.times(machineBoost().log10().plus(1));
-    if (el(18).gt(0)) b = b.times(G.eternity.plus(total).plus(1).pow(el(18)));
-    b = b.floor().max(1);
-
-    total = total.plus(b);
-    times = times.plus(1);
-    req = req.times(Decimal.pow(10, Decimal.pow(3, times)));
+  while (G.infinity.gte(G.eternityReq) && count < 10000) {
+    const g = calcEtGain();
+    total = total.plus(g);
+    G.eternityTimes = G.eternityTimes.plus(1);
+    G.eternityReq = G.eternityReq.times(Decimal.pow(10, Decimal.pow(3, G.eternityTimes)));
     count++;
   }
   if (total.gt(0)) {
     G.eternity = G.eternity.plus(total);
-    G.eternityTimes = times;
-    G.eternityReq = req;
     G.infinity = ZERO; resetInf();
-    showNotif('Bulk Eternity', `+${fmt(total)} Eternity (${count}×)`, 'special');
+    showPopup(`Bulk +${fmt(total)} Eternity (${count}×)`,'achievement');
   }
 }
 
@@ -765,7 +643,7 @@ function acceptEternity() {
   document.getElementById('popup-eternity').classList.remove('visible');
 }
 
-// ===== POPUP & NOTIFICATIONS =====
+// ===== POPUP =====
 function showPopup(msg, type='info') {
   const p = document.getElementById('popup');
   p.textContent = msg;
@@ -775,24 +653,8 @@ function showPopup(msg, type='info') {
   setTimeout(() => p.classList.remove('visible'), 3000);
 }
 
-function showNotif(title, msg, type='info', duration=3500) {
-  const container = document.getElementById('notif-container');
-  const notif = document.createElement('div');
-  notif.className = 'notif notif-' + type;
-  const icons = {info:'info-circle', success:'check-circle', warn:'exclamation-triangle', error:'times-circle', special:'star'};
-  notif.innerHTML = `<div class="notif-title"><i class="fas fa-${icons[type]||'info-circle'}"></i> ${title}</div><div class="notif-msg">${msg}</div>`;
-  container.appendChild(notif);
-  setTimeout(() => {
-    notif.style.transition = 'opacity 0.3s, transform 0.3s';
-    notif.style.opacity = '0';
-    notif.style.transform = 'translateX(120%)';
-    setTimeout(() => notif.remove(), 300);
-  }, duration);
-}
-
 // ===== AUTOMATOR =====
 let autoConsole = [];
-let autoVariables = {};
 
 function autoLog(msg, type='info') {
   autoConsole.push({msg, type, time: Date.now()});
@@ -814,49 +676,22 @@ function parseAutoLine(line) {
   if (cmd === 'bulkinf' || cmd === 'bulkinfinity') return {type:'bulkinf'};
   if (cmd === 'bulket' || cmd === 'bulketernity') return {type:'bulket'};
   if (cmd === 'wait' && tokens.length >= 2) return {type:'wait', ms:parseInt(tokens[1])};
-  if (cmd === 'print') return {type:'print', msg:tokens.slice(1).join(' ').replace(/^"|"$/g,'')};
+  if (cmd === 'print') return {type:'print', msg:tokens.slice(1).join(' ')};
   if (cmd === 'stop') return {type:'stop'};
   
-  if (cmd === 'notify') {
-    const rest = line.substring(cmd.length).trim();
-    const titleMatch = rest.match(/^"([^"]*)"\s*(.*)$/);
-    if (titleMatch) {
-      const title = titleMatch[1];
-      const after = titleMatch[2];
-      const msgMatch = after.match(/^"([^"]*)"\s*(.*)$/);
-      if (msgMatch) {
-        return {type:'notify', title:title, msg:msgMatch[1], ntype:msgMatch[2].trim()||'info'};
-      }
-      return {type:'notify', title:'Notice', msg:title, ntype:after.trim()||'info'};
-    }
-    return {type:'notify', title:'Notice', msg:rest, ntype:'info'};
-  }
-  
-  if (cmd === 'popup') {
-    const rest = line.substring(cmd.length).trim().replace(/^"|"$/g,'');
-    return {type:'popup', msg:rest};
-  }
-  
-  if (cmd === 'theme' && tokens.length >= 2) return {type:'theme', name:tokens[1].toLowerCase()};
-  if (cmd === 'tab' && tokens.length >= 2) return {type:'tab', name:tokens[1].toLowerCase()};
-  if (cmd === 'save') return {type:'save'};
-  if (cmd === 'set' && tokens.length >= 3) return {type:'set', name:tokens[1], value:tokens.slice(2).join(' ')};
-  if (cmd === 'add' && tokens.length >= 3) return {type:'add', name:tokens[1], value:tokens[2]};
-  if (cmd === 'buyall' && tokens.length >= 2) return {type:'buyall', layer:tokens[1]};
-  if (cmd === 'maxall' && tokens.length >= 2) return {type:'maxall', layer:tokens[1]};
-  if (cmd === 'clear') return {type:'clear'};
-  if (cmd === 'beep') return {type:'beep'};
-  
+  // if resource > value then command
   if (cmd === 'if' && tokens.length >= 5) {
     const res = tokens[1];
     const op = tokens[2];
     const val = tokens[3];
+    // "then" at index 4
     if (tokens[4].toLowerCase() === 'then') {
       const subLine = tokens.slice(5).join(' ');
       return {type:'if', resource:res, op:op, value:val, sub:subLine};
     }
   }
 
+  // while resource > value do command
   if (cmd === 'while' && tokens.length >= 5) {
     const res = tokens[1];
     const op = tokens[2];
@@ -867,6 +702,7 @@ function parseAutoLine(line) {
     }
   }
 
+  // loop N do command
   if (cmd === 'loop' && tokens.length >= 4) {
     const count = parseInt(tokens[1]);
     if (tokens[2].toLowerCase() === 'do') {
@@ -886,9 +722,6 @@ function getResource(name) {
   if (name === 'infinity' || name === 'inf') return G.infinity;
   if (name === 'eternity' || name === 'et') return G.eternity;
   if (name === 'hzpersec' || name === 'hzps') return calcHzPerSec();
-  if (name === 'infinitytimes' || name === 'inftimes') return G.infinityTimes;
-  if (name === 'eternitytimes' || name === 'ettimes') return G.eternityTimes;
-  if (autoVariables[name] !== undefined) return D(autoVariables[name]);
   return ZERO;
 }
 
@@ -909,29 +742,11 @@ function execCommand(parsed) {
   if (parsed.type === 'unknown') { autoLog(`Unknown: ${parsed.line}`, 'error'); return true; }
   if (parsed.type === 'buy') { buyUp(parsed.layer, parsed.id); autoLog(`Bought ${parsed.layer} #${parsed.id}`, 'success'); return true; }
   if (parsed.type === 'buymax') { buyMaxUp(parsed.layer, parsed.id); autoLog(`BuyMax ${parsed.layer} #${parsed.id}`, 'success'); return true; }
-  if (parsed.type === 'buyall') {
-    const norm = normalizeLayer(parsed.layer);
-    if (UPGRADES[norm]) {
-      UPGRADES[norm].forEach(u => buyUp(norm, u.id));
-      autoLog(`BuyAll on ${norm}`, 'success');
-    } else autoLog(`Invalid layer: ${parsed.layer}`, 'error');
-    return true;
-  }
-  if (parsed.type === 'maxall') {
-    const norm = normalizeLayer(parsed.layer);
-    if (UPGRADES[norm]) {
-      UPGRADES[norm].forEach(u => buyMaxUp(norm, u.id));
-      autoLog(`MaxAll on ${norm}`, 'success');
-    } else autoLog(`Invalid layer: ${parsed.layer}`, 'error');
-    return true;
-  }
   if (parsed.type === 'prestige') {
-    const layer = parsed.layer.toLowerCase();
-    if (layer === 'volume' || layer === 'vol') prestigeVolume();
-    else if (layer === 'speaker' || layer === 'spk' || layer === 'speakers') prestigeSpeaker();
-    else if (layer === 'infinity' || layer === 'inf') doInfinity();
-    else if (layer === 'eternity' || layer === 'et') doEternity();
-    else autoLog(`Unknown prestige layer: ${parsed.layer}`, 'error');
+    if (parsed.layer === 'volume' || parsed.layer === 'vol') prestigeVolume();
+    else if (parsed.layer === 'speaker' || parsed.layer === 'spk' || parsed.layer === 'speakers') prestigeSpeaker();
+    else if (parsed.layer === 'infinity' || parsed.layer === 'inf') doInfinity();
+    else if (parsed.layer === 'eternity' || parsed.layer === 'et') doEternity();
     autoLog(`Prestige: ${parsed.layer}`, 'success');
     return true;
   }
@@ -939,67 +754,6 @@ function execCommand(parsed) {
   if (parsed.type === 'bulket') { bulkEternity(); autoLog('Bulk Eternity', 'success'); return true; }
   if (parsed.type === 'print') { autoLog(parsed.msg, 'info'); return true; }
   if (parsed.type === 'stop') { stopAutomator(); return false; }
-  if (parsed.type === 'notify') {
-    showNotif(parsed.title, parsed.msg, parsed.ntype);
-    autoLog(`Notify: ${parsed.title} - ${parsed.msg}`, 'notif');
-    return true;
-  }
-  if (parsed.type === 'popup') {
-    showPopup(parsed.msg);
-    autoLog(`Popup: ${parsed.msg}`, 'notif');
-    return true;
-  }
-  if (parsed.type === 'theme') {
-    if (THEMES.includes(parsed.name)) {
-      G.theme = parsed.name;
-      applyTheme(parsed.name);
-      initThemeButtons(); // [FIX #8] re-init theme buttons so popup stays in sync
-      autoLog(`Theme: ${parsed.name}`, 'success');
-    } else autoLog(`Invalid theme: ${parsed.name}`, 'error');
-    return true;
-  }
-  if (parsed.type === 'tab') {
-    // Sync editor before switching away
-    if (activeTab === 'automator') {
-      const editor = document.getElementById('auto-editor');
-      if (editor) G.automatorCode = editor.value;
-    }
-    activeTab = parsed.name;
-    autoLog(`Switched to tab: ${parsed.name}`, 'success');
-    return true;
-  }
-  if (parsed.type === 'save') {
-    saveGame();
-    autoLog('Game saved', 'success');
-    return true;
-  }
-  if (parsed.type === 'set') {
-    autoVariables[parsed.name.toLowerCase()] = parsed.value;
-    autoLog(`set ${parsed.name} = ${parsed.value}`, 'info');
-    return true;
-  }
-  if (parsed.type === 'add') {
-    const cur = D(autoVariables[parsed.name.toLowerCase()] || 0);
-    autoVariables[parsed.name.toLowerCase()] = cur.plus(D(parsed.value)).toString();
-    autoLog(`add ${parsed.name} += ${parsed.value}`, 'info');
-    return true;
-  }
-  if (parsed.type === 'clear') {
-    autoConsole = [];
-    return true;
-  }
-  if (parsed.type === 'beep') {
-    try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.frequency.value = 880; gain.gain.value = 0.1;
-      osc.start(); osc.stop(ctx.currentTime + 0.15);
-    } catch(e) {}
-    autoLog('beep!', 'info');
-    return true;
-  }
   if (parsed.type === 'if') {
     if (evalCondition(parsed.resource, parsed.op, parsed.value)) {
       const sub = parseAutoLine(parsed.sub);
@@ -1007,9 +761,8 @@ function execCommand(parsed) {
     }
     return true;
   }
-  // [FIX #7] Reduced while/loop caps from 10000 to 500 to prevent frame freezes
   if (parsed.type === 'loop') {
-    for (let i = 0; i < Math.min(parsed.count, 500); i++) {
+    for (let i = 0; i < Math.min(parsed.count, 10000); i++) {
       const sub = parseAutoLine(parsed.sub);
       if (!execCommand(sub)) return false;
     }
@@ -1017,14 +770,14 @@ function execCommand(parsed) {
   }
   if (parsed.type === 'while') {
     let iter = 0;
-    while (evalCondition(parsed.resource, parsed.op, parsed.value) && iter < 500) {
+    while (evalCondition(parsed.resource, parsed.op, parsed.value) && iter < 10000) {
       const sub = parseAutoLine(parsed.sub);
       if (!execCommand(sub)) return false;
       iter++;
     }
     return true;
   }
-  if (parsed.type === 'wait') return true;
+  if (parsed.type === 'wait') return true; // handled by interval
   return true;
 }
 
@@ -1034,27 +787,25 @@ let autoWaitUntil = 0;
 
 function startAutomator() {
   const editor = document.getElementById('auto-editor');
-  if (editor) G.automatorCode = editor.value;
+  if (!editor) return;
+  G.automatorCode = editor.value;
   autoLines = G.automatorCode.split('\n');
   autoPC = 0;
   autoWaitUntil = 0;
   automatorRunning = true;
   autoConsole = [];
-  autoVariables = {};
-  autoLog('▶ Automator started', 'success');
-  updateAutomatorStatus();
+  autoLog('Automator started', 'success');
 }
 
 function stopAutomator() {
   automatorRunning = false;
-  autoLog('■ Automator stopped', 'warn');
-  updateAutomatorStatus();
+  autoLog('Automator stopped', 'warn');
 }
 
 function tickAutomator() {
   if (!automatorRunning || autoPC >= autoLines.length) {
     if (automatorRunning && autoPC >= autoLines.length) {
-      autoPC = 0;
+      autoPC = 0; // loop back
     }
     return;
   }
@@ -1078,32 +829,12 @@ function tickAutomator() {
   autoPC++;
 }
 
-function updateAutomatorStatus() {
-  if (activeTab !== 'automator') return;
-  const statusEl = document.getElementById('auto-status');
-  if (statusEl) {
-    statusEl.innerHTML = automatorRunning
-      ? `<span class="status-pill status-on"><span class="pulse-dot"></span> Running (Line ${autoPC+1})</span>`
-      : `<span class="status-pill status-off"><span class="pulse-dot"></span> Stopped</span>`;
-  }
-  const consoleEl = document.getElementById('auto-console');
-  if (consoleEl) {
-    consoleEl.innerHTML = autoConsole.slice(-50).map(l => 
-      `<div class="log-${l.type}">[${new Date(l.time).toLocaleTimeString()}] ${l.msg}</div>`
-    ).join('');
-    consoleEl.scrollTop = consoleEl.scrollHeight;
-  }
-}
-
 // ===== SAVE/LOAD =====
 function saveGame() {
-  const editor = document.getElementById('auto-editor');
-  if (editor) G.automatorCode = editor.value;
-  
   const s = {};
   for (let key in G) {
     if (G[key] instanceof Decimal) s[key] = G[key].toString();
-    else if (typeof G[key] === 'object' && G[key] !== null && !(G[key] instanceof Decimal)) {
+    else if (typeof G[key] === 'object' && !(G[key] instanceof Decimal)) {
       s[key] = {};
       for (let k2 in G[key]) {
         if (G[key][k2] instanceof Decimal) s[key][k2] = G[key][k2].toString();
@@ -1115,22 +846,15 @@ function saveGame() {
   localStorage.setItem('hzSave', JSON.stringify(s));
 }
 
-// [FIX #4] Improved loadSaveData: only restore known ups keys
 function loadSaveData(data) {
   try {
     const p = typeof data === 'string' ? JSON.parse(data) : data;
     G = makeDefaultState();
     for (let key in p) {
-      if (key === 'achievements') {
+      if (key === 'achievements' || key === 'ups') {
         for (let k2 in p[key]) {
-          G[key][k2] = p[key][k2];
-        }
-      } else if (key === 'ups') {
-        for (let k2 in p[key]) {
-          // Only restore keys that exist in current upgrade definitions
-          if (G.ups.hasOwnProperty(k2)) {
-            G.ups[k2] = D(p[key][k2]);
-          }
+          if (typeof p[key][k2] === 'string' && !isNaN(p[key][k2])) G[key][k2] = D(p[key][k2]);
+          else G[key][k2] = p[key][k2];
         }
       } else if (key === 'theme' || key === 'automatorCode' ||
                  key === 'infinityDialogShown' || key === 'eternityDialogShown' ||
@@ -1139,7 +863,7 @@ function loadSaveData(data) {
                  key === 'machinesUnlocked' || key === 'automatorUnlocked') {
         G[key] = p[key];
       } else if (typeof p[key] === 'string') {
-        try { G[key] = D(p[key]); } catch(e) { /* skip unparseable */ }
+        G[key] = D(p[key]);
       }
     }
     applyTheme(G.theme);
@@ -1149,35 +873,13 @@ function loadSaveData(data) {
 function loadGameFromInput() {
   loadSaveData(document.getElementById('save-input').value);
   document.getElementById('popup2').classList.remove('visible');
-  showNotif('Loaded', 'Game loaded successfully!', 'success');
+  showPopup('Game Loaded!');
 }
 
-// [FIX #15] Added error handling for clipboard
 function exportSave() {
   saveGame();
-  const data = localStorage.getItem('hzSave');
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(data).then(() => {
-      showNotif('Copied', 'Save copied to clipboard!', 'success');
-    }).catch(() => {
-      // Fallback: select a temp textarea
-      const ta = document.createElement('textarea');
-      ta.value = data;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      ta.remove();
-      showNotif('Copied', 'Save copied to clipboard!', 'success');
-    });
-  } else {
-    const ta = document.createElement('textarea');
-    ta.value = data;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    ta.remove();
-    showNotif('Copied', 'Save copied to clipboard!', 'success');
-  }
+  navigator.clipboard.writeText(localStorage.getItem('hzSave'));
+  showPopup('Save copied!');
 }
 
 function downloadSave() {
@@ -1187,8 +889,7 @@ function downloadSave() {
   a.href = URL.createObjectURL(blob);
   a.download = 'hertz_save.json';
   a.click();
-  URL.revokeObjectURL(a.href); // clean up
-  showNotif('Downloaded', 'Save file downloaded!', 'success');
+  showPopup('Save downloaded!');
 }
 
 function hardReset() {
@@ -1207,33 +908,19 @@ function applyTheme(theme) {
 }
 
 // ===== RENDER =====
-// [FIX #18] Only re-render sidebar when tabs actually change
 function renderSidebar() {
-  let hash = '';
-  TABS.forEach(tab => {
-    if (tab.hidden && tab.hidden()) return;
-    hash += tab.id + (activeTab === tab.id ? '1' : '0');
-  });
-  if (hash === lastSidebarHash) return;
-  lastSidebarHash = hash;
-
   const el = document.getElementById('sidebar-tabs');
   el.innerHTML = '';
   TABS.forEach(tab => {
     if (tab.hidden && tab.hidden()) return;
     const isActive = activeTab === tab.id;
     const sz = tab.size || 'text-lg';
-    el.innerHTML += `<div id="tab-${tab.id}" class="tab ${isActive?'active-tab':''} ${sz} ${isActive ? tab.color + ' text-black' : 'text-gray-300 bg-gray-800 bg-opacity-60'} p-3 cursor-pointer rounded-lg border-2 ${tab.border}" onclick="switchTab('${tab.id}')"><i class="fas fa-${tab.icon}"></i> ${tab.name}</div>`;
+    el.innerHTML += `<div id="tab-${tab.id}" class="tab ${sz} ${isActive ? tab.color + ' text-black' : 'text-gray-300 bg-gray-800'} p-3 cursor-pointer rounded-lg border-2 ${tab.border}" onclick="switchTab('${tab.id}')"><i class="fas fa-${tab.icon}"></i> ${tab.name}</div>`;
   });
 }
 
 function switchTab(name) {
-  if (activeTab === 'automator') {
-    const editor = document.getElementById('auto-editor');
-    if (editor) G.automatorCode = editor.value;
-  }
   activeTab = name;
-  lastSidebarHash = ''; // force sidebar re-render on tab switch
   render();
 }
 
@@ -1259,120 +946,7 @@ function renderUpgradeGrid(type, currency) {
   }).join('');
 }
 
-// [FIX #6] Automator tab rendering preserved across re-renders
-function renderAutomatorTab() {
-  const el = document.getElementById('main-content');
-  const code = G.automatorCode || '';
-  el.innerHTML = `<div class="stat-display">
-    <div class="flex justify-between items-center mb-4">
-      <div class="text-2xl font-bold text-primary"><i class="fas fa-code"></i> HzScript Automator <span class="text-sm text-secondary">v2</span></div>
-      <span id="auto-status">${automatorRunning?'<span class="status-pill status-on"><span class="pulse-dot"></span> Running</span>':'<span class="status-pill status-off"><span class="pulse-dot"></span> Stopped</span>'}</span>
-    </div>
-    <div class="flex space-x-3 mb-4">
-      <button class="upgrade-btn border-green-400 text-green-400" onclick="startAutomator()"><i class="fas fa-play"></i> RUN</button>
-      <button class="upgrade-btn border-red-400 text-red-400" onclick="stopAutomator()"><i class="fas fa-stop"></i> STOP</button>
-      <button class="upgrade-btn border-yellow-400 text-yellow-400" onclick="autoConsole=[];updateAutomatorStatus()"><i class="fas fa-broom"></i> CLEAR</button>
-      <button class="upgrade-btn border-blue-400 text-blue-400" onclick="insertAutoTemplate()"><i class="fas fa-file-code"></i> TEMPLATE</button>
-    </div>
-    <textarea id="auto-editor" class="code-editor" spellcheck="false" placeholder="// Type HzScript code here...">${code.replace(/</g,'&lt;')}</textarea>
-    <div class="text-lg font-bold mt-4 mb-2 text-primary"><i class="fas fa-terminal"></i> Console</div>
-    <div class="console-output" id="auto-console"></div>
-  </div>
-  <div class="stat-display mt-4">
-    <div class="text-xl font-bold mb-3 text-primary"><i class="fas fa-book"></i> HzScript Documentation</div>
-    <div class="doc-section">
-      <div class="text-lg font-bold mb-2">⚙ Core Commands</div>
-      <p class="text-secondary mb-1"><code>buy &lt;layer&gt; &lt;id&gt;</code> — Buy one upgrade</p>
-      <p class="text-secondary mb-1"><code>buymax &lt;layer&gt; &lt;id&gt;</code> — Buy max of upgrade</p>
-      <p class="text-secondary mb-1"><code>buyall &lt;layer&gt;</code> — Buy ONE of every upgrade in layer</p>
-      <p class="text-secondary mb-1"><code>maxall &lt;layer&gt;</code> — Buy MAX of every upgrade in layer</p>
-      <p class="text-secondary mb-1"><code>prestige &lt;layer&gt;</code> — Prestige (volume/speaker/infinity/eternity)</p>
-      <p class="text-secondary mb-1"><code>infinity</code> / <code>eternity</code> — Quick prestige</p>
-      <p class="text-secondary mb-1"><code>bulkinf</code> / <code>bulket</code> — Bulk prestige</p>
-      <p class="text-secondary mb-1"><code>wait &lt;ms&gt;</code> — Wait milliseconds</p>
-      <p class="text-secondary mb-1"><code>stop</code> — Stop automator</p>
-      <p class="text-secondary mb-1"><code>save</code> — Save the game</p>
-    </div>
-    <div class="doc-section">
-      <div class="text-lg font-bold mb-2">🔔 UI & Notifications</div>
-      <p class="text-secondary mb-1"><code>notify "Title" "Message" [type]</code> — Show notification (types: info/success/warn/error/special)</p>
-      <p class="text-secondary mb-1"><code>popup "message"</code> — Show centered popup</p>
-      <p class="text-secondary mb-1"><code>print message</code> — Print to console</p>
-      <p class="text-secondary mb-1"><code>theme &lt;name&gt;</code> — Change theme (red/blue/purple/etc.)</p>
-      <p class="text-secondary mb-1"><code>tab &lt;name&gt;</code> — Switch active tab</p>
-      <p class="text-secondary mb-1"><code>beep</code> — Play a beep sound</p>
-      <p class="text-secondary mb-1"><code>clear</code> — Clear console</p>
-    </div>
-    <div class="doc-section">
-      <div class="text-lg font-bold mb-2">📦 Variables</div>
-      <p class="text-secondary mb-1"><code>set &lt;name&gt; &lt;value&gt;</code> — Set variable</p>
-      <p class="text-secondary mb-1"><code>add &lt;name&gt; &lt;value&gt;</code> — Add to variable</p>
-      <p class="text-secondary">Variables can be used in conditions like resources.</p>
-    </div>
-    <div class="doc-section">
-      <div class="text-lg font-bold mb-2">🔀 Control Flow</div>
-      <p class="text-secondary mb-1"><code>if &lt;resource&gt; &lt;op&gt; &lt;value&gt; then &lt;command&gt;</code></p>
-      <p class="text-secondary mb-1"><code>while &lt;resource&gt; &lt;op&gt; &lt;value&gt; do &lt;command&gt;</code> (max 500 iters)</p>
-      <p class="text-secondary mb-1"><code>loop &lt;count&gt; do &lt;command&gt;</code> (max 500 iters)</p>
-    </div>
-    <div class="doc-section">
-      <div class="text-lg font-bold mb-2">📊 Resources</div>
-      <p class="text-secondary"><code>hz</code>, <code>vol</code>, <code>spk</code>, <code>inf</code>, <code>et</code>, <code>hzps</code>, <code>inftimes</code>, <code>ettimes</code></p>
-    </div>
-    <div class="doc-section">
-      <div class="text-lg font-bold mb-2">🔢 Operators</div>
-      <p class="text-secondary"><code>&gt;</code> <code>&lt;</code> <code>&gt;=</code> <code>&lt;=</code> <code>==</code> <code>!=</code></p>
-    </div>
-    <div class="doc-section">
-      <div class="text-lg font-bold mb-2">🏷 Layers</div>
-      <p class="text-secondary"><code>hz</code> (1-6), <code>volume</code> (1-6), <code>speaker</code> (1-7), <code>infinity</code> (1-15), <code>eternity</code> (1-20)</p>
-    </div>
-    <div class="doc-section">
-      <div class="text-lg font-bold mb-2">💡 Example Script</div>
-      <pre class="text-secondary text-sm">// Smart auto-prestige with notifications
-maxall hz
-if hz > 1000000 then notify "Ready!" "Volume prestige available" success
-if hz > 1000000 then prestige volume
-if vol > 100 then prestige speaker
-if spk > 1000 then infinity
-beep
-wait 1000</pre>
-    </div>
-  </div>`;
-  updateAutomatorStatus();
-}
-
-function insertAutoTemplate() {
-  const tmpl = `// Auto-Prestige Template
-notify "Started" "Auto-prestige running" special
-maxall hz
-if hz > 1000000 then prestige volume
-maxall volume
-if vol > 100 then prestige speaker
-maxall speaker
-if spk > 1000 then infinity
-bulkinf
-maxall infinity
-wait 1000`;
-  const editor = document.getElementById('auto-editor');
-  if (editor) {
-    editor.value = tmpl;
-    G.automatorCode = tmpl;
-  }
-}
-
 function renderContent() {
-  // [FIX #6] Automator tab: only re-render if DOM doesn't exist yet
-  if (activeTab === 'automator') {
-    const existing = document.getElementById('auto-editor');
-    if (!existing) {
-      renderAutomatorTab();
-    } else {
-      updateAutomatorStatus();
-    }
-    return;
-  }
-  
   const el = document.getElementById('main-content');
   let html = '';
 
@@ -1462,7 +1036,7 @@ function renderContent() {
       <div class="text-lg text-secondary mb-4">Total Boost: ${fmt(machineBoost())}x</div>
     </div>
     <div class="grid grid-cols-2 gap-4">${MACHINES.map(m => {
-      const unlocked = G.infinity.gte(D(m.req));
+      const unlocked = G.infinity.gte(m.req);
       const cls = unlocked ? '' : 'locked';
       const col = m.color === 'rainbow' ? '' : `color:${m.color}`;
       const textCls = m.color === 'rainbow' ? 'rainbow-text' : '';
@@ -1473,6 +1047,64 @@ function renderContent() {
         <div class="text-sm text-secondary mt-1">×${fmt(D(m.mult))} per log</div>
       </div>`;
     }).join('')}</div>`;
+  }
+
+  else if (activeTab === 'automator') {
+    const code = G.automatorCode || '';
+    const consoleHtml = autoConsole.slice(-50).map(l => `<div class="log-${l.type}">[${new Date(l.time).toLocaleTimeString()}] ${l.msg}</div>`).join('');
+    html = `<div class="stat-display">
+      <div class="text-2xl font-bold mb-4 text-primary"><i class="fas fa-code"></i> HzScript Automator</div>
+      <div class="flex space-x-3 mb-4">
+        <button class="upgrade-btn border-green-400 text-green-400" onclick="startAutomator()"><i class="fas fa-play"></i> RUN</button>
+        <button class="upgrade-btn border-red-400 text-red-400" onclick="stopAutomator()"><i class="fas fa-stop"></i> STOP</button>
+        <span class="text-sm text-secondary self-center ml-2">${automatorRunning?'<span class="text-green-400">● Running (Line '+(autoPC+1)+')</span>':'<span class="text-red-400">● Stopped</span>'}</span>
+      </div>
+      <textarea id="auto-editor" class="code-editor" spellcheck="false" oninput="G.automatorCode=this.value">${code.replace(/</g,'&lt;')}</textarea>
+      <div class="text-lg font-bold mt-4 mb-2 text-primary">Console</div>
+      <div class="console-output" id="auto-console">${consoleHtml}</div>
+    </div>
+    <div class="stat-display mt-4">
+      <div class="text-xl font-bold mb-3 text-primary"><i class="fas fa-book"></i> HzScript Documentation</div>
+      <div class="doc-section">
+        <div class="text-lg font-bold mb-2">Commands</div>
+        <p class="text-secondary mb-1"><code>buy &lt;layer&gt; &lt;id&gt;</code> — Buy one upgrade</p>
+        <p class="text-secondary mb-1"><code>buymax &lt;layer&gt; &lt;id&gt;</code> — Buy max of upgrade</p>
+        <p class="text-secondary mb-1"><code>prestige &lt;layer&gt;</code> — Prestige (volume/speaker/infinity/eternity)</p>
+        <p class="text-secondary mb-1"><code>infinity</code> / <code>eternity</code> — Quick prestige</p>
+        <p class="text-secondary mb-1"><code>bulkinf</code> / <code>bulket</code> — Bulk prestige</p>
+        <p class="text-secondary mb-1"><code>wait &lt;ms&gt;</code> — Wait milliseconds</p>
+        <p class="text-secondary mb-1"><code>print &lt;message&gt;</code> — Print to console</p>
+        <p class="text-secondary mb-1"><code>stop</code> — Stop automator</p>
+      </div>
+      <div class="doc-section mt-3">
+        <div class="text-lg font-bold mb-2">Control Flow</div>
+        <p class="text-secondary mb-1"><code>if &lt;resource&gt; &lt;op&gt; &lt;value&gt; then &lt;command&gt;</code></p>
+        <p class="text-secondary mb-1"><code>while &lt;resource&gt; &lt;op&gt; &lt;value&gt; do &lt;command&gt;</code></p>
+        <p class="text-secondary mb-1"><code>loop &lt;count&gt; do &lt;command&gt;</code></p>
+      </div>
+      <div class="doc-section mt-3">
+        <div class="text-lg font-bold mb-2">Resources</div>
+        <p class="text-secondary mb-1"><code>hz</code>, <code>volume</code>/<code>vol</code>, <code>speakers</code>/<code>spk</code>, <code>infinity</code>/<code>inf</code>, <code>eternity</code>/<code>et</code>, <code>hzpersec</code>/<code>hzps</code></p>
+      </div>
+      <div class="doc-section mt-3">
+        <div class="text-lg font-bold mb-2">Operators</div>
+        <p class="text-secondary"><code>&gt;</code> <code>&lt;</code> <code>&gt;=</code> <code>&lt;=</code> <code>==</code> <code>!=</code></p>
+      </div>
+      <div class="doc-section mt-3">
+        <div class="text-lg font-bold mb-2">Layers</div>
+        <p class="text-secondary"><code>hz</code> (1-6), <code>volume</code> (1-6), <code>speaker</code> (1-7), <code>infinity</code> (1-15), <code>eternity</code> (1-20)</p>
+      </div>
+      <div class="doc-section mt-3">
+        <div class="text-lg font-bold mb-2">Example</div>
+        <pre class="text-secondary text-sm">// Auto prestige loop
+buymax hz 1
+buymax hz 2
+wait 500
+if hz > 1000000 then prestige volume
+if vol > 100 then prestige speaker
+wait 1000</pre>
+      </div>
+    </div>`;
   }
 
   else if (activeTab === 'achievements') {
@@ -1488,11 +1120,11 @@ function renderContent() {
     html = `<div class="stat-display">
       <div class="text-2xl font-bold mb-4 text-primary"><i class="fas fa-cog"></i> SETTINGS</div>
       <div class="space-y-3">
-        <button onclick="saveGame();showNotif('Saved','Game saved manually','success')" class="upgrade-btn border-green-400 text-green-400 w-full"><i class="fas fa-save"></i> SAVE</button>
+        <button onclick="saveGame();showPopup('Saved!')" class="upgrade-btn border-green-400 text-green-400 w-full"><i class="fas fa-save"></i> SAVE</button>
         <button onclick="document.getElementById('popup2').classList.add('visible')" class="upgrade-btn border-blue-400 text-blue-400 w-full"><i class="fas fa-upload"></i> LOAD</button>
         <button onclick="exportSave()" class="upgrade-btn border-yellow-400 text-yellow-400 w-full"><i class="fas fa-copy"></i> COPY SAVE</button>
         <button onclick="downloadSave()" class="upgrade-btn border-purple-400 text-purple-400 w-full"><i class="fas fa-download"></i> DOWNLOAD</button>
-        <button onclick="document.getElementById('popup-theme').classList.add('visible');initThemeButtons()" class="upgrade-btn border-pink-400 text-pink-400 w-full"><i class="fas fa-palette"></i> THEME</button>
+        <button onclick="document.getElementById('popup-theme').classList.add('visible')" class="upgrade-btn border-pink-400 text-pink-400 w-full"><i class="fas fa-palette"></i> THEME</button>
         <button onclick="hardReset()" class="upgrade-btn border-red-400 text-red-400 w-full"><i class="fas fa-trash"></i> HARD RESET</button>
       </div>
     </div>`;
@@ -1501,55 +1133,19 @@ function renderContent() {
   else if (activeTab === 'changelog') {
     html = `<div class="stat-display">
       <div class="text-2xl font-bold mb-4 text-primary"><i class="fas fa-list"></i> CHANGELOG</div>
-      <div class="upgrade-card border-green-400 mb-3">
-        <div class="text-xl font-bold mb-2 text-primary">v0.4.46a - Bug Fix Update 🐛</div>
-        <ul class="list-disc list-inside space-y-1 text-secondary text-sm">
-          <li>FIXED: fmt() now properly formats numbers 1K–999K instead of raw digits</li>
-          <li>FIXED: fmt() shows precision for very small numbers instead of "0.00"</li>
-          <li>FIXED: buyMaxUp no longer freezes on cheap upgrades (capped at 1000/call)</li>
-          <li>FIXED: Bulk Infinity/Eternity now snapshot resources before reset loop</li>
-          <li>FIXED: Save loading only restores upgrade keys that exist in current version</li>
-          <li>FIXED: First Volume/Speaker prestige guarantees +1 on unlock</li>
-          <li>FIXED: Automator commands now accept mixed-case layer names (Hz, Vol, etc.)</li>
-          <li>FIXED: Automator while/loop caps reduced to 500 to prevent frame freezes</li>
-          <li>FIXED: Theme popup now refreshes when opened (stays in sync with scripted changes)</li>
-          <li>FIXED: Invalid upgrade IDs in automator no longer crash (returns Infinity cost)</li>
-          <li>FIXED: Game loop now uses delta-time for accurate offline/background gains</li>
-          <li>FIXED: Achievement checks use string Decimals for large thresholds (1e80, 1e100)</li>
-          <li>FIXED: Sidebar only re-renders when tabs actually change (less DOM thrashing)</li>
-          <li>FIXED: Clipboard export has fallback for non-HTTPS/permission-denied</li>
-          <li>FIXED: Download save now cleans up blob URL</li>
-        </ul>
-      </div>
-      <div class="upgrade-card border-pink-400 mb-3">
-        <div class="text-xl font-bold mb-2 text-primary">v0.4.45a - Automator Plus Update 🚀</div>
-        <ul class="list-disc list-inside space-y-1 text-secondary text-sm">
-          <li>FIXED: Automator textbox can now be edited properly (no more re-render loss)</li>
-          <li>NEW: Notification system with 5 types (info/success/warn/error/special)</li>
-          <li>NEW: <code>notify</code> command — send custom notifications</li>
-          <li>NEW: <code>popup</code> command — show centered popup messages</li>
-          <li>NEW: <code>theme</code> command — change UI theme from script</li>
-          <li>NEW: <code>tab</code> command — switch tabs from script</li>
-          <li>NEW: <code>save</code> command — save game from script</li>
-          <li>NEW: <code>buyall</code> / <code>maxall</code> — buy upgrades on whole layer</li>
-          <li>NEW: <code>set</code> / <code>add</code> — script variables</li>
-          <li>NEW: <code>beep</code> — audio feedback</li>
-          <li>NEW: <code>clear</code> — clear console from script</li>
-          <li>NEW: Live status pill (Running/Stopped) with current line</li>
-          <li>NEW: Template button to insert example scripts</li>
-          <li>UI: Glassmorphism, fade-ins, pulse animations</li>
-          <li>UI: Better scrollbars, hover effects, gradients</li>
-          <li>UI: Active tab pulse indicator</li>
-          <li>UI: Notification slide-in toasts (top-right)</li>
-        </ul>
-      </div>
       <div class="upgrade-card border-blue-400 mb-3">
         <div class="text-xl font-bold mb-2 text-primary">v0.4.4a - The Automator Update 🤖</div>
         <ul class="list-disc list-inside space-y-1 text-secondary text-sm">
-          <li>HzScript - Custom programming language for automation</li>
+          <li>NEW: HzScript - Custom programming language for automation!</li>
           <li>Unlocked after Rainbow Machine</li>
-          <li>Conditionals, loops, wait commands</li>
+          <li>Full text-based scripting with conditionals, loops, wait</li>
           <li>Console output and documentation</li>
+          <li>Animated gradient backgrounds for all themes</li>
+          <li>20+ achievements</li>
+          <li>All code merged into single file</li>
+          <li>Proper Break Eternity integration</li>
+          <li>Buy Max with no limits everywhere</li>
+          <li>XeYeZ notation with 2 decimal places</li>
         </ul>
       </div>
       <div class="upgrade-card border-green-400 mb-3">
@@ -1586,12 +1182,10 @@ function render() {
 }
 
 // ===== THEME BUTTONS =====
-// [FIX #8] This is now called when opening theme popup too
 function initThemeButtons() {
   const el = document.getElementById('theme-buttons');
-  if (!el) return;
   el.innerHTML = THEMES.map(t =>
-    `<div id="theme-${t}" class="theme-btn ${G.theme===t?'active':''}" style="background:linear-gradient(135deg,${THEME_COLORS[t]})" onclick="G.theme='${t}';applyTheme('${t}');initThemeButtons();document.getElementById('popup-theme').classList.remove('visible')"></div>`
+    `<div id="theme-${t}" class="theme-btn ${G.theme===t?'active':''}" style="background:linear-gradient(135deg,${THEME_COLORS[t]})" onclick="G.theme='${t}';applyTheme('${t}');document.getElementById('popup-theme').classList.remove('visible')"></div>`
   ).join('');
 }
 
@@ -1600,48 +1194,44 @@ function checkAchievements() {
   ACHIEVEMENTS.forEach(a => {
     if (!G.achievements[a.id] && a.check()) {
       G.achievements[a.id] = true;
-      showNotif('🏆 Achievement!', a.name, 'success');
+      showPopup(`Achievement: ${a.name}!`, 'achievement');
     }
   });
 }
 
 // ===== PASSIVE GENERATION =====
-function passiveTick(dt) {
+function passiveTick() {
   const il = (id) => getUpLevel('infinity', id);
   const el = (id) => getUpLevel('eternity', id);
   
   if (il(15).gt(0) && G.infinityUnlocked) {
-    let gain = il(15).times(0.01).times(dt);
+    let gain = il(15).times(0.01).div(30);
     if (el(12).gt(0)) gain = gain.times(Decimal.pow(1000, el(12)));
     G.infinity = G.infinity.plus(gain);
   }
   
   if (el(20).gt(0) && G.eternityUnlocked) {
-    G.eternity = G.eternity.plus(el(20).times(0.001).times(dt));
+    G.eternity = G.eternity.plus(el(20).times(0.001).div(30));
   }
 }
 
 // ===== GAME LOOP =====
-// [FIX #10] Delta-time based game loop
 function gameLoop() {
-  const now = Date.now();
-  const elapsed = (now - lastTickTime) / 1000; // seconds since last tick
-  lastTickTime = now;
-  // Clamp delta to avoid huge jumps (e.g. after sleeping laptop for hours)
-  const dt = Math.min(elapsed, 60); // max 60s catch-up per frame
-
-  G.hz = G.hz.plus(calcHzPerSec().times(dt));
-  passiveTick(dt);
+  G.hz = G.hz.plus(calcHzPerSec().div(30));
+  passiveTick();
   
-  if (G.infinity.gte(D("1e80")) && !G.automatorUnlocked) {
+  // Check rainbow machine -> unlock automator
+  if (G.infinity.gte(1e80) && !G.automatorUnlocked) {
     G.automatorUnlocked = true;
-    showNotif('🤖 Unlocked!', 'Automator is now available!', 'special', 5000);
+    showPopup('Automator Unlocked!', 'achievement');
   }
   
+  // Machines unlock
   if (G.infinity.gte(1e6) && !G.machinesUnlocked) {
     G.machinesUnlocked = true;
   }
   
+  // Triggers
   if (G.hz.gte(G.infinityReq) && !G.infinityUnlocked) triggerInfinityDialog();
   if (G.infinity.gte(G.eternityReq) && !G.eternityUnlocked) triggerEternityDialog();
   
@@ -1657,7 +1247,6 @@ applyTheme(G.theme);
 initThemeButtons();
 render();
 
-lastTickTime = Date.now();
 setInterval(gameLoop, 1000 / 30);
 setInterval(() => { saveGame(); }, 30000);
 </script>
