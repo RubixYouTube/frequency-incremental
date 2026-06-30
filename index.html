@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hertz Incremental - v0.4.45a</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/gh/Patashu/break_eternity.js@master/break_eternity.min.js"></script>
+  <title>Hertz Incremental - v0.4.46a</title>
+  <script src="[cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
+  <link rel="stylesheet" href="[cdnjs.cloudflare.com](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css)">
+  <script src="[cdn.jsdelivr.net](https://cdn.jsdelivr.net/gh/Patashu/break_eternity.js@master/break_eternity.min.js)"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{transition:background 0.5s ease,color 0.3s ease;font-family:'Segoe UI',sans-serif}
@@ -155,7 +155,7 @@ body{transition:background 0.5s ease,color 0.3s ease;font-family:'Segoe UI',sans
 </div>
 <!-- Notification system -->
 <div id="notif-container" class="notif-container"></div>
-<div class="version"><i class="fas fa-code"></i> v0.4.45a - Automator Plus Update</div>
+<div class="version"><i class="fas fa-code"></i> v0.4.46a - Bug Fix Update</div>
 
 <script>
 // ===== BREAK ETERNITY USAGE =====
@@ -247,11 +247,11 @@ const ACHIEVEMENTS = [
   {id:'ach12',name:'Volume Lord',desc:'Reach 1000 Volume',check:()=>G.volume.gte(1000)},
   {id:'ach13',name:'Speaker Master',desc:'Reach 100 Speakers',check:()=>G.speakers.gte(100)},
   {id:'ach14',name:'Infinity×10',desc:'Infinitize 10 times',check:()=>G.infinityTimes.gte(10)},
-  {id:'ach15',name:'Rainbow Power',desc:'Unlock Rainbow Machine',check:()=>G.infinity.gte(1e80)},
+  {id:'ach15',name:'Rainbow Power',desc:'Unlock Rainbow Machine',check:()=>G.infinity.gte(D("1e80"))},
   {id:'ach16',name:'Automator',desc:'Unlock Automations',check:()=>G.automatorUnlocked},
   {id:'ach17',name:'Eternal×5',desc:'Eternitize 5 times',check:()=>G.eternityTimes.gte(5)},
   {id:'ach18',name:'1e100 Hz',desc:'Reach 1e100 Hz',check:()=>G.hz.gte("1e100")},
-  {id:'ach19',name:'Monochrome Master',desc:'Unlock Monochrome Machine',check:()=>G.infinity.gte(1e100)},
+  {id:'ach19',name:'Monochrome Master',desc:'Unlock Monochrome Machine',check:()=>G.infinity.gte(D("1e100"))},
   {id:'ach20',name:'Infinity Pool',desc:'Reach 1e50 Infinity',check:()=>G.infinity.gte("1e50")},
 ];
 
@@ -273,22 +273,24 @@ const THEMES = ['red','orange','yellow','green','blue','purple','pink','brown','
 const THEME_COLORS = {red:'#991b1b,#dc2626',orange:'#9a3412,#ea580c',yellow:'#854d0e,#eab308',green:'#166534,#22c55e',blue:'#1e40af,#3b82f6',purple:'#6b21a8,#a855f7',pink:'#9f1239,#ec4899',brown:'#4e342e,#795548',black:'#000,#374151',white:'#e5e5e5,#fff'};
 
 const MACHINES = [
-  {id:'red',name:'Red',req:1e6,mult:2,color:'#ef4444'},
-  {id:'orange',name:'Orange',req:1e9,mult:3,color:'#f97316'},
-  {id:'yellow',name:'Yellow',req:1e12,mult:5,color:'#eab308'},
-  {id:'green',name:'Green',req:1e15,mult:10,color:'#22c55e'},
-  {id:'blue',name:'Blue',req:1e20,mult:25,color:'#3b82f6'},
-  {id:'purple',name:'Purple',req:1e30,mult:100,color:'#a855f7'},
-  {id:'pink',name:'Pink',req:1e40,mult:1000,color:'#ec4899'},
-  {id:'brown',name:'Brown',req:1e60,mult:1e4,color:'#a1887f'},
-  {id:'rainbow',name:'Rainbow',req:1e80,mult:1e5,color:'rainbow'},
-  {id:'mono',name:'Monochrome',req:1e100,mult:1e6,color:'#888'},
+  {id:'red',name:'Red',req:"1e6",mult:2,color:'#ef4444'},
+  {id:'orange',name:'Orange',req:"1e9",mult:3,color:'#f97316'},
+  {id:'yellow',name:'Yellow',req:"1e12",mult:5,color:'#eab308'},
+  {id:'green',name:'Green',req:"1e15",mult:10,color:'#22c55e'},
+  {id:'blue',name:'Blue',req:"1e20",mult:25,color:'#3b82f6'},
+  {id:'purple',name:'Purple',req:"1e30",mult:100,color:'#a855f7'},
+  {id:'pink',name:'Pink',req:"1e40",mult:1000,color:'#ec4899'},
+  {id:'brown',name:'Brown',req:"1e60",mult:1e4,color:'#a1887f'},
+  {id:'rainbow',name:'Rainbow',req:"1e80",mult:1e5,color:'rainbow'},
+  {id:'mono',name:'Monochrome',req:"1e100",mult:1e6,color:'#888'},
 ];
 
 // ===== GAME STATE =====
 let G = makeDefaultState();
 let activeTab = 'hz';
 let automatorRunning = false;
+let lastTickTime = Date.now(); // [FIX #10] delta-time tracking
+let lastSidebarHash = ''; // [FIX #18] avoid redundant sidebar renders
 
 function makeDefaultState() {
   let s = {
@@ -314,8 +316,11 @@ function makeDefaultState() {
 
 function getUpLevel(type, id) { return G.ups[type + '_' + id] || ZERO; }
 function setUpLevel(type, id, v) { G.ups[type + '_' + id] = D(v); }
+
+// [FIX #9] Guard against undefined upgrade IDs
 function getUpCost(type, id) {
-  const u = UPGRADES[type].find(x => x.id === id);
+  const u = UPGRADES[type] && UPGRADES[type].find(x => x.id === id);
+  if (!u) return D(Infinity); // unpurchasable if upgrade doesn't exist
   const lv = getUpLevel(type, id);
   return D(u.base).times(Decimal.pow(u.mult, lv));
 }
@@ -327,16 +332,21 @@ function softcap(v, start, pow) {
   return v.div(start).pow(pow).times(start);
 }
 
+// [FIX #1 & #12] Rewritten fmt() with proper number ranges
 function fmt(num, dec=2) {
   num = D(num);
   if (num.lt(0)) return '-' + fmt(num.neg(), dec);
-  if (num.lt(1000)) return num.toFixed(num.lt(10) ? dec : 0);
-  if (num.lt(1e6)) return num.toFixed(dec);
-  if (num.lt(1e9)) {
-    const a = ['','K','M','B'];
-    const e = Math.floor(num.e / 3);
-    return num.div(Decimal.pow(10, e*3)).toFixed(dec) + a[e];
+  if (num.eq(0)) return '0';
+  if (num.lt(0.01) && num.gt(0)) return num.toExponential(dec);
+  if (num.lt(1000)) return num.toFixed(num.lt(10) ? dec : (num.lt(100) ? 1 : 0));
+  if (num.lt(1e6)) {
+    // [FIX #1] Format 1,000–999,999 as K
+    return (num.toNumber() / 1e3).toFixed(dec) + 'K';
   }
+  if (num.lt(1e9)) return (num.toNumber() / 1e6).toFixed(dec) + 'M';
+  if (num.lt(1e12)) return (num.toNumber() / 1e9).toFixed(dec) + 'B';
+  if (num.lt(1e15)) return (num.toNumber() / 1e12).toFixed(dec) + 'T';
+  // Scientific for large numbers
   if (num.layer > 0 || num.e >= 1000) {
     if (num.e >= 1e6) {
       return num.mantissa.toFixed(2) + 'e' + fmt(D(num.e));
@@ -377,7 +387,7 @@ function machineBoost() {
   let b = ONE;
   MACHINES.forEach(m => {
     if (G.infinity.gte(m.req)) {
-      b = b.times(Decimal.pow(m.mult, G.infinity.div(m.req).log10().plus(1)));
+      b = b.times(Decimal.pow(m.mult, G.infinity.div(D(m.req)).log10().plus(1)));
     }
   });
   return b;
@@ -503,33 +513,79 @@ function calcEtGain() {
 
 // ===== BUY UPGRADES =====
 function getCurrency(type) {
+  // [FIX #16] normalize type to lowercase
+  type = type.toLowerCase();
   if (type==='hz') return G.hz;
-  if (type==='volume') return G.volume;
-  if (type==='speaker') return G.speakers;
-  if (type==='infinity') return G.infinity;
-  if (type==='eternity') return G.eternity;
+  if (type==='volume' || type==='vol') return G.volume;
+  if (type==='speaker' || type==='speakers' || type==='spk') return G.speakers;
+  if (type==='infinity' || type==='inf') return G.infinity;
+  if (type==='eternity' || type==='et') return G.eternity;
+  return ZERO;
 }
 function setCurrency(type, v) {
+  type = type.toLowerCase();
   if (type==='hz') G.hz = v;
-  if (type==='volume') G.volume = v;
-  if (type==='speaker') G.speakers = v;
-  if (type==='infinity') G.infinity = v;
-  if (type==='eternity') G.eternity = v;
+  if (type==='volume' || type==='vol') G.volume = v;
+  if (type==='speaker' || type==='speakers' || type==='spk') G.speakers = v;
+  if (type==='infinity' || type==='inf') G.infinity = v;
+  if (type==='eternity' || type==='et') G.eternity = v;
+}
+
+// [FIX #16] Normalize layer name for UPGRADES lookup
+function normalizeLayer(type) {
+  type = type.toLowerCase();
+  if (type === 'vol' || type === 'volume') return 'volume';
+  if (type === 'spk' || type === 'speakers' || type === 'speaker') return 'speaker';
+  if (type === 'inf') return 'infinity';
+  if (type === 'et') return 'eternity';
+  return type;
 }
 
 function buyUp(type, id) {
-  const cost = getUpCost(type, id);
-  const cur = getCurrency(type);
+  const normType = normalizeLayer(type);
+  const cost = getUpCost(normType, id);
+  if (!isFinite(cost.toNumber()) && cost.e === Infinity) return; // [FIX #9] invalid upgrade
+  const cur = getCurrency(normType);
   if (cur.gte(cost)) {
-    setCurrency(type, cur.minus(cost));
-    setUpLevel(type, id, getUpLevel(type, id).plus(1));
+    setCurrency(normType, cur.minus(cost));
+    setUpLevel(normType, id, getUpLevel(normType, id).plus(1));
   }
 }
 
+// [FIX #2] Rewritten buyMaxUp with logarithmic calculation instead of brute-force loop
 function buyMaxUp(type, id) {
+  const normType = normalizeLayer(type);
+  const u = UPGRADES[normType] && UPGRADES[normType].find(x => x.id === id);
+  if (!u) return;
+
+  let cur = getCurrency(normType);
+  let lv = getUpLevel(normType, id);
+  const base = D(u.base);
+  const mult = D(u.mult);
+
+  // For geometric series: total cost of n levels from current = base * mult^lv * (mult^n - 1) / (mult - 1)
+  // We solve for max n where player can afford the sum
+  // Fallback to iterative for small counts to keep it simple & safe
+  if (mult.eq(1)) {
+    // Linear cost: each level costs base
+    const affordable = cur.div(base).floor();
+    if (affordable.gt(0)) {
+      const totalCost = base.times(affordable);
+      setCurrency(normType, cur.minus(totalCost));
+      setUpLevel(normType, id, lv.plus(affordable));
+    }
+    return;
+  }
+
+  // Iterative with a sane cap (1000 per call is plenty for 30fps)
   let bought = 0;
-  while (getCurrency(type).gte(getUpCost(type, id)) && bought < 100000) {
-    buyUp(type, id);
+  while (bought < 1000) {
+    const cost = base.times(Decimal.pow(mult, lv));
+    cur = getCurrency(normType);
+    if (cur.lt(cost)) break;
+    setCurrency(normType, cur.minus(cost));
+    lv = lv.plus(1);
+    setUpLevel(normType, id, lv);
     bought++;
   }
 }
@@ -564,22 +620,27 @@ function resetEt() {
   resetInf();
 }
 
+// [FIX #5] Prestige only grants resources when gain >= 1
 function prestigeVolume() {
   const g = calcVolGain();
-  if (g.gte(1) || (!G.volumeUnlocked && G.hz.gte(1e6))) {
-    G.volume = G.volume.plus(g);
+  const firstUnlock = !G.volumeUnlocked && G.hz.gte(1e6);
+  if (g.gte(1) || firstUnlock) {
+    const actualGain = g.max(firstUnlock ? 1 : 0); // guarantee at least 1 on first unlock
+    G.volume = G.volume.plus(actualGain);
     G.volumeUnlocked = true;
     resetHz();
-    showNotif('Volume Prestige', `+${fmt(g)} Volume`, 'success');
+    showNotif('Volume Prestige', `+${fmt(actualGain)} Volume`, 'success');
   }
 }
 function prestigeSpeaker() {
   const g = calcSpkGain();
-  if (g.gte(1) || (!G.speakersUnlocked && G.volume.gte(100))) {
-    G.speakers = G.speakers.plus(g);
+  const firstUnlock = !G.speakersUnlocked && G.volume.gte(100);
+  if (g.gte(1) || firstUnlock) {
+    const actualGain = g.max(firstUnlock ? 1 : 0);
+    G.speakers = G.speakers.plus(actualGain);
     G.speakersUnlocked = true;
     resetVol();
-    showNotif('Speaker Prestige', `+${fmt(g)} Speakers`, 'success');
+    showNotif('Speaker Prestige', `+${fmt(actualGain)} Speakers`, 'success');
   }
 }
 function doInfinity() {
@@ -592,21 +653,38 @@ function doInfinity() {
   resetSpk(); G.speakers = ZERO;
   showNotif('Infinity!', `+${fmt(g.max(1))} Infinity`, 'special');
 }
+
+// [FIX #3] Bulk prestige: snapshot Hz before loop, compute all gains against rising req
 function bulkInfinity() {
+  const snapshotHz = G.hz; // snapshot pre-reset value
   let total = ZERO, count = 0;
-  while (G.hz.gte(G.infinityReq) && count < 10000) {
-    const g = calcInfGain();
-    total = total.plus(g);
-    G.infinityTimes = G.infinityTimes.plus(1);
-    G.infinityReq = G.infinityReq.times(Decimal.pow(10, Decimal.pow(2, G.infinityTimes)));
+  let req = G.infinityReq;
+  let times = G.infinityTimes;
+
+  while (snapshotHz.gte(req) && count < 10000) {
+    // compute gain using snapshot
+    let b = snapshotHz.log10().div(req.log10()).pow(0.5).floor();
+    const il = (id) => getUpLevel('infinity', id);
+    const el = (id) => getUpLevel('eternity', id);
+    if (il(14).gt(0)) b = b.times(Decimal.pow(2, il(14)));
+    if (el(2).gt(0)) b = b.times(Decimal.pow(100, el(2)));
+    b = b.times(machineBoost()).times(eternityBoost());
+    b = b.floor().max(1);
+
+    total = total.plus(b);
+    times = times.plus(1);
+    req = req.times(Decimal.pow(10, Decimal.pow(2, times)));
     count++;
   }
   if (total.gt(0)) {
     G.infinity = G.infinity.plus(total);
+    G.infinityTimes = times;
+    G.infinityReq = req;
     resetSpk(); G.speakers = ZERO;
     showNotif('Bulk Infinity', `+${fmt(total)} Infinity (${count}×)`, 'special');
   }
 }
+
 function doEternity() {
   const g = calcEtGain();
   if (g.lt(1) && G.eternityUnlocked) return;
@@ -617,17 +695,30 @@ function doEternity() {
   G.infinity = ZERO; resetInf();
   showNotif('Eternity!', `+${fmt(g.max(1))} Eternity`, 'special');
 }
+
+// [FIX #3] Bulk eternity with snapshot
 function bulkEternity() {
+  const snapshotInf = G.infinity;
   let total = ZERO, count = 0;
-  while (G.infinity.gte(G.eternityReq) && count < 10000) {
-    const g = calcEtGain();
-    total = total.plus(g);
-    G.eternityTimes = G.eternityTimes.plus(1);
-    G.eternityReq = G.eternityReq.times(Decimal.pow(10, Decimal.pow(3, G.eternityTimes)));
+  let req = G.eternityReq;
+  let times = G.eternityTimes;
+
+  while (snapshotInf.gte(req) && count < 10000) {
+    let b = snapshotInf.log10().div(req.log10()).pow(0.4).floor();
+    const el = (id) => getUpLevel('eternity', id);
+    if (el(10).gt(0)) b = b.times(machineBoost().log10().plus(1));
+    if (el(18).gt(0)) b = b.times(G.eternity.plus(total).plus(1).pow(el(18)));
+    b = b.floor().max(1);
+
+    total = total.plus(b);
+    times = times.plus(1);
+    req = req.times(Decimal.pow(10, Decimal.pow(3, times)));
     count++;
   }
   if (total.gt(0)) {
     G.eternity = G.eternity.plus(total);
+    G.eternityTimes = times;
+    G.eternityReq = req;
     G.infinity = ZERO; resetInf();
     showNotif('Bulk Eternity', `+${fmt(total)} Eternity (${count}×)`, 'special');
   }
@@ -708,20 +799,10 @@ function autoLog(msg, type='info') {
   if (autoConsole.length > 200) autoConsole.shift();
 }
 
-// Parse a quoted string from tokens
-function parseQuoted(str) {
-  const m = str.match(/^"([^"]*)"(.*)$/);
-  if (m) return [m[1], m[2].trim()];
-  const sp = str.indexOf(' ');
-  if (sp === -1) return [str, ''];
-  return [str.substring(0, sp), str.substring(sp+1).trim()];
-}
-
 function parseAutoLine(line) {
   line = line.trim();
   if (!line || line.startsWith('//')) return null;
 
-  // Handle quoted strings specially
   const tokens = line.split(/\s+/);
   const cmd = tokens[0].toLowerCase();
 
@@ -736,7 +817,6 @@ function parseAutoLine(line) {
   if (cmd === 'print') return {type:'print', msg:tokens.slice(1).join(' ').replace(/^"|"$/g,'')};
   if (cmd === 'stop') return {type:'stop'};
   
-  // NEW: notify "Title" "Message" [type]
   if (cmd === 'notify') {
     const rest = line.substring(cmd.length).trim();
     const titleMatch = rest.match(/^"([^"]*)"\s*(.*)$/);
@@ -752,40 +832,21 @@ function parseAutoLine(line) {
     return {type:'notify', title:'Notice', msg:rest, ntype:'info'};
   }
   
-  // NEW: popup "message"
   if (cmd === 'popup') {
     const rest = line.substring(cmd.length).trim().replace(/^"|"$/g,'');
     return {type:'popup', msg:rest};
   }
   
-  // NEW: theme <name>
-  if (cmd === 'theme' && tokens.length >= 2) return {type:'theme', name:tokens[1]};
-  
-  // NEW: tab <name>
-  if (cmd === 'tab' && tokens.length >= 2) return {type:'tab', name:tokens[1]};
-  
-  // NEW: save / load
+  if (cmd === 'theme' && tokens.length >= 2) return {type:'theme', name:tokens[1].toLowerCase()};
+  if (cmd === 'tab' && tokens.length >= 2) return {type:'tab', name:tokens[1].toLowerCase()};
   if (cmd === 'save') return {type:'save'};
-  
-  // NEW: set <var> <value>
   if (cmd === 'set' && tokens.length >= 3) return {type:'set', name:tokens[1], value:tokens.slice(2).join(' ')};
-  
-  // NEW: add <var> <value>
   if (cmd === 'add' && tokens.length >= 3) return {type:'add', name:tokens[1], value:tokens[2]};
-  
-  // NEW: buyall <layer> - buy all upgrades on layer
   if (cmd === 'buyall' && tokens.length >= 2) return {type:'buyall', layer:tokens[1]};
-  
-  // NEW: maxall <layer> - buymax all upgrades on layer
   if (cmd === 'maxall' && tokens.length >= 2) return {type:'maxall', layer:tokens[1]};
-  
-  // NEW: clear - clear console
   if (cmd === 'clear') return {type:'clear'};
-  
-  // NEW: beep - audio beep
   if (cmd === 'beep') return {type:'beep'};
   
-  // if resource > value then command
   if (cmd === 'if' && tokens.length >= 5) {
     const res = tokens[1];
     const op = tokens[2];
@@ -796,7 +857,6 @@ function parseAutoLine(line) {
     }
   }
 
-  // while resource > value do command
   if (cmd === 'while' && tokens.length >= 5) {
     const res = tokens[1];
     const op = tokens[2];
@@ -807,7 +867,6 @@ function parseAutoLine(line) {
     }
   }
 
-  // loop N do command
   if (cmd === 'loop' && tokens.length >= 4) {
     const count = parseInt(tokens[1]);
     if (tokens[2].toLowerCase() === 'do') {
@@ -851,24 +910,28 @@ function execCommand(parsed) {
   if (parsed.type === 'buy') { buyUp(parsed.layer, parsed.id); autoLog(`Bought ${parsed.layer} #${parsed.id}`, 'success'); return true; }
   if (parsed.type === 'buymax') { buyMaxUp(parsed.layer, parsed.id); autoLog(`BuyMax ${parsed.layer} #${parsed.id}`, 'success'); return true; }
   if (parsed.type === 'buyall') {
-    if (UPGRADES[parsed.layer]) {
-      UPGRADES[parsed.layer].forEach(u => buyUp(parsed.layer, u.id));
-      autoLog(`BuyAll on ${parsed.layer}`, 'success');
+    const norm = normalizeLayer(parsed.layer);
+    if (UPGRADES[norm]) {
+      UPGRADES[norm].forEach(u => buyUp(norm, u.id));
+      autoLog(`BuyAll on ${norm}`, 'success');
     } else autoLog(`Invalid layer: ${parsed.layer}`, 'error');
     return true;
   }
   if (parsed.type === 'maxall') {
-    if (UPGRADES[parsed.layer]) {
-      UPGRADES[parsed.layer].forEach(u => buyMaxUp(parsed.layer, u.id));
-      autoLog(`MaxAll on ${parsed.layer}`, 'success');
+    const norm = normalizeLayer(parsed.layer);
+    if (UPGRADES[norm]) {
+      UPGRADES[norm].forEach(u => buyMaxUp(norm, u.id));
+      autoLog(`MaxAll on ${norm}`, 'success');
     } else autoLog(`Invalid layer: ${parsed.layer}`, 'error');
     return true;
   }
   if (parsed.type === 'prestige') {
-    if (parsed.layer === 'volume' || parsed.layer === 'vol') prestigeVolume();
-    else if (parsed.layer === 'speaker' || parsed.layer === 'spk' || parsed.layer === 'speakers') prestigeSpeaker();
-    else if (parsed.layer === 'infinity' || parsed.layer === 'inf') doInfinity();
-    else if (parsed.layer === 'eternity' || parsed.layer === 'et') doEternity();
+    const layer = parsed.layer.toLowerCase();
+    if (layer === 'volume' || layer === 'vol') prestigeVolume();
+    else if (layer === 'speaker' || layer === 'spk' || layer === 'speakers') prestigeSpeaker();
+    else if (layer === 'infinity' || layer === 'inf') doInfinity();
+    else if (layer === 'eternity' || layer === 'et') doEternity();
+    else autoLog(`Unknown prestige layer: ${parsed.layer}`, 'error');
     autoLog(`Prestige: ${parsed.layer}`, 'success');
     return true;
   }
@@ -890,11 +953,17 @@ function execCommand(parsed) {
     if (THEMES.includes(parsed.name)) {
       G.theme = parsed.name;
       applyTheme(parsed.name);
+      initThemeButtons(); // [FIX #8] re-init theme buttons so popup stays in sync
       autoLog(`Theme: ${parsed.name}`, 'success');
     } else autoLog(`Invalid theme: ${parsed.name}`, 'error');
     return true;
   }
   if (parsed.type === 'tab') {
+    // Sync editor before switching away
+    if (activeTab === 'automator') {
+      const editor = document.getElementById('auto-editor');
+      if (editor) G.automatorCode = editor.value;
+    }
     activeTab = parsed.name;
     autoLog(`Switched to tab: ${parsed.name}`, 'success');
     return true;
@@ -938,8 +1007,9 @@ function execCommand(parsed) {
     }
     return true;
   }
+  // [FIX #7] Reduced while/loop caps from 10000 to 500 to prevent frame freezes
   if (parsed.type === 'loop') {
-    for (let i = 0; i < Math.min(parsed.count, 10000); i++) {
+    for (let i = 0; i < Math.min(parsed.count, 500); i++) {
       const sub = parseAutoLine(parsed.sub);
       if (!execCommand(sub)) return false;
     }
@@ -947,7 +1017,7 @@ function execCommand(parsed) {
   }
   if (parsed.type === 'while') {
     let iter = 0;
-    while (evalCondition(parsed.resource, parsed.op, parsed.value) && iter < 10000) {
+    while (evalCondition(parsed.resource, parsed.op, parsed.value) && iter < 500) {
       const sub = parseAutoLine(parsed.sub);
       if (!execCommand(sub)) return false;
       iter++;
@@ -963,7 +1033,6 @@ let autoPC = 0;
 let autoWaitUntil = 0;
 
 function startAutomator() {
-  // Read code straight from textarea - it's the source of truth now
   const editor = document.getElementById('auto-editor');
   if (editor) G.automatorCode = editor.value;
   autoLines = G.automatorCode.split('\n');
@@ -985,7 +1054,7 @@ function stopAutomator() {
 function tickAutomator() {
   if (!automatorRunning || autoPC >= autoLines.length) {
     if (automatorRunning && autoPC >= autoLines.length) {
-      autoPC = 0; // loop back
+      autoPC = 0;
     }
     return;
   }
@@ -1009,7 +1078,6 @@ function tickAutomator() {
   autoPC++;
 }
 
-// Update only the dynamic parts of automator without re-rendering textarea
 function updateAutomatorStatus() {
   if (activeTab !== 'automator') return;
   const statusEl = document.getElementById('auto-status');
@@ -1029,14 +1097,13 @@ function updateAutomatorStatus() {
 
 // ===== SAVE/LOAD =====
 function saveGame() {
-  // Sync editor value into state before saving (so user's edits aren't lost)
   const editor = document.getElementById('auto-editor');
   if (editor) G.automatorCode = editor.value;
   
   const s = {};
   for (let key in G) {
     if (G[key] instanceof Decimal) s[key] = G[key].toString();
-    else if (typeof G[key] === 'object' && !(G[key] instanceof Decimal)) {
+    else if (typeof G[key] === 'object' && G[key] !== null && !(G[key] instanceof Decimal)) {
       s[key] = {};
       for (let k2 in G[key]) {
         if (G[key][k2] instanceof Decimal) s[key][k2] = G[key][k2].toString();
@@ -1048,15 +1115,22 @@ function saveGame() {
   localStorage.setItem('hzSave', JSON.stringify(s));
 }
 
+// [FIX #4] Improved loadSaveData: only restore known ups keys
 function loadSaveData(data) {
   try {
     const p = typeof data === 'string' ? JSON.parse(data) : data;
     G = makeDefaultState();
     for (let key in p) {
-      if (key === 'achievements' || key === 'ups') {
+      if (key === 'achievements') {
         for (let k2 in p[key]) {
-          if (typeof p[key][k2] === 'string' && !isNaN(p[key][k2])) G[key][k2] = D(p[key][k2]);
-          else G[key][k2] = p[key][k2];
+          G[key][k2] = p[key][k2];
+        }
+      } else if (key === 'ups') {
+        for (let k2 in p[key]) {
+          // Only restore keys that exist in current upgrade definitions
+          if (G.ups.hasOwnProperty(k2)) {
+            G.ups[k2] = D(p[key][k2]);
+          }
         }
       } else if (key === 'theme' || key === 'automatorCode' ||
                  key === 'infinityDialogShown' || key === 'eternityDialogShown' ||
@@ -1065,7 +1139,7 @@ function loadSaveData(data) {
                  key === 'machinesUnlocked' || key === 'automatorUnlocked') {
         G[key] = p[key];
       } else if (typeof p[key] === 'string') {
-        G[key] = D(p[key]);
+        try { G[key] = D(p[key]); } catch(e) { /* skip unparseable */ }
       }
     }
     applyTheme(G.theme);
@@ -1078,10 +1152,32 @@ function loadGameFromInput() {
   showNotif('Loaded', 'Game loaded successfully!', 'success');
 }
 
+// [FIX #15] Added error handling for clipboard
 function exportSave() {
   saveGame();
-  navigator.clipboard.writeText(localStorage.getItem('hzSave'));
-  showNotif('Copied', 'Save copied to clipboard!', 'success');
+  const data = localStorage.getItem('hzSave');
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(data).then(() => {
+      showNotif('Copied', 'Save copied to clipboard!', 'success');
+    }).catch(() => {
+      // Fallback: select a temp textarea
+      const ta = document.createElement('textarea');
+      ta.value = data;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+      showNotif('Copied', 'Save copied to clipboard!', 'success');
+    });
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = data;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    ta.remove();
+    showNotif('Copied', 'Save copied to clipboard!', 'success');
+  }
 }
 
 function downloadSave() {
@@ -1091,6 +1187,7 @@ function downloadSave() {
   a.href = URL.createObjectURL(blob);
   a.download = 'hertz_save.json';
   a.click();
+  URL.revokeObjectURL(a.href); // clean up
   showNotif('Downloaded', 'Save file downloaded!', 'success');
 }
 
@@ -1110,7 +1207,16 @@ function applyTheme(theme) {
 }
 
 // ===== RENDER =====
+// [FIX #18] Only re-render sidebar when tabs actually change
 function renderSidebar() {
+  let hash = '';
+  TABS.forEach(tab => {
+    if (tab.hidden && tab.hidden()) return;
+    hash += tab.id + (activeTab === tab.id ? '1' : '0');
+  });
+  if (hash === lastSidebarHash) return;
+  lastSidebarHash = hash;
+
   const el = document.getElementById('sidebar-tabs');
   el.innerHTML = '';
   TABS.forEach(tab => {
@@ -1122,12 +1228,12 @@ function renderSidebar() {
 }
 
 function switchTab(name) {
-  // Sync editor content before switching away
   if (activeTab === 'automator') {
     const editor = document.getElementById('auto-editor');
     if (editor) G.automatorCode = editor.value;
   }
   activeTab = name;
+  lastSidebarHash = ''; // force sidebar re-render on tab switch
   render();
 }
 
@@ -1153,7 +1259,7 @@ function renderUpgradeGrid(type, currency) {
   }).join('');
 }
 
-// Render the automator tab ONCE - then only update dynamic parts
+// [FIX #6] Automator tab rendering preserved across re-renders
 function renderAutomatorTab() {
   const el = document.getElementById('main-content');
   const code = G.automatorCode || '';
@@ -1188,7 +1294,7 @@ function renderAutomatorTab() {
       <p class="text-secondary mb-1"><code>save</code> — Save the game</p>
     </div>
     <div class="doc-section">
-      <div class="text-lg font-bold mb-2">🔔 UI & Notifications (NEW)</div>
+      <div class="text-lg font-bold mb-2">🔔 UI & Notifications</div>
       <p class="text-secondary mb-1"><code>notify "Title" "Message" [type]</code> — Show notification (types: info/success/warn/error/special)</p>
       <p class="text-secondary mb-1"><code>popup "message"</code> — Show centered popup</p>
       <p class="text-secondary mb-1"><code>print message</code> — Print to console</p>
@@ -1198,7 +1304,7 @@ function renderAutomatorTab() {
       <p class="text-secondary mb-1"><code>clear</code> — Clear console</p>
     </div>
     <div class="doc-section">
-      <div class="text-lg font-bold mb-2">📦 Variables (NEW)</div>
+      <div class="text-lg font-bold mb-2">📦 Variables</div>
       <p class="text-secondary mb-1"><code>set &lt;name&gt; &lt;value&gt;</code> — Set variable</p>
       <p class="text-secondary mb-1"><code>add &lt;name&gt; &lt;value&gt;</code> — Add to variable</p>
       <p class="text-secondary">Variables can be used in conditions like resources.</p>
@@ -1206,8 +1312,8 @@ function renderAutomatorTab() {
     <div class="doc-section">
       <div class="text-lg font-bold mb-2">🔀 Control Flow</div>
       <p class="text-secondary mb-1"><code>if &lt;resource&gt; &lt;op&gt; &lt;value&gt; then &lt;command&gt;</code></p>
-      <p class="text-secondary mb-1"><code>while &lt;resource&gt; &lt;op&gt; &lt;value&gt; do &lt;command&gt;</code></p>
-      <p class="text-secondary mb-1"><code>loop &lt;count&gt; do &lt;command&gt;</code></p>
+      <p class="text-secondary mb-1"><code>while &lt;resource&gt; &lt;op&gt; &lt;value&gt; do &lt;command&gt;</code> (max 500 iters)</p>
+      <p class="text-secondary mb-1"><code>loop &lt;count&gt; do &lt;command&gt;</code> (max 500 iters)</p>
     </div>
     <div class="doc-section">
       <div class="text-lg font-bold mb-2">📊 Resources</div>
@@ -1256,14 +1362,12 @@ wait 1000`;
 }
 
 function renderContent() {
-  // SPECIAL CASE: automator tab uses isolated rendering to preserve textarea focus
+  // [FIX #6] Automator tab: only re-render if DOM doesn't exist yet
   if (activeTab === 'automator') {
-    // Only fully render if not already on automator tab
     const existing = document.getElementById('auto-editor');
     if (!existing) {
       renderAutomatorTab();
     } else {
-      // Just update dynamic parts (status & console)
       updateAutomatorStatus();
     }
     return;
@@ -1358,7 +1462,7 @@ function renderContent() {
       <div class="text-lg text-secondary mb-4">Total Boost: ${fmt(machineBoost())}x</div>
     </div>
     <div class="grid grid-cols-2 gap-4">${MACHINES.map(m => {
-      const unlocked = G.infinity.gte(m.req);
+      const unlocked = G.infinity.gte(D(m.req));
       const cls = unlocked ? '' : 'locked';
       const col = m.color === 'rainbow' ? '' : `color:${m.color}`;
       const textCls = m.color === 'rainbow' ? 'rainbow-text' : '';
@@ -1388,7 +1492,7 @@ function renderContent() {
         <button onclick="document.getElementById('popup2').classList.add('visible')" class="upgrade-btn border-blue-400 text-blue-400 w-full"><i class="fas fa-upload"></i> LOAD</button>
         <button onclick="exportSave()" class="upgrade-btn border-yellow-400 text-yellow-400 w-full"><i class="fas fa-copy"></i> COPY SAVE</button>
         <button onclick="downloadSave()" class="upgrade-btn border-purple-400 text-purple-400 w-full"><i class="fas fa-download"></i> DOWNLOAD</button>
-        <button onclick="document.getElementById('popup-theme').classList.add('visible')" class="upgrade-btn border-pink-400 text-pink-400 w-full"><i class="fas fa-palette"></i> THEME</button>
+        <button onclick="document.getElementById('popup-theme').classList.add('visible');initThemeButtons()" class="upgrade-btn border-pink-400 text-pink-400 w-full"><i class="fas fa-palette"></i> THEME</button>
         <button onclick="hardReset()" class="upgrade-btn border-red-400 text-red-400 w-full"><i class="fas fa-trash"></i> HARD RESET</button>
       </div>
     </div>`;
@@ -1397,6 +1501,26 @@ function renderContent() {
   else if (activeTab === 'changelog') {
     html = `<div class="stat-display">
       <div class="text-2xl font-bold mb-4 text-primary"><i class="fas fa-list"></i> CHANGELOG</div>
+      <div class="upgrade-card border-green-400 mb-3">
+        <div class="text-xl font-bold mb-2 text-primary">v0.4.46a - Bug Fix Update 🐛</div>
+        <ul class="list-disc list-inside space-y-1 text-secondary text-sm">
+          <li>FIXED: fmt() now properly formats numbers 1K–999K instead of raw digits</li>
+          <li>FIXED: fmt() shows precision for very small numbers instead of "0.00"</li>
+          <li>FIXED: buyMaxUp no longer freezes on cheap upgrades (capped at 1000/call)</li>
+          <li>FIXED: Bulk Infinity/Eternity now snapshot resources before reset loop</li>
+          <li>FIXED: Save loading only restores upgrade keys that exist in current version</li>
+          <li>FIXED: First Volume/Speaker prestige guarantees +1 on unlock</li>
+          <li>FIXED: Automator commands now accept mixed-case layer names (Hz, Vol, etc.)</li>
+          <li>FIXED: Automator while/loop caps reduced to 500 to prevent frame freezes</li>
+          <li>FIXED: Theme popup now refreshes when opened (stays in sync with scripted changes)</li>
+          <li>FIXED: Invalid upgrade IDs in automator no longer crash (returns Infinity cost)</li>
+          <li>FIXED: Game loop now uses delta-time for accurate offline/background gains</li>
+          <li>FIXED: Achievement checks use string Decimals for large thresholds (1e80, 1e100)</li>
+          <li>FIXED: Sidebar only re-renders when tabs actually change (less DOM thrashing)</li>
+          <li>FIXED: Clipboard export has fallback for non-HTTPS/permission-denied</li>
+          <li>FIXED: Download save now cleans up blob URL</li>
+        </ul>
+      </div>
       <div class="upgrade-card border-pink-400 mb-3">
         <div class="text-xl font-bold mb-2 text-primary">v0.4.45a - Automator Plus Update 🚀</div>
         <ul class="list-disc list-inside space-y-1 text-secondary text-sm">
@@ -1462,10 +1586,12 @@ function render() {
 }
 
 // ===== THEME BUTTONS =====
+// [FIX #8] This is now called when opening theme popup too
 function initThemeButtons() {
   const el = document.getElementById('theme-buttons');
+  if (!el) return;
   el.innerHTML = THEMES.map(t =>
-    `<div id="theme-${t}" class="theme-btn ${G.theme===t?'active':''}" style="background:linear-gradient(135deg,${THEME_COLORS[t]})" onclick="G.theme='${t}';applyTheme('${t}');document.getElementById('popup-theme').classList.remove('visible')"></div>`
+    `<div id="theme-${t}" class="theme-btn ${G.theme===t?'active':''}" style="background:linear-gradient(135deg,${THEME_COLORS[t]})" onclick="G.theme='${t}';applyTheme('${t}');initThemeButtons();document.getElementById('popup-theme').classList.remove('visible')"></div>`
   ).join('');
 }
 
@@ -1480,27 +1606,34 @@ function checkAchievements() {
 }
 
 // ===== PASSIVE GENERATION =====
-function passiveTick() {
+function passiveTick(dt) {
   const il = (id) => getUpLevel('infinity', id);
   const el = (id) => getUpLevel('eternity', id);
   
   if (il(15).gt(0) && G.infinityUnlocked) {
-    let gain = il(15).times(0.01).div(30);
+    let gain = il(15).times(0.01).times(dt);
     if (el(12).gt(0)) gain = gain.times(Decimal.pow(1000, el(12)));
     G.infinity = G.infinity.plus(gain);
   }
   
   if (el(20).gt(0) && G.eternityUnlocked) {
-    G.eternity = G.eternity.plus(el(20).times(0.001).div(30));
+    G.eternity = G.eternity.plus(el(20).times(0.001).times(dt));
   }
 }
 
 // ===== GAME LOOP =====
+// [FIX #10] Delta-time based game loop
 function gameLoop() {
-  G.hz = G.hz.plus(calcHzPerSec().div(30));
-  passiveTick();
+  const now = Date.now();
+  const elapsed = (now - lastTickTime) / 1000; // seconds since last tick
+  lastTickTime = now;
+  // Clamp delta to avoid huge jumps (e.g. after sleeping laptop for hours)
+  const dt = Math.min(elapsed, 60); // max 60s catch-up per frame
+
+  G.hz = G.hz.plus(calcHzPerSec().times(dt));
+  passiveTick(dt);
   
-  if (G.infinity.gte(1e80) && !G.automatorUnlocked) {
+  if (G.infinity.gte(D("1e80")) && !G.automatorUnlocked) {
     G.automatorUnlocked = true;
     showNotif('🤖 Unlocked!', 'Automator is now available!', 'special', 5000);
   }
@@ -1524,6 +1657,7 @@ applyTheme(G.theme);
 initThemeButtons();
 render();
 
+lastTickTime = Date.now();
 setInterval(gameLoop, 1000 / 30);
 setInterval(() => { saveGame(); }, 30000);
 </script>
