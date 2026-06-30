@@ -9,11 +9,11 @@ get eternity
 get eternity upgrade  
 automate stuff  
 and thats it for all.
-# 0.4.45a
+# 0.4.46a
 ## MAIN IMPROVEMENTS
-Automation, And probably many more i dont know.
+none currently
 ## Bug fixes?:
-Fixed the automation script not being enterable and probabaly the ui feeling boring and bland.
+A lot of them???
 ## Planned updates
 done  
 done  
